@@ -12,10 +12,8 @@
 
 ## Fast facts
 
-- **Engine:** TypeScript, <!--stat:bw_ts_files--><!--/stat--> source files,
-  <!--stat:bw_ts_loc--><!--/stat--> lines. Vite and Pixi web client
-- **Tests:** <!--stat:bw_test_files--><!--/stat--> test files,
-  <!--stat:bw_tests_green-->1,993<!--/stat--> passing at the last verified baseline
+- **Engine:** TypeScript, with a Vite and Pixi web client
+- **Tests:** 1,993 passing at the last verified baseline
 - **Core purity:** no DOM, no `Date.now`, no `Math.random` in the simulation core. This is enforced
   by lint rules and custom guards, not by convention
 - **Determinism:** the same seed gives the same everything. The battle forecast must equal what the

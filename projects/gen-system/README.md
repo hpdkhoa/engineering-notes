@@ -3,15 +3,15 @@
 > An AI model is a black box. gen-system makes what the model believes about your code visible.
 > It checks those beliefs against a deterministic graph built from the AST, and lets you correct
 > them. Then it verifies the generated output from outside. It runs entirely on your own machine. The source is
-> open under Apache-2.0: `[TODO gen-system repo URL]`. This page covers the architecture and the
-> reasoning.
+> open under Apache-2.0 and published on [my GitHub](https://github.com/hpdkhoa). This page
+> covers the architecture and the reasoning.
 
 ---
 
 ## Fast facts
 
-- **Releases shipped:** <!--stat:gen_releases-->None<!--/stat--> since November 2025, working alone
-- **Engine:** Go, <!--stat:gen_go_files-->613<!--/stat--> source files, <!--stat:gen_go_loc-->136,987<!--/stat--> lines
+- **History:** built since November 2025, working alone; public under Apache-2.0
+- **Engine:** Go, 613 source files, 136,987 lines
 - **Languages it reads:** Go, COBOL with copybooks, CA Gen, Java, TypeScript, Python. Exact symbol
   resolution, call graphs, control flow graphs
 - **Inference:** open weight models through Ollama on one RTX 4060 Ti with 16 GB. `qwen3:14b` plans
@@ -128,7 +128,7 @@ benchmark harness with regression gating.
 
 ## Where the code is
 
-The full source is public under Apache-2.0: `[TODO gen-system repo URL]`. That includes the six
+The full source is public under Apache-2.0 on [my GitHub](https://github.com/hpdkhoa). That includes the six
 parsers, the belief layer, the generation pipeline, the benchmark drivers under `bench/`, the
 engineering docs under `docs/`, and the test suite.
 

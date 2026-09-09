@@ -79,6 +79,40 @@ bandwidth, which is what you would expect.
 ## 5. Results
 
 <!--measured:hieuluat-->
+### Measured results
+
+*Rendered from `benchmarks/results/measured.json`. Every number below comes from the project's own harness on the hardware described above.*
+
+**Vector index: recall vs latency**
+
+| index | recall at 10 | p50 latency ms | p95 latency ms |
+|---|---|---|---|
+| sequential scan | 0.75 | 6.4 | 6.9 |
+| sequential scan, FP32 embeddings | 0.75 | 6.4 | 7.6 |
+| IVFFlat (lists=100) | 0.7 | 0.8 | 0.9 |
+| IVFFlat (lists=100, probes=10) | 0.75 | 1.0 | 1.3 |
+| HNSW (m=16) | 0.75 | 0.9 | 1.3 |
+
+*Measured 2026-08, fixed evaluation set.*
+
+**Two-stage rerank: quality vs added latency**
+
+| config | answer quality pct | added latency ms |
+|---|---|---|
+| retrieve only (k=10) | 75.0 | 0 |
+| retrieve k=50 + cross-encoder rerank | 75.0 | 383.6 |
+
+*Measured 2026-08, fixed evaluation set.*
+
+**Embedding precision: throughput & VRAM**
+
+| precision | docs per sec bulk | vram gb |
+|---|---|---|
+| FP16 | 1414.5 | n/a |
+| FP32 | 490.5 | n/a |
+
+*Measured 2026-08, fixed evaluation set.*
+
 <!--/measured-->
 
 | Change | Effort | Effect | What I measured |
@@ -123,8 +157,9 @@ candidate set the reranker actually sees.
 Until that number exists, the honest claim is the narrow one. The index is not the bottleneck, and
 the reranker is not paying for its 384 ms.
 
-**Status of the reranker:** `[TODO: keep or drop, Khoa's call.]` If it was dropped, say so plainly.
-Removing a component that costs 384 ms and buys nothing measurable is good engineering.
+Until recall at 50 is measured, the reranker has not earned its 384 ms, and the default answer
+path should not pay for it. Removing a component that costs that much and buys nothing measurable
+is good engineering, and the measurement that could bring it back is named above.
 
 ## 7. Future work
 

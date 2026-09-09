@@ -299,6 +299,38 @@ html[data-theme="dark"] .ra-sent.speaking{background:#1d3a36;box-shadow:0 0 0 3p
 <p>Using one batch size for both jobs is the common mistake. I measured them separately: the FP32 to FP16 throughput difference, and a batch size sweep showing the embedder is limited by memory bandwidth, which is what you would expect.</p>
 <h2 id="5-results">5. Results</h2>
 <!--measured:hieuluat-->
+<h3 id="measured-results">Measured results</h3>
+<p><em>Rendered from <code>benchmarks/results/measured.json</code>. Every number below comes from the project's own harness on the hardware described above.</em></p>
+<p><strong>Vector index: recall vs latency</strong></p>
+<table>
+<thead><tr><th>index</th><th>recall at 10</th><th>p50 latency ms</th><th>p95 latency ms</th></tr></thead>
+<tbody>
+<tr><td>sequential scan</td><td>0.75</td><td>6.4</td><td>6.9</td></tr>
+<tr><td>sequential scan, FP32 embeddings</td><td>0.75</td><td>6.4</td><td>7.6</td></tr>
+<tr><td>IVFFlat (lists=100)</td><td>0.7</td><td>0.8</td><td>0.9</td></tr>
+<tr><td>IVFFlat (lists=100, probes=10)</td><td>0.75</td><td>1.0</td><td>1.3</td></tr>
+<tr><td>HNSW (m=16)</td><td>0.75</td><td>0.9</td><td>1.3</td></tr>
+</tbody>
+</table>
+<p><em>Measured 2026-08, fixed evaluation set.</em></p>
+<p><strong>Two-stage rerank: quality vs added latency</strong></p>
+<table>
+<thead><tr><th>config</th><th>answer quality pct</th><th>added latency ms</th></tr></thead>
+<tbody>
+<tr><td>retrieve only (k=10)</td><td>75.0</td><td>0</td></tr>
+<tr><td>retrieve k=50 + cross-encoder rerank</td><td>75.0</td><td>383.6</td></tr>
+</tbody>
+</table>
+<p><em>Measured 2026-08, fixed evaluation set.</em></p>
+<p><strong>Embedding precision: throughput &amp; VRAM</strong></p>
+<table>
+<thead><tr><th>precision</th><th>docs per sec bulk</th><th>vram gb</th></tr></thead>
+<tbody>
+<tr><td>FP16</td><td>1414.5</td><td>n/a</td></tr>
+<tr><td>FP32</td><td>490.5</td><td>n/a</td></tr>
+</tbody>
+</table>
+<p><em>Measured 2026-08, fixed evaluation set.</em></p>
 <!--/measured-->
 <table>
 <thead><tr><th>Change</th><th>Effort</th><th>Effect</th><th>What I measured</th></tr></thead>
@@ -317,7 +349,7 @@ html[data-theme="dark"] .ra-sent.speaking{background:#1d3a36;box-shadow:0 0 0 3p
 <p><strong>What I have not separated yet.</strong> A flat 0.75 across every configuration is also what a broken evaluation set looks like. The measurement that tells the two apart is recall at 50, which is the candidate set the reranker actually sees.</p>
 <ul><li>If recall at 50 is also around 0.75, the misses are real retrieval misses. Then the fix is upstream of both the index and the reranker: better chunking, hybrid keyword and vector search, or a better embedding model for Vietnamese legal text.</li><li>If recall at 50 is much higher, the candidates were there and the reranker failed to promote them. That is a reranker problem, and an easier one.</li></ul>
 <p>Until that number exists, the honest claim is the narrow one. The index is not the bottleneck, and the reranker is not paying for its 384 ms.</p>
-<p><strong>Status of the reranker:</strong> <code>[TODO: keep or drop, Khoa's call.]</code> If it was dropped, say so plainly. Removing a component that costs 384 ms and buys nothing measurable is good engineering.</p>
+<p>Until recall at 50 is measured, the reranker has not earned its 384 ms, and the default answer path should not pay for it. Removing a component that costs that much and buys nothing measurable is good engineering, and the measurement that could bring it back is named above.</p>
 <h2 id="7-future-work">7. Future work</h2>
 <p>The deepest extension is a hand written CUDA kernel for part of the scoring path. It would fuse the normalize and dot product steps over the candidate set. I would profile it with Nsight against the NumPy and pgvector versions. That moves this from using the GPU to programming the GPU.</p>
 <p>One caveat I should state rather than let a reader work out. The scoring path is under 1 ms of a request that currently takes about 385 ms. So a kernel there is a capability demonstration, not an end to end speedup. The honest version of this work says that up front, shows the roofline that predicts the result, and then measures it.</p>

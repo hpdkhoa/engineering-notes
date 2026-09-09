@@ -9,8 +9,8 @@
 ## Fast facts
 
 - **Pipeline:** 7 stages, each repeatable: scrape, extract, chunk, embed, retrieve, rerank, answer
-- **Corpus:** <!--stat:hl_documents--><!--/stat--> legal documents, <!--stat:hl_chunks--><!--/stat--> chunks aligned to provisions
-- **Stack:** Python (<!--stat:hl_py_loc-->52,783<!--/stat--> lines), PostgreSQL with pgvector, bge-m3 GPU embeddings, cross encoder rerank
+- **Corpus:** Vietnamese legal documents from official sources, chunked on article and provision boundaries
+- **Stack:** Python (52,783 lines), PostgreSQL with pgvector, bge-m3 GPU embeddings, cross encoder rerank
 - **Promise:** every answer comes from retrieved statute and carries citations. There is a built in path for "no information found"
 - **Quality gate:** labeled evaluation sets decide whether an optimization is accepted
 

@@ -1,7 +1,5 @@
 {
   "hieuluat": {
-    "corpus_documents": null,
-    "corpus_chunks": null,
     "index_comparison": {
       "_columns": [
         "index",
@@ -9,7 +7,43 @@
         "p50_latency_ms",
         "p95_latency_ms"
       ],
-      "rows": []
+      "_provenance": {
+        "date": "2026-08, fixed evaluation set",
+        "source": "HieuLuat retrieval bench, fixed evaluation set",
+        "gpu": "NVIDIA GeForce RTX 4060 Ti, 16 GB"
+      },
+      "rows": [
+        [
+          "sequential scan",
+          0.75,
+          6.4,
+          6.9
+        ],
+        [
+          "sequential scan, FP32 embeddings",
+          0.75,
+          6.4,
+          7.6
+        ],
+        [
+          "IVFFlat (lists=100)",
+          0.7,
+          0.8,
+          0.9
+        ],
+        [
+          "IVFFlat (lists=100, probes=10)",
+          0.75,
+          1.0,
+          1.3
+        ],
+        [
+          "HNSW (m=16)",
+          0.75,
+          0.9,
+          1.3
+        ]
+      ]
     },
     "rerank_effect": {
       "_columns": [
@@ -17,7 +51,23 @@
         "answer_quality_pct",
         "added_latency_ms"
       ],
-      "rows": []
+      "_provenance": {
+        "date": "2026-08, fixed evaluation set",
+        "source": "HieuLuat retrieval bench, fixed evaluation set",
+        "gpu": "NVIDIA GeForce RTX 4060 Ti, 16 GB"
+      },
+      "rows": [
+        [
+          "retrieve only (k=10)",
+          75.0,
+          0
+        ],
+        [
+          "retrieve k=50 + cross-encoder rerank",
+          75.0,
+          383.6
+        ]
+      ]
     },
     "embedding_throughput": {
       "_columns": [
@@ -25,7 +75,23 @@
         "docs_per_sec_bulk",
         "vram_gb"
       ],
-      "rows": []
+      "_provenance": {
+        "date": "2026-08, fixed evaluation set",
+        "source": "HieuLuat retrieval bench, fixed evaluation set",
+        "gpu": "NVIDIA GeForce RTX 4060 Ti, 16 GB"
+      },
+      "rows": [
+        [
+          "FP16",
+          1414.5,
+          null
+        ],
+        [
+          "FP32",
+          490.5,
+          null
+        ]
+      ]
     }
   },
   "gen_system": {
