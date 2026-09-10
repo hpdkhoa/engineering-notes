@@ -105,15 +105,15 @@
         "tok_s_max"
       ],
       "_provenance": {
-        "date": "2026-09-04",
-        "gen_system_commit": "8040c5370805b0ed6e60539344bbf119b5fedaf8",
+        "date": "2026-09-09",
+        "gen_system_commit": "cfb0bff217481e13bb3de720ddeb672a73167027",
         "task_set": "bench/tasks.json (frozen 2026-08-27)",
         "gpu": "NVIDIA GeForce RTX 4060 Ti, 16380 MiB, 595.71.05"
       },
       "rows": [
         [
           "20",
-          7.8,
+          7.9,
           4.7,
           3,
           null,
@@ -121,8 +121,8 @@
         ],
         [
           "30",
-          10.1,
-          6.4,
+          10.2,
+          6.3,
           3,
           null,
           null
@@ -138,7 +138,7 @@
         [
           "default",
           30.8,
-          9.5,
+          9.4,
           3,
           null,
           null
@@ -155,27 +155,27 @@
         "ttft_max"
       ],
       "_provenance": {
-        "date": "2026-09-04",
-        "gen_system_commit": "8040c5370805b0ed6e60539344bbf119b5fedaf8",
+        "date": "2026-09-09",
+        "gen_system_commit": "cfb0bff217481e13bb3de720ddeb672a73167027",
         "task_set": "bench/tasks.json (frozen 2026-08-27)",
         "gpu": "NVIDIA GeForce RTX 4060 Ti, 16380 MiB, 595.71.05"
       },
       "rows": [
         [
           "stream off (buffered)",
-          1889.7,
-          1.89,
+          1883.7,
+          1.88,
           3,
-          1884.3,
-          1899.8
+          1876.4,
+          1897.5
         ],
         [
           "stream on (NDJSON)",
-          132.5,
-          1.9,
+          127.4,
+          1.88,
           3,
-          125.7,
-          145.4
+          126.7,
+          128.0
         ]
       ]
     },
@@ -184,68 +184,78 @@
         "quant",
         "tokens_per_sec",
         "vram_gb",
+        "ops_total",
         "stub_rate_pct",
         "op_repair_attempts",
         "heal_attempts",
         "go_test_pass",
         "n",
         "tok_s_min",
-        "tok_s_max"
+        "tok_s_max",
+        "runs_not_measured"
       ],
       "_provenance": {
-        "date": "2026-09-04",
-        "gen_system_commit": "8040c5370805b0ed6e60539344bbf119b5fedaf8",
+        "date": "2026-09-09",
+        "gen_system_commit": "cfb0bff217481e13bb3de720ddeb672a73167027",
         "task_set": "bench/tasks.json (frozen 2026-08-27)",
         "gpu": "NVIDIA GeForce RTX 4060 Ti, 16380 MiB, 595.71.05"
       },
       "rows": [
         [
           "Q4_K_M",
-          122.9,
+          125.2,
           11.5,
-          98.7,
-          47.0,
+          25.3,
+          91.1,
+          46.7,
           0.0,
           5.0,
           3,
-          117.6,
-          125.6
+          124.5,
+          125.6,
+          0
         ],
         [
           "Q5_K_M",
-          113.7,
+          114.4,
           12.8,
-          82.3,
-          40.3,
+          23.7,
+          83.8,
+          43.0,
           0.0,
           5.0,
           3,
-          112.3,
-          114.5
+          114.0,
+          114.6,
+          0
         ],
         [
           "Q8_0",
-          39.9,
+          41.3,
           15.3,
-          74.1,
-          44.7,
-          0.0,
-          5.0,
+          24.0,
+          76.7,
+          40.0,
+          3.0,
+          4.7,
           3,
-          39.0,
-          41.3
+          41.0,
+          41.5,
+          0
         ],
         [
           "production",
           30.7,
           9.6,
+          3.0,
           44.4,
           2.7,
           0.0,
           5.0,
           3,
           30.7,
-          30.8
+          30.7,
+          0
         ]
       ]
     },
@@ -262,16 +272,27 @@
         "runs_not_measured"
       ],
       "_provenance": {
-        "date": "2026-09-06",
-        "gen_system_commit": "b503f324690b4424086826aea3c47e00d435ea29",
+        "date": "2026-09-09",
+        "gen_system_commit": "cfb0bff217481e13bb3de720ddeb672a73167027",
         "task_set": "bench/tasks.json (frozen 2026-08-27)",
         "gpu": "NVIDIA GeForce RTX 4060 Ti, 16380 MiB, 595.71.05"
       },
       "rows": [
         [
           "A-sequential-keepalive",
-          1.97,
-          30.8,
+          1.98,
+          30.7,
+          3.0,
+          0.0,
+          0.0,
+          5.0,
+          3,
+          0
+        ],
+        [
+          "B-both-resident",
+          1.96,
+          30.7,
           3.0,
           66.7,
           0.0,
@@ -280,20 +301,9 @@
           0
         ],
         [
-          "B-both-resident",
-          1.97,
-          30.8,
-          3.0,
-          22.2,
-          0.0,
-          5.0,
-          3,
-          0
-        ],
-        [
           "C-single-shared",
-          1.96,
-          30.8,
+          1.97,
+          30.7,
           3.0,
           0.0,
           0.0,
@@ -314,8 +324,8 @@
         "cfgs_with_issue"
       ],
       "_provenance": {
-        "date": "2026-09-04",
-        "gen_system_commit": "8040c5370805b0ed6e60539344bbf119b5fedaf8",
+        "date": "2026-09-09",
+        "gen_system_commit": "cfb0bff217481e13bb3de720ddeb672a73167027",
         "task_set": "bench/tasks.json (frozen 2026-08-27)",
         "gpu": "NVIDIA GeForce RTX 4060 Ti, 16380 MiB, 595.71.05"
       },
@@ -334,7 +344,7 @@
           84,
           0,
           100,
-          1414,
+          1212,
           411,
           0
         ],
@@ -343,7 +353,7 @@
           17,
           0,
           100,
-          288,
+          274,
           158,
           0
         ],
@@ -352,7 +362,7 @@
           36,
           0,
           100,
-          1001,
+          984,
           403,
           0
         ]
@@ -368,8 +378,8 @@
         "n_tasks"
       ],
       "_provenance": {
-        "date": "2026-09-06",
-        "gen_system_commit": "b503f324690b4424086826aea3c47e00d435ea29",
+        "date": "2026-09-09",
+        "gen_system_commit": "cfb0bff217481e13bb3de720ddeb672a73167027",
         "task_set": "SWE-bench Verified, princeton-nlp, frozen sha256 fcef3a49f31e",
         "gpu": "not used (parser path only)",
         "metric": "Localization recall only. Not a solve rate. gen-system has no issue to patch pipeline, so a SWE-bench solve rate cannot be produced and is not claimed."
@@ -387,16 +397,16 @@
           1,
           0.615,
           63.3,
-          285.75,
-          221.0,
+          262.5,
+          177.5,
           60
         ],
         [
           2,
           0.674,
           70.0,
-          513.05,
-          511.0,
+          464.8,
+          421.5,
           60
         ]
       ]
@@ -410,8 +420,8 @@
         "call_edges_internal"
       ],
       "_provenance": {
-        "date": "2026-09-06",
-        "gen_system_commit": "b503f324690b4424086826aea3c47e00d435ea29",
+        "date": "2026-09-09",
+        "gen_system_commit": "cfb0bff217481e13bb3de720ddeb672a73167027",
         "task_set": "SWE-bench Verified, princeton-nlp, frozen sha256 fcef3a49f31e",
         "gpu": "not used (parser path only)",
         "metric": "Localization recall only. Not a solve rate. gen-system has no issue to patch pipeline, so a SWE-bench solve rate cannot be produced and is not claimed."
@@ -421,15 +431,50 @@
           "astropy/astropy",
           786,
           0,
-          100,
-          27412
+          92.6,
+          22851
         ],
         [
           "django/django",
           2572,
           0,
-          100,
-          55126
+          96.1,
+          50596
+        ]
+      ]
+    },
+    "swebench_verified_localization_by_repo": {
+      "_columns": [
+        "repo",
+        "hops",
+        "file_recall_mean",
+        "hit_rate_pct",
+        "seeds_matched_pct",
+        "n_tasks"
+      ],
+      "_provenance": {
+        "date": "2026-09-09",
+        "gen_system_commit": "cfb0bff217481e13bb3de720ddeb672a73167027",
+        "task_set": "SWE-bench Verified, princeton-nlp, frozen sha256 fcef3a49f31e",
+        "gpu": "not used (parser path only)",
+        "metric": "Localization recall only. Not a solve rate. gen-system has no issue to patch pipeline, so a SWE-bench solve rate cannot be produced and is not claimed."
+      },
+      "rows": [
+        [
+          "astropy/astropy",
+          2,
+          0.716,
+          77.3,
+          100.0,
+          22
+        ],
+        [
+          "django/django",
+          2,
+          0.649,
+          65.8,
+          92.1,
+          38
         ]
       ]
     }

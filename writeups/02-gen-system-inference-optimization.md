@@ -141,72 +141,81 @@ source.
 
 | gpu layers | tokens per sec | vram gb | n | tok s min | tok s max |
 |---|---|---|---|---|---|
-| 20 | 7.8 | 4.7 | 3 | n/a | n/a |
-| 30 | 10.1 | 6.4 | 3 | n/a | n/a |
+| 20 | 7.9 | 4.7 | 3 | n/a | n/a |
+| 30 | 10.2 | 6.3 | 3 | n/a | n/a |
 | 40 | 14.3 | 8.0 | 3 | n/a | n/a |
-| default | 30.8 | 9.5 | 3 | n/a | n/a |
+| default | 30.8 | 9.4 | 3 | n/a | n/a |
 
-*Measured 2026-09-04 · commit `8040c5370805` · bench/tasks.json (frozen 2026-08-27).*
+*Measured 2026-09-09 · commit `cfb0bff21748` · bench/tasks.json (frozen 2026-08-27).*
 
 **Streaming: time-to-first-token**
 
 | config | ttft ms | total latency s | n | ttft min | ttft max |
 |---|---|---|---|---|---|
-| stream off (buffered) | 1889.7 | 1.89 | 3 | 1884.3 | 1899.8 |
-| stream on (NDJSON) | 132.5 | 1.9 | 3 | 125.7 | 145.4 |
+| stream off (buffered) | 1883.7 | 1.88 | 3 | 1876.4 | 1897.5 |
+| stream on (NDJSON) | 127.4 | 1.88 | 3 | 126.7 | 128.0 |
 
-*Measured 2026-09-04 · commit `8040c5370805` · bench/tasks.json (frozen 2026-08-27).*
+*Measured 2026-09-09 · commit `cfb0bff21748` · bench/tasks.json (frozen 2026-08-27).*
 
 **Quantization sweep: speed vs VRAM vs generation quality**
 
-| quant | tokens per sec | vram gb | stub rate pct | op repair attempts | heal attempts | go test pass | n | tok s min | tok s max |
-|---|---|---|---|---|---|---|---|---|---|
-| Q4_K_M | 122.9 | 11.5 | 98.7 | 47.0 | 0.0 | 5.0 | 3 | 117.6 | 125.6 |
-| Q5_K_M | 113.7 | 12.8 | 82.3 | 40.3 | 0.0 | 5.0 | 3 | 112.3 | 114.5 |
-| Q8_0 | 39.9 | 15.3 | 74.1 | 44.7 | 0.0 | 5.0 | 3 | 39.0 | 41.3 |
-| production | 30.7 | 9.6 | 44.4 | 2.7 | 0.0 | 5.0 | 3 | 30.7 | 30.8 |
+| quant | tokens per sec | vram gb | ops total | stub rate pct | op repair attempts | heal attempts | go test pass | n | tok s min | tok s max | runs not measured |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| Q4_K_M | 125.2 | 11.5 | 25.3 | 91.1 | 46.7 | 0.0 | 5.0 | 3 | 124.5 | 125.6 | 0 |
+| Q5_K_M | 114.4 | 12.8 | 23.7 | 83.8 | 43.0 | 0.0 | 5.0 | 3 | 114.0 | 114.6 | 0 |
+| Q8_0 | 41.3 | 15.3 | 24.0 | 76.7 | 40.0 | 3.0 | 4.7 | 3 | 41.0 | 41.5 | 0 |
+| production | 30.7 | 9.6 | 3.0 | 44.4 | 2.7 | 0.0 | 5.0 | 3 | 30.7 | 30.7 | 0 |
 
-*Measured 2026-09-04 · commit `8040c5370805` · bench/tasks.json (frozen 2026-08-27).*
+*Measured 2026-09-09 · commit `cfb0bff21748` · bench/tasks.json (frozen 2026-08-27).*
 
 **Two-model serving strategies**
 
 | strategy | reload cost s | tokens per sec | ops total | stub rate pct | heal attempts | go test pass | n | runs not measured |
 |---|---|---|---|---|---|---|---|---|
-| A-sequential-keepalive | 1.97 | 30.8 | 3.0 | 66.7 | 0.0 | 5.0 | 3 | 0 |
-| B-both-resident | 1.97 | 30.8 | 3.0 | 22.2 | 0.0 | 5.0 | 3 | 0 |
-| C-single-shared | 1.96 | 30.8 | 3.0 | 0.0 | 0.0 | 5.0 | 3 | 0 |
+| A-sequential-keepalive | 1.98 | 30.7 | 3.0 | 0.0 | 0.0 | 5.0 | 3 | 0 |
+| B-both-resident | 1.96 | 30.7 | 3.0 | 66.7 | 0.0 | 5.0 | 3 | 0 |
+| C-single-shared | 1.97 | 30.7 | 3.0 | 0.0 | 0.0 | 5.0 | 3 | 0 |
 
-*Measured 2026-09-06 · commit `b503f324690b` · bench/tasks.json (frozen 2026-08-27).*
+*Measured 2026-09-09 · commit `cfb0bff21748` · bench/tasks.json (frozen 2026-08-27).*
 
 **Understand benchmark: public repos at pinned commits**
 
 | repo | files | parse errors | internal recall pct | call edges internal | cfgs total | cfgs with issue |
 |---|---|---|---|---|---|---|
 | cobolcraft | 268 | 0 | 100 | 298 | 330 | 0 |
-| go-chi | 84 | 0 | 100 | 1414 | 411 | 0 |
-| gorilla-mux | 17 | 0 | 100 | 288 | 158 | 0 |
-| spf13-cobra | 36 | 0 | 100 | 1001 | 403 | 0 |
+| go-chi | 84 | 0 | 100 | 1212 | 411 | 0 |
+| gorilla-mux | 17 | 0 | 100 | 274 | 158 | 0 |
+| spf13-cobra | 36 | 0 | 100 | 984 | 403 | 0 |
 
-*Measured 2026-09-04 · commit `8040c5370805` · bench/tasks.json (frozen 2026-08-27).*
+*Measured 2026-09-09 · commit `cfb0bff21748` · bench/tasks.json (frozen 2026-08-27).*
 
 **SWE-bench Verified: localization recall (not a solve rate)**
 
 | hops | file recall mean | hit rate pct | mean neighbourhood files | median neighbourhood files | n tasks |
 |---|---|---|---|---|---|
 | 0 | 0.615 | 63.3 | 201.933 | 92.5 | 60 |
-| 1 | 0.615 | 63.3 | 285.75 | 221.0 | 60 |
-| 2 | 0.674 | 70.0 | 513.05 | 511.0 | 60 |
+| 1 | 0.615 | 63.3 | 262.5 | 177.5 | 60 |
+| 2 | 0.674 | 70.0 | 464.8 | 421.5 | 60 |
 
-*Measured 2026-09-06 · commit `b503f324690b` · SWE-bench Verified, princeton-nlp, frozen sha256 fcef3a49f31e.*
+*Measured 2026-09-09 · commit `cfb0bff21748` · SWE-bench Verified, princeton-nlp, frozen sha256 fcef3a49f31e.*
+
+**SWE-bench Verified: localization recall by repository**
+
+| repo | hops | file recall mean | hit rate pct | seeds matched pct | n tasks |
+|---|---|---|---|---|---|
+| astropy/astropy | 2 | 0.716 | 77.3 | 100.0 | 22 |
+| django/django | 2 | 0.649 | 65.8 | 92.1 | 38 |
+
+*Measured 2026-09-09 · commit `cfb0bff21748` · SWE-bench Verified, princeton-nlp, frozen sha256 fcef3a49f31e.*
 
 **SWE-bench Verified: can the parsers read the repositories**
 
 | repo | files parsed | parse errors | internal recall pct | call edges internal |
 |---|---|---|---|---|
-| astropy/astropy | 786 | 0 | 100 | 27412 |
-| django/django | 2572 | 0 | 100 | 55126 |
+| astropy/astropy | 786 | 0 | 92.6 | 22851 |
+| django/django | 2572 | 0 | 96.1 | 50596 |
 
-*Measured 2026-09-06 · commit `b503f324690b` · SWE-bench Verified, princeton-nlp, frozen sha256 fcef3a49f31e.*
+*Measured 2026-09-09 · commit `cfb0bff21748` · SWE-bench Verified, princeton-nlp, frozen sha256 fcef3a49f31e.*
 
 <!--/measured-->
 
