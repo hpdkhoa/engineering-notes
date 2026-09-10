@@ -23,8 +23,8 @@ Decoding is deterministic: temperature 0, seed 42, top_p 1. That is verified, no
 
 The exact GPU, driver, and model list are captured by the harness into
 [ENVIRONMENT.md](../benchmarks/ENVIRONMENT.md). Every table below carries the commit and date it
-was measured at. No speed number appears in the text of this writeup. The numbers live in the
-generated tables in section 6, so the words and the data cannot drift apart.
+was measured at. The tables in section 6 are the source of every number. Where the text below
+reads a number out of a table, the table wins, and the text is rewritten when the table changes.
 
 ## 1. Where it started
 
@@ -39,8 +39,8 @@ correct, it was deterministic, and it was completely untuned.
   its defaults.
 - **The quantization was fixed.** The model tag carried one quant. That was a choice, never a
   measurement.
-- **Two models shared 16 GB.** This is why the system needs keep alive and a long timeout. A cold
-  model load takes 30 to 90 seconds and could land in the middle of a run.
+- **Two models shared 16 GB.** This is why the system needs keep alive and a long timeout. A
+  model reload could land in the middle of a run, and nothing measured how much it cost.
 
 The correctness layer was already strong. The performance layer was untouched, and that layer is
 the actual job.
@@ -122,7 +122,7 @@ strategies run against the same frozen task set:
 | Strategy | What it is | What it costs |
 |---|---|---|
 | A. Sequential with keep alive | The production default. One model resident at a time. | A model reload when the roles swap. Measured as the load time difference. |
-| B. Both resident | Keep alive never expires. Both models stay warm. | VRAM headroom, and speed under contention. Whether both even fit is itself a result. |
+| B. Both resident | Keep alive never expires, so both models should stay warm. | VRAM headroom, and speed under contention. Whether both even fit is itself a result, and section 6 gives the answer. |
 | C. One shared model | The coder model plans as well, so nothing ever swaps. | Planning quality, visible as stub rate, repair counts, and extra entities. |
 
 One clarification belongs everywhere this is described. **There is no scheduler.** "Sequential
@@ -221,46 +221,80 @@ source.
 
 ### What the numbers say
 
-The campaign ran on 2026-09-04. The raw files, the manifest with a hash per file, and the
-attestation that says what ran and what did not are in the gen-system repository under
-`results/2026-09-04/`. Six things are worth reading out of the tables.
+Every table above comes from one campaign, run on 2026-09-09 at one clean commit, in one results
+directory. The manifest and the attestation sit beside the raw files in the gen-system
+repository. Three earlier campaigns led to it. The first ran with a dirty tree. The second and
+third were one run that crossed midnight and split into two directories, which is how a date bug
+in the drivers was found. Each of those found something the tables now reflect. Nine things are
+worth reading out of the tables.
 
 **The quality metric moved.** Stub rate is different for every quantization. That was the
 whole point of replacing compile pass, which was 100 percent by construction. Gate 2 of the plan
-asked for at least one metric that differs across quants. It does.
+asked for at least one metric that differs across quants. It does, and it has done so in every
+campaign at every commit.
 
 **The study model wrote very little code that compiled.** DeepSeek Coder V2 Lite at Q4_K_M
-proposed about 24 operations per run and almost every one fell back to a stub after two repair
+proposed about 25 operations per run and almost every one fell back to a stub after two repair
 rounds. Q8_0 did better, but it still stubbed most of what it wrote. The production coder model
 proposed far fewer operations per run, and about half of them survived. The rows are not on the
-same footing: one rests on about 24 operations, the other on 3. The `ops_total` column is
+same footing: one rests on about 25 operations, the other on 3. The `ops_total` column is
 there so the reader can see that before comparing stub rates.
+
+**The task level repair loop does fire, rarely.** In most runs `heal_attempts` is 0 and
+`go_test_pass` is 5 of 5, both by construction: stubs compile and pass. In one Q8_0 run the
+generated backend built, its own tests failed, and the task level loop ran nine times. It took
+four campaigns to see that column move twice. It is reported so nobody reads a 0 as a result.
 
 **Speed and quality moved in opposite directions.** Q4_K_M was about three times faster than Q8_0
 in tokens per second and used about 4 GB less VRAM. It also produced almost nothing that
 compiled. For this pipeline, on this card, the faster quant is not the cheaper one.
 
-**Strategy B measured nothing, and the table now says so.** The driver set `OLLAMA_KEEP_ALIVE=-1`
-to keep both models resident. The request door sent that as the string "-1". Ollama parses
-strings as durations, rejected every request, and the planner fell back to the offline schema
-for all five ideas. The build was green because the fallback schema always builds. The first
-aggregation showed strategy B with a 0 percent stub rate, which would have been the best row
-in the table. The fix has three parts. The door sends a bare integer as a number. The pipeline marks an
-idea with zero completed model requests as not measured. The aggregator drops such runs and
-counts them in `runs_not_measured`. Strategy B needs a rerun.
+**Strategy B once measured nothing, and the harness now catches that.** In the first campaign
+the driver set `OLLAMA_KEEP_ALIVE=-1`, the request door sent it as the string "-1", Ollama
+rejected every request, and the offline fallback schema built green. The first aggregation showed
+B with a 0 percent stub rate, the best row in the table. Three fixes followed. The door sends a
+bare integer as a number. The pipeline marks an idea with zero completed model requests as not
+measured. The aggregator drops such runs and counts them in `runs_not_measured`. That column is
+0 on every row above.
 
-**Pinned sampling did not give identical runs.** Temperature 0, seed 42, and top_p 1 were set on
-every request. Two of the three production runs were identical to the token. The third differed.
-Every DeepSeek run differed from the others. That is why every row carries n and a range. A
-determinism pin on a local server is a strong preference, not a proof.
+**The three strategies are the same strategy on this card.** Reload cost and tokens per second
+are identical across A, B and C. The `ollama ps` capture at the end of the B run shows one
+resident model, not two. A 10 GB planner and a 9.7 GB coder do not fit together in 16 GB, so
+"both resident" degrades to what A does. Whether both fit was itself a result, and the answer is
+no.
 
-**Two columns never moved, by construction.** `go_test_pass` is 5 of 5 in every row because stubs
-compile and pass. `heal_attempts` is 0 in every row because the operation level gate stubs a
-failing body before the task level loop can fire. Both are reported so nobody reads them as
-results.
+**Pinned sampling gives two outputs, not one.** Temperature 0, seed 42, and top_p 1 were set on
+every request. On the production pair, every run of every campaign landed on one of exactly two
+outputs: one with two of three operations stubbed, one with none. In one campaign strategy A got
+the first output three times and B the second. In the next campaign the assignment flipped: A got
+the second three times and B the first. Which output a run lands on depends on server state, not
+on the strategy. With three operations per run, one flip moves the stub rate by a third. That is
+why every row carries n and a range, and why the stub rate column in the strategies table should
+not be read as a strategy effect. A determinism pin on a local server is a strong preference,
+not a proof.
 
-The SWE-bench table above, when present, is localization recall. It is not a solve rate. The
-boundary is written in the harness, the attestation, and here.
+**A second metric that was 100 percent by construction.** Until this campaign the verify pass
+counted a call as internal when any symbol carried its bare name. It then resolved the call by
+that bare name. So a Python repository always scored 100 percent internal resolution. The resolver now
+follows a package qualified call through the caller's imports, and a call it cannot place stays
+unresolved. On the same SWE-bench repositories the internal resolution is now 92.6 percent for
+astropy and 96.1 percent for django. The internal edge counts on the Go repositories dropped by
+up to a seventh. Calls into packages the index does not hold are now external instead of
+captured. Those are real numbers replacing a tautology. The same change reduced the
+verify findings on generated backends from several hundred per run, almost all standard library
+calls, to zero.
+
+**SWE-bench: read the neighbourhood column before the recall column.** The table is localization
+recall on the first 60 tasks of SWE-bench Verified in instance order, 22 astropy tasks and 38
+django tasks. It is not a solve rate. Hop 1 adds nothing over hop 0. The seed identifiers from
+the issue text already sit in the gold files, or they do not. Hop 2 raises recall while the
+median neighbourhood grows to about 420 files, which is more than half of astropy and a sixth of
+django. A net that wide catches gold files by width. The tighter resolver shrank that
+neighbourhood by about a tenth with no change in recall, which says the width was never doing
+the work. The seed rule takes up to 80 identifiers from the issue text by exact name. In a
+repository of 2,500 files a name like `Model` matches in hundreds of places. The metric is
+honest about that because the neighbourhood size is printed next to it. A tighter seed rule is
+the next thing to build, and the number will drop when it is built.
 
 | Change | Effect | What is measured |
 |---|---|---|
@@ -289,7 +323,7 @@ experiment. When the headline quality metric turned out to be 100 percent by con
 response was to say so and build a metric that can move.
 
 The broken metric was not the only thing this pass turned up. The rest is the part I would actually
-want read.
+want read. Three stories, one shape.
 
 **Two determinism bugs, found by reading my own code.** Neither came from a bug report. Determinism
 is the load bearing claim of this system: temperature 0, fixed seed, identical output. Symbol
@@ -310,13 +344,21 @@ found nothing, and a correct frontend took the blame. Two were a formatting arti
 a flowchart label as broken text. One asserted a rule that a later version had deliberately
 replaced. Only one was genuinely platform specific.
 
-Both stories have the same shape, and that shape is the point. **The failure was not a wrong
+**A resolver that could not miss.** The verify pass that rereads generated code reported 100
+percent internal resolution on every Python repository. At the same time it reported hundreds of
+unresolved calls on every generated backend. Both numbers came from the same shortcut: a call was matched
+by its bare name against every symbol the index held. Following a call through the caller's
+imports instead turned the 100 into 92.6 and 96.1 on two public repositories, and turned the
+hundreds of findings into zero. Section 6 has both numbers.
+
+All three stories have the same shape, and that shape is the point. **The failure was not a wrong
 answer. It was a confident one.** A metric stuck at 100 percent. A test suite that was green on the
-path I happened to test. Six red tests I was ready to explain away as someone else's problem.
+path I happened to test. Six red tests I was ready to explain away as someone else's problem. A
+resolver that could not miss.
 
 None of that is caught by running the thing and watching it work. It is caught by going back and
-asking what each number would look like if it were lying to you. The benchmark figures below are
-only worth what that habit is worth.
+asking what each number would look like if it were lying to you. The tables in section 6 are only
+worth what that habit is worth.
 
 *All timings are native local GPU measurements taken through the project's own harness, on the
 machine described in section 0. Absolute speed depends on the GPU. The shape of each trade off is

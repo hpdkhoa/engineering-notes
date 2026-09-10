@@ -49,6 +49,12 @@ The payoff is that a difference between two runs reflects the change you made, n
 variation. Where a component is genuinely random, the honest answer is repeated runs and a reported
 range, not a single number.
 
+The pin is a strong preference, not a proof. The determinism suite passes on a single prompt. The
+full generation pipeline still landed on one of two distinct outputs across repeated runs, on the
+same model with the same seed. Which one it lands on depends on the state of the local server,
+not on anything in the run. That is why every table in the inference writeup carries n and a
+range. A difference of one run in three is not reported as a finding.
+
 ## 5. Choosing a quality metric that can actually move
 
 Both projects measure quality directly rather than through a proxy. That is the useful part. But
@@ -66,6 +72,14 @@ This matters most for quantization work, where the whole risk is silent quality 
 inference writeups can only show a perplexity curve and hope it tracks usefulness. A metric that is
 objective but stuck is worse than a proxy, because it looks like evidence. So the lesson is not
 simply to pick an objective metric. It is to check that the metric can actually move.
+
+It happened a second time, in the other direction. The verify pass that rereads generated code
+scored internal resolution at 100 percent on every Python repository it saw. It counted a call as
+internal when any symbol carried its bare name, and then resolved it by that bare name, so it
+could not miss. Making the resolver follow a call through the caller's imports turned that 100
+into 92.6 and 96.1 on two public repositories. A number that goes down when the tool gets
+stricter is a number that measures something. The fixed test for it loads the same repository
+with and without a standard library attached and requires the internal recall to be equal.
 
 ## 6. Where this shows up
 
