@@ -113,7 +113,7 @@ def inject_measured(md_path, marker, blocks):
         return False
     payload = ("\n### Measured results\n\n"
                "*Rendered from `benchmarks/results/measured.json`. Every number below "
-               "comes from the project's own harness on the hardware described above.*\n"
+               "comes from the project's own harness on the machine described in section 0.*\n"
                + "".join(blocks) + "\n")
     new = pat.sub(lambda m: m.group(1) + payload + m.group(3), text)
     if new != text:

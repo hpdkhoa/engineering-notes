@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Reproducible Benchmarking and Regression Gates</title>
+<title>Reproducible benchmarking and regression gates</title>
 <script>
 window.MathJax={tex:{inlineMath:[['\\\\(','\\\\)']],displayMath:[['$$','$$'],['\\\\[','\\\\]']],processEscapes:true,tags:'none'},
 options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};
@@ -224,7 +224,7 @@ html[data-theme="dark"] .ra-sent.speaking{background:#1d3a36;box-shadow:0 0 0 3p
       <span class="bt">Engineering<br>Writeups</span>
     </div>
     <div class="kicker">Writeup · 3 of 3</div>
-    <h1 class="title">Reproducible Benchmarking &amp; Regression Gating</h1>
+    <h1 class="title">Reproducible benchmarking and regression gates</h1>
     <p class="subtitle">Architecture and measured results: the web version of the portfolio writeups.</p>
 
     <div class="progress-card">
@@ -260,9 +260,9 @@ html[data-theme="dark"] .ra-sent.speaking{background:#1d3a36;box-shadow:0 0 0 3p
 
     <div class="guide-switch">
       <div class="gs-label">Portfolio writeups</div>
-      <a href="01-hieuluat-retrieval-optimization.html">1 · Legal RAG Retrieval</a><a href="02-gen-system-inference-optimization.html">2 · Local-LLM Inference</a><a href="03-reproducible-benchmarking.html" class="current">3 · Benchmarking Method</a>
-      <div class="gs-label" style="margin-top:14px;">Related guides</div>
-      <a href="01_NVIDIA_Landing_Guide.html">Landing NVIDIA</a><a href="02_CUDA_GPU_Optimization_Guide.html">CUDA & GPU</a><a href="04_LeetCode_Coding_Interview_Guide.html">Beat the Coding Test</a>
+      <a href="01-hieuluat-retrieval-optimization.html">1 · Legal search path</a><a href="02-gen-system-inference-optimization.html">2 · Local LLM inference</a><a href="03-reproducible-benchmarking.html" class="current">3 · Benchmarking method</a>
+      <div class="gs-label" style="margin-top:14px;">Portfolio</div>
+      <a href="../index.html">Home</a><a href="../benchmarks/README.md">Benchmarks and evidence</a><a href="../projects/gen-system/README.md">gen-system</a><a href="../projects/hieuluat/README.md">HieuLuat</a>
     </div>
 
     <div class="rail-foot">
@@ -273,9 +273,9 @@ html[data-theme="dark"] .ra-sent.speaking{background:#1d3a36;box-shadow:0 0 0 3p
 
   <main class="main">
     <article class="doc" id="doc">
-<h1 id="reproducible-benchmarking-and-regression-gates">Reproducible Benchmarking and Regression Gates</h1>
-<h3 id="the-method-that-makes-every-other-number-in-this-repo-worth-reading">The method that makes every other number in this repo worth reading</h3>
-<blockquote><p><strong>Why this matters:</strong> an optimization without a before number is a guess. A benchmark you cannot reproduce is a story. Both HieuLuat and gen-system are tuned against fixed, repeatable measurements. This writeup describes the method those results rest on.</p></blockquote>
+<h1 id="reproducible-benchmarking-and-regression-gates">Reproducible benchmarking and regression gates</h1>
+<h3 id="the-method-that-makes-every-other-number-in-this-repository-worth-reading">The method that makes every other number in this repository worth reading</h3>
+<blockquote><p><strong>Context:</strong> both projects here are tuned against fixed, repeatable measurements: gen-system, whose harness and results are in <a href="../projects/gen-system/README.md">its repository</a>, and HieuLuat, whose harness is private but whose rows follow the same rules. <strong>What this covers:</strong> the three rules, what a frozen baseline and a gate are, how repeatable runs are made and where they are not, and the two times a quality metric turned out to measure nothing. An optimization without a before number is a guess. A benchmark you cannot reproduce is a story.</p></blockquote>
 <hr>
 <h2 id="1-the-three-rules">1. The three rules</h2>
 <p>Performance work is only as good as its measurement. Three rules cover all of it.</p>
@@ -285,24 +285,25 @@ html[data-theme="dark"] .ra-sent.speaking{background:#1d3a36;box-shadow:0 0 0 3p
 <p>Every optimization in both projects is reported against one. That is what makes a sentence like "this change improved throughput" checkable instead of something you have to take on trust.</p>
 <h2 id="3-regression-gates">3. Regression gates</h2>
 <p>The stronger version of "measure after" is to make a regression fail the build automatically.</p>
-<p>In gen-system, a benchmark run can be diffed against a committed baseline, and a drift beyond a tolerance exits non zero. The frozen COBOL baseline works this way. A parser change that lowers resolution recall on 30,000 lines of third party COBOL is caught by the gate, not found weeks later.</p>
+<p>In gen-system, a benchmark run can be diffed against a committed baseline, and a drift beyond a tolerance exits non zero. The frozen COBOL baseline works this way: a third party COBOL repository at a pinned commit, whose resolution recall is recorded. A parser change that lowers that recall is caught by the gate, not found weeks later.</p>
 <p>The same idea applies to HieuLuat's labeled evaluation sets. A change to the retrieval path is accepted only if measured quality holds or improves on those fixed cases. A faster index that quietly drops recall is rejected rather than shipped.</p>
 <h2 id="4-repeatability">4. Repeatability</h2>
 <p>Where the work allows it, runs are made deterministic. gen-system generates at temperature 0 with a fixed seed, and a suite checks that the same prompt gives one unique output across repeated runs.</p>
 <p>The payoff is that a difference between two runs reflects the change you made, not random variation. Where a component is genuinely random, the honest answer is repeated runs and a reported range, not a single number.</p>
-<p>The pin is a strong preference, not a proof. The determinism suite passes on a single prompt. The full generation pipeline still landed on one of two distinct outputs across repeated runs, on the same model with the same seed. Which one it lands on depends on the state of the local server, not on anything in the run. That is why every table in the inference writeup carries n and a range. A difference of one run in three is not reported as a finding.</p>
+<p>The pin is a strong preference, not a proof. The determinism suite passes on a single prompt. The full generation pipeline still landed on one of two distinct outputs across repeated runs, on the same model with the same seed. Which one it lands on depends on the state of the local server, not on anything in the run. That is why every gen-system table in this repository carries <code>n</code> and a range. A difference of one run in three is not reported as a finding.</p>
 <h2 id="5-choosing-a-quality-metric-that-can-actually-move">5. Choosing a quality metric that can actually move</h2>
 <p>Both projects measure quality directly rather than through a proxy. That is the useful part. But choosing the metric is harder than it looks, and gen-system got it wrong the first time.</p>
 <p>The plan was to report compile pass rate. Does the generated code build? It came back at 100 percent on every run. Not because the model was perfect, but because the engine replaces a failing operation with a stub that compiles. The metric could not go down, so it measured nothing.</p>
-<p>The replacement counts what actually varies: how much generated logic survived the compile gate rather than falling back to a stub, and how many repair rounds that took. Details are in <a href="02-gen-system-inference-optimization.md">section 4 of the inference writeup</a>.</p>
+<p>The replacement counts what actually varies: how much generated logic survived the compile gate rather than falling back to a stub, and how many repair rounds that took. Details are in <a href="02-gen-system-inference-optimization.html">section 4 of the inference writeup</a>.</p>
 <p>This matters most for quantization work, where the whole risk is silent quality loss. Most inference writeups can only show a perplexity curve and hope it tracks usefulness. A metric that is objective but stuck is worse than a proxy, because it looks like evidence. So the lesson is not simply to pick an objective metric. It is to check that the metric can actually move.</p>
 <p>It happened a second time, in the other direction. The verify pass that rereads generated code scored internal resolution at 100 percent on every Python repository it saw. It counted a call as internal when any symbol carried its bare name, and then resolved it by that bare name, so it could not miss. Making the resolver follow a call through the caller's imports turned that 100 into 92.6 and 96.1 on two public repositories. A number that goes down when the tool gets stricter is a number that measures something. The fixed test for it loads the same repository with and without a standard library attached and requires the internal recall to be equal.</p>
+<p>HieuLuat had the same shape of problem from the other side: a recall that stayed at 0.75 under every index and every reranker setting. Section 6 of the <a href="01-hieuluat-retrieval-optimization.html">legal search writeup</a> reads that flat number as a ceiling of the embedding model rather than a result about the index, and names the one measurement, recall at 50, that would settle it.</p>
 <h2 id="6-where-this-shows-up">6. Where this shows up</h2>
-<ul><li>The <a href="01-hieuluat-retrieval-optimization.md">retrieval optimization</a> recall and latency curves are measured against the evaluation sets under this method. Section 6 there is a worked example of reading a flat number correctly.</li><li>The <a href="02-gen-system-inference-optimization.md">inference optimization</a> speed, VRAM, stub rate, and repair counts all run through the benchmark harness against frozen baselines.</li></ul>
+<ul><li>The <a href="01-hieuluat-retrieval-optimization.html">legal search path writeup</a>: recall and latency measured against fixed evaluation sets under this method. Section 6 there is a worked example of reading a flat number correctly.</li><li>The <a href="02-gen-system-inference-optimization.html">inference writeup</a>: speed, VRAM, stub rate, and repair counts all run through the benchmark harness against frozen baselines, with the provenance of every table printed under it.</li><li>The <a href="../benchmarks/README.md">benchmarks folder</a>: the measured tables themselves, the environment they were taken on, and where the manifest and attestation for the gen-system campaign live.</li></ul>
 <h2 id="7-what-i-would-want-a-reader-to-take-from-this">7. What I would want a reader to take from this</h2>
-<p>Reproducible measurement is not paperwork. It is what makes the rest of this repo evidence instead of assertion.</p>
+<p>Reproducible measurement is not paperwork. It is what makes the rest of this repository evidence instead of assertion.</p>
 <p>I build the baseline first. I commit the task set before the first run, so it cannot be tuned to fit the results. I gate on a quality metric and keep runs repeatable. Then when I say a change made something faster while quality held, there is a number behind every word.</p>
-<p>One honest note on that proof. The public gen-system history starts on the day the repository was prepared for release, so a reader cannot see the weeks before it. What a reader can check is the order inside that history: the commit that adds the task set comes before the commit that adds the results directory. The frozen date is also written inside the task file. Each campaign also ends with an attestation and a manifest. The manifest lists every raw file with its hash. So the numbers in the writeups can be traced to files and not to memory.</p>
+<p>One honest note on that proof. The public gen-system history starts on the day the repository was prepared for release, so a reader cannot see the weeks before it. What a reader can check is the order inside that history: the commit that adds the task set comes before the commit that adds the results directory. The frozen date is also written inside the task file. Each campaign also ends with an attestation and a manifest. The manifest lists every raw file with its hash. So the numbers in the writeups can be traced to files and not to memory. HieuLuat's rows cannot offer that trail, because the harness is private, and the tables say so instead of implying otherwise.</p>
 <p>The part that took longest to learn is in section 5. Having a metric is not the same as having a metric that works.</p>
 <p><em>This writeup describes method. The figures live in the project writeups and depend on hardware. The method is the part that transfers.</em></p>
 </article>

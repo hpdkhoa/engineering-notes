@@ -20,6 +20,11 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 ARTICLE_OPEN = '<article class="doc" id="doc">'
+WRITEUPS = [
+    ('01-hieuluat-retrieval-optimization.html', 'Legal search path'),
+    ('02-gen-system-inference-optimization.html', 'Local LLM inference'),
+    ('03-reproducible-benchmarking.html', 'Benchmarking method'),
+]
 
 def slug(t):
     t = re.sub(r'<[^>]+>', '', t)
@@ -105,11 +110,31 @@ def main():
         if a < 0 or b < a:
             print(f'  !! {html_path.name}: article slot not found, left untouched'); continue
         a += len(ARTICLE_OPEN)
-        s = s[:a] + '\n' + convert(md) + '\n' + s[b:]
+        body = convert(md)
+        # inside the web version, stay in the web version: sibling writeups open as .html,
+        # and directory links become README links so a static host can serve them.
+        body = re.sub(r'href="(0[0-9]-[^"]+)\.md"', r'href="\1.html"', body)
+        body = re.sub(r'href="(\.\./projects/[a-z0-9-]+)/"', r'href="\1/README.md"', body)
+        s = s[:a] + '\n' + body + '\n' + s[b:]
         m = re.search(r'^#\s+(.+)$', md, re.M)
         if m:
-            s = re.sub(r'<title>.*?</title>', '<title>' + H.escape(m.group(1), quote=False) + '</title>',
-                       s, count=1, flags=re.S)
+            title = H.escape(m.group(1), quote=False)
+            s = re.sub(r'<title>.*?</title>', '<title>' + title + '</title>', s, count=1, flags=re.S)
+            # the rail heading is the same title, so the three cannot drift
+            s = re.sub(r'<h1 class="title">.*?</h1>', '<h1 class="title">' + title + '</h1>', s, count=1, flags=re.S)
+        # the rail nav: the three writeups plus the portfolio, rebuilt every time
+        cur = html_path.name
+        nav = ['    <div class="guide-switch">', '      <div class="gs-label">Portfolio writeups</div>']
+        links = ''
+        for i, (fname, label) in enumerate(WRITEUPS, 1):
+            klass = ' class="current"' if fname == cur else ''
+            links += f'<a href="{fname}"{klass}>{i} · {label}</a>'
+        nav.append('      ' + links)
+        nav.append('      <div class="gs-label" style="margin-top:14px;">Portfolio</div>')
+        nav.append('      <a href="../index.html">Home</a><a href="../benchmarks/README.md">Benchmarks and evidence</a>'
+                   '<a href="../projects/gen-system/README.md">gen-system</a><a href="../projects/hieuluat/README.md">HieuLuat</a>')
+        nav.append('    </div>\n\n')
+        s = re.sub(r'    <div class="guide-switch">.*?(?=    <div class="rail-foot">)', '\n'.join(nav), s, count=1, flags=re.S)
         io.open(html_path, 'w', encoding='utf-8', newline='\n').write(s)
         print(f'  regenerated {html_path.name}')
         done += 1

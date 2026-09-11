@@ -1,13 +1,24 @@
-# Making a Legal Search Path Fast and Still Correct
+# Making a legal search path fast and still correct
 
 ### Vector indexing, reranking, and FP16 embeddings, with the trade offs measured
 
-> **Context:** HieuLuat is a Vietnamese legal question answering system (see
-> [project README](../projects/hieuluat/)). This writeup covers how I made its search path fast
-> without making it less trustworthy. In legal work, a fast wrong answer is worse than a slow
-> right one. The code is proprietary. The engineering and the measurements are below.
+> **Context:** HieuLuat is a Vietnamese legal question answering system. See the
+> [project page](../projects/hieuluat/README.md). It is a commercial product whose ownership is
+> changing hands, so the code, the corpus and the prompts are private. **What this covers:** how I
+> made its search path fast without making it less trustworthy. In legal work, a fast wrong answer
+> is worse than a slow right one. The engineering and the measurements are below; the code is not.
 
 ---
+
+## 0. The machine
+
+One consumer GPU. The rows in section 5 were measured in August 2026 by HieuLuat's own retrieval
+bench on an NVIDIA RTX 4060 Ti with 16 GB, against a fixed, labeled evaluation set, and written into
+[`benchmarks/results/measured.json`](../benchmarks/results/measured.json) one label per
+configuration. The harness itself and its commit are in the private repository, so these rows
+carry the date, the evaluation set and the GPU, and nothing more. They have not been re-run since,
+and this writeup does not pretend otherwise. Where the text below reads a number out of a table,
+the table wins.
 
 ## 1. Where it started
 
@@ -81,7 +92,7 @@ bandwidth, which is what you would expect.
 <!--measured:hieuluat-->
 ### Measured results
 
-*Rendered from `benchmarks/results/measured.json`. Every number below comes from the project's own harness on the hardware described above.*
+*Rendered from `benchmarks/results/measured.json`. Every number below comes from the project's own harness on the machine described in section 0.*
 
 **Vector index: recall vs latency**
 
@@ -115,11 +126,18 @@ bandwidth, which is what you would expect.
 
 <!--/measured-->
 
+### What the numbers say
+
 | Change | Effort | Effect | What I measured |
 |---|---|---|---|
 | Vector index (IVFFlat or HNSW) | Low | Search scales as the corpus grows | Latency against corpus size, recall at k against latency |
 | Retrieve wide, then rerank | Medium | Better grounded answers | Recall, answer quality, added latency |
 | FP16 embeddings | Low | Faster embedding, less VRAM | FP32 to FP16 throughput, batch size sweep |
+
+Three readings. The tuned index matches the exhaustive scan's recall at about a sixth of its
+median latency. The reranker adds 384 ms and changes answer quality by nothing. FP16 embeds the
+corpus about 2.9 times faster than FP32 in bulk, and the VRAM column reads n/a because the harness
+did not sample it, not because it was zero. The first and second readings are section 6.
 
 ## 6. The recall ceiling, and why reranking did not help
 
@@ -144,7 +162,7 @@ That follows from the ceiling above. A reranker reorders the candidates it is gi
 a chunk that retrieval never returned. If the right chunk is missing from the candidate set, no
 amount of rescoring brings it back.
 
-**What I have not separated yet.** A flat 0.75 across every configuration is also what a broken
+**What I have not separated.** A flat 0.75 across every configuration is also what a broken
 evaluation set looks like. The measurement that tells the two apart is recall at 50, which is the
 candidate set the reranker actually sees.
 
@@ -154,23 +172,24 @@ candidate set the reranker actually sees.
 - If recall at 50 is much higher, the candidates were there and the reranker failed to promote
   them. That is a reranker problem, and an easier one.
 
-Until that number exists, the honest claim is the narrow one. The index is not the bottleneck, and
-the reranker is not paying for its 384 ms.
-
-Until recall at 50 is measured, the reranker has not earned its 384 ms, and the default answer
-path should not pay for it. Removing a component that costs that much and buys nothing measurable
-is good engineering, and the measurement that could bring it back is named above.
+That number was not measured before the product changed hands, so the honest claim stays the
+narrow one. The index is not the bottleneck, and the reranker has not earned its 384 ms. The
+default answer path should not pay for it. Removing a component that costs that much and buys
+nothing measurable is good engineering, and the measurement that could bring it back is named
+above.
 
 ## 7. Future work
 
 The deepest extension is a hand written CUDA kernel for part of the scoring path. It would fuse the
-normalize and dot product steps over the candidate set. I would profile it with Nsight against the
-NumPy and pgvector versions. That moves this from using the GPU to programming the GPU.
+normalize and dot product steps over the candidate set, profiled with Nsight against the NumPy and
+pgvector versions. That moves this from using the GPU to programming the GPU. With HieuLuat's code
+private, that work now happens in gen-system, whose retrieval path has the same cosine scoring
+shape; the plan is in the [inference writeup](02-gen-system-inference-optimization.md).
 
-One caveat I should state rather than let a reader work out. The scoring path is under 1 ms of a
-request that currently takes about 385 ms. So a kernel there is a capability demonstration, not an
-end to end speedup. The honest version of this work says that up front, shows the roofline that
-predicts the result, and then measures it.
+One caveat stated rather than left for a reader to work out. The scoring path is under 1 ms of a
+request that took about 385 ms with the reranker on. So a kernel there is a capability
+demonstration, not an end to end speedup. The honest version of this work says that up front,
+shows the roofline that predicts the result, and then measures it.
 
 ## 8. What I would want a reader to take from this
 
@@ -183,6 +202,6 @@ looked flat enough to be embarrassing. The useful work was figuring out which co
 actually blames, and naming the one measurement that would settle it. That is worth more than
 another win would have been.
 
-*Measurements were taken before and after against fixed evaluation sets. See
-[reproducible benchmarking](03-reproducible-benchmarking.md). Hardware numbers depend on the GPU.
-The pattern transfers; the absolute values do not.*
+*Measurements were taken before and after against fixed evaluation sets, on the machine in
+section 0. The method is in [reproducible benchmarking](03-reproducible-benchmarking.md). Absolute
+values depend on the GPU; the shape of each trade off is the part that transfers.*

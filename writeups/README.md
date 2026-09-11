@@ -1,7 +1,8 @@
 # Writeups
 
 Architecture and measured results, one writeup per topic. Each is available as markdown, which
-GitHub renders directly, and as a self contained HTML page.
+GitHub renders directly, and as a self contained HTML page. The [landing page](../index.html)
+links the HTML versions.
 
 | Writeup | Markdown | HTML |
 |---|---|---|
@@ -9,6 +10,9 @@ GitHub renders directly, and as a self contained HTML page.
 | Tuning local LLM inference for a code engine | [.md](02-gen-system-inference-optimization.md) | [.html](02-gen-system-inference-optimization.html) |
 | Reproducible benchmarking and regression gates | [.md](03-reproducible-benchmarking.md) | [.html](03-reproducible-benchmarking.html) |
 
-Every table in the writeups is rendered from `benchmarks/results/measured.json`, and every row
-carries the date, the commit and the machine it was measured on. The HTML pages open locally in a
-browser; only the fonts and the math renderer come from a CDN.
+Every table in the writeups is rendered from [`benchmarks/results/measured.json`](../benchmarks/results/measured.json).
+The gen-system rows carry the date, the commit, the frozen task set, `n` and a range, and the
+campaign's manifest and attestation are in the gen-system repository. The HieuLuat rows carry the
+date, the evaluation set and the GPU, because their harness is private. The environment is in
+[`benchmarks/ENVIRONMENT.md`](../benchmarks/ENVIRONMENT.md). The HTML pages open locally in a
+browser; only the fonts come from a CDN.

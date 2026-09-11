@@ -1,18 +1,31 @@
 # HieuLuat: Vietnamese legal question answering
 
 > A system that answers questions about Vietnamese law using only retrieved statute. It cites its
-> sources. When the corpus does not contain an answer, it says so instead of guessing. The source
-> is proprietary. This page covers the architecture and the reasoning.
+> sources. When the corpus does not contain an answer, it says so instead of guessing. HieuLuat is
+> a commercial product whose ownership is changing hands, so its code, corpus and prompts stay
+> private. This page covers the architecture, the reasoning, and what its evaluation harness
+> measured.
 
 ---
 
 ## Fast facts
 
+- **Status:** shipped product, private code. Built and measured before the 2026-08 evaluation runs
+  reported in the writeup; not re-run since.
 - **Pipeline:** 7 stages, each repeatable: scrape, extract, chunk, embed, retrieve, rerank, answer
 - **Corpus:** Vietnamese legal documents from official sources, chunked on article and provision boundaries
 - **Stack:** Python (52,783 lines), PostgreSQL with pgvector, bge-m3 GPU embeddings, cross encoder rerank
 - **Promise:** every answer comes from retrieved statute and carries citations. There is a built in path for "no information found"
 - **Quality gate:** labeled evaluation sets decide whether an optimization is accepted
+
+## What can be shown, and what cannot
+
+The code, the legal corpus, the prompts, the configuration and the evaluation data are private and
+stay that way. What is public here is everything a reviewer needs to judge the engineering without
+them: the pipeline and its stage boundaries, the design decisions and the reasons behind each, the
+measured results of the retrieval work as the product's own harness reported them, and one
+negative result read carefully. The numbers carry their date and evaluation set. They do not carry
+a public commit, because the harness is in the private repository.
 
 ## The problem
 
@@ -73,11 +86,12 @@ and the useful work was figuring out which component that result actually blames
 Python. PostgreSQL with pgvector. bge-m3 embeddings on GPU. A cross encoder reranker
 (bge-reranker-v2-m3). A staged pipeline where every stage is repeatable. Labeled evaluation sets.
 
-## What is not here, and why
+## What transfers
 
-The implementation, the legal corpus, the prompts, the configuration, and any secrets are left out
-on purpose. This is a legal product with real data.
-
-What is public is the architecture above and the retrieval writeup. Its numbers come from the
-evaluation harness described in [writeup 03](../../writeups/03-reproducible-benchmarking.md), and
-its section 6 reports the result that did not go the way I wanted.
+The parts of this work that do not depend on the private code are the ones worth carrying to the
+next system: choosing an approximate index's operating point against a correctness promise instead
+of a latency target; splitting embedding into the bulk and online jobs that have different
+bottlenecks; treating a flat quality number as a question about the evaluation set before treating
+it as a result; and removing a component that costs 384 ms and buys nothing measurable, while
+naming the measurement that could bring it back. The method behind all of it is in
+[writeup 03](../../writeups/03-reproducible-benchmarking.md).

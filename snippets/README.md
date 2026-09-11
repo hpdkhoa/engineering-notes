@@ -22,5 +22,5 @@ python3 roofline_demo.py
 ```
 
 > These are teaching examples, not the systems. HieuLuat's implementation is proprietary.
-> gen-system's is open source under Apache-2.0. The point is to make the claims in the writeups
+> gen-system's is being prepared for release under Apache-2.0. The point is to make the claims in the writeups
 > concrete enough to check.

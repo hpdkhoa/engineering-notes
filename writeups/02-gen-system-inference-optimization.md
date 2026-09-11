@@ -1,13 +1,13 @@
-# Tuning Local LLM Inference for a Code Engine
+# Tuning local LLM inference for a code engine
 
 ### GPU offload, streaming, quantization, and two models sharing one consumer card
 
 > **Context:** gen-system makes an AI model's beliefs about code visible and checkable. It grounds
 > the model in a graph built from the AST, and verifies the output from outside. See the
-> [project README](../projects/gen-system/). This writeup covers tuning its inference layer.
-> The quality test is objective: the generated code either builds and passes its tests, or it does
-> not. Section 4 explains why the obvious version of that test is useless, and what replaced it.
-> The code is open source under Apache-2.0.
+> [project page](../projects/gen-system/README.md). The source is being prepared for release under
+> Apache-2.0. **What this covers:** tuning its inference layer. The quality test is objective: the
+> generated code either builds and passes its tests, or it does not. Section 4 explains why the
+> obvious version of that test is useless, and what replaced it.
 
 ---
 
@@ -19,12 +19,15 @@ planner model and a coder model sharing the card.
 The production roles are `qwen3:14b` for planning and `qwen2.5-coder:14b` for code. The
 quantization study uses `deepseek-coder-v2:16b-lite-instruct` at Q4_K_M, Q5_K_M, and Q8_0.
 
-Decoding is deterministic: temperature 0, seed 42, top_p 1. That is verified, not assumed.
+Decoding is deterministic: temperature 0, seed 42, top_p 1. That is verified, not assumed, and
+section 6 says where the pin stops holding.
 
-The exact GPU, driver, and model list are captured by the harness into
-[ENVIRONMENT.md](../benchmarks/ENVIRONMENT.md). Every table below carries the commit and date it
-was measured at. The tables in section 6 are the source of every number. Where the text below
-reads a number out of a table, the table wins, and the text is rewritten when the table changes.
+The exact GPU, driver, runtime versions, commit and model list are captured by the harness into
+[ENVIRONMENT.md](../benchmarks/ENVIRONMENT.md). Every table in section 6 carries the commit and
+date it was measured at, and is rendered from
+[`benchmarks/results/measured.json`](../benchmarks/results/measured.json). The tables are the
+source of every number. Where the text below reads a number out of a table, the table wins, and
+the text is rewritten when the table changes.
 
 ## 1. Where it started
 
@@ -135,7 +138,7 @@ source.
 <!--measured:gen-->
 ### Measured results
 
-*Rendered from `benchmarks/results/measured.json`. Every number below comes from the project's own harness on the hardware described above.*
+*Rendered from `benchmarks/results/measured.json`. Every number below comes from the project's own harness on the machine described in section 0.*
 
 **GPU-layer offload: tokens/sec vs VRAM**
 
@@ -221,6 +224,13 @@ source.
 
 ### What the numbers say
 
+| Change | Effect | What is measured |
+|---|---|---|
+| GPU controls | Speed and fit on one card | Tokens per second and peak VRAM against offloaded layers |
+| Streaming | Lower time to first token | Time to first token and total time, on and off, three runs |
+| Quantization | Speed and VRAM against quality | Speed, VRAM, stub rate, repair counts, test pass |
+| Two model strategies | Serving without reloads | Reload cost, speed, stub rate across three strategies |
+
 Every table above comes from one campaign, run on 2026-09-09 at one clean commit, in one results
 directory. The manifest and the attestation sit beside the raw files in the gen-system
 repository. Three earlier campaigns led to it. The first ran with a dirty tree. The second and
@@ -259,9 +269,9 @@ measured. The aggregator drops such runs and counts them in `runs_not_measured`.
 
 **The three strategies are the same strategy on this card.** Reload cost and tokens per second
 are identical across A, B and C. The `ollama ps` capture at the end of the B run shows one
-resident model, not two. A 10 GB planner and a 9.7 GB coder do not fit together in 16 GB, so
-"both resident" degrades to what A does. Whether both fit was itself a result, and the answer is
-no.
+resident model, not two. The planner is 9.3 GB on disk and the coder 9.0 GB, and each needs its
+KV cache and runtime beside it, so the pair does not fit in 16 GB together. "Both resident"
+degrades to what A does. Whether both fit was itself a result, and the answer is no.
 
 **Pinned sampling gives two outputs, not one.** Temperature 0, seed 42, and top_p 1 were set on
 every request. On the production pair, every run of every campaign landed on one of exactly two
@@ -296,20 +306,16 @@ repository of 2,500 files a name like `Model` matches in hundreds of places. The
 honest about that because the neighbourhood size is printed next to it. A tighter seed rule is
 the next thing to build, and the number will drop when it is built.
 
-| Change | Effect | What is measured |
-|---|---|---|
-| GPU controls | Speed and fit on one card | Tokens per second and peak VRAM against offloaded layers |
-| Streaming | Lower time to first token | Time to first token and total time, on and off, three runs |
-| Quantization | Speed and VRAM against quality | Speed, VRAM, stub rate, repair counts, test pass |
-| Two model strategies | Serving without reloads | Reload cost, speed, stub rate across three strategies |
-
 ## 7. Future work
 
 Two directions, neither of them claimed as done.
 
-The first is serving the same model through a production inference engine, with continuous batching
-and paged attention. Then compare it against the Ollama baseline on the same harness. That
-comparison is close to the day job, and it makes the batching and KV cache trade offs concrete.
+The first is a hand written token generation kernel measured by this same harness: a matrix
+times vector product over the coder model's quantized weights, profiled with Nsight, compared
+against the tokens per second Ollama reaches in the quantization table. The roofline for that is
+one division, memory bandwidth over bytes of weights read per token, and the production row above
+already sits at 96 percent of it. The kernel's job is to reproduce that ceiling with my own code
+and say where the remaining distance lives.
 
 The second is feeding the rendered control flow graphs back to the model as repair context, behind
 a flag, and measuring it properly. I expect no effect on Go repair, because the compiler already
@@ -361,5 +367,5 @@ asking what each number would look like if it were lying to you. The tables in s
 worth what that habit is worth.
 
 *All timings are native local GPU measurements taken through the project's own harness, on the
-machine described in section 0. Absolute speed depends on the GPU. The shape of each trade off is
-the part that transfers. See [reproducible benchmarking](03-reproducible-benchmarking.md).*
+machine described in section 0. The method is in [reproducible benchmarking](03-reproducible-benchmarking.md).
+Absolute speed depends on the GPU; the shape of each trade off is the part that transfers.*

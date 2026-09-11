@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Making a Legal Search Path Fast and Still Correct</title>
+<title>Making a legal search path fast and still correct</title>
 <script>
 window.MathJax={tex:{inlineMath:[['\\\\(','\\\\)']],displayMath:[['$$','$$'],['\\\\[','\\\\]']],processEscapes:true,tags:'none'},
 options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};
@@ -224,7 +224,7 @@ html[data-theme="dark"] .ra-sent.speaking{background:#1d3a36;box-shadow:0 0 0 3p
       <span class="bt">Engineering<br>Writeups</span>
     </div>
     <div class="kicker">Writeup · 1 of 3</div>
-    <h1 class="title">Optimizing a Legal RAG Retrieval Path</h1>
+    <h1 class="title">Making a legal search path fast and still correct</h1>
     <p class="subtitle">Architecture and measured results: the web version of the portfolio writeups.</p>
 
     <div class="progress-card">
@@ -260,9 +260,9 @@ html[data-theme="dark"] .ra-sent.speaking{background:#1d3a36;box-shadow:0 0 0 3p
 
     <div class="guide-switch">
       <div class="gs-label">Portfolio writeups</div>
-      <a href="01-hieuluat-retrieval-optimization.html" class="current">1 · Legal RAG Retrieval</a><a href="02-gen-system-inference-optimization.html">2 · Local-LLM Inference</a><a href="03-reproducible-benchmarking.html">3 · Benchmarking Method</a>
-      <div class="gs-label" style="margin-top:14px;">Related guides</div>
-      <a href="01_NVIDIA_Landing_Guide.html">Landing NVIDIA</a><a href="02_CUDA_GPU_Optimization_Guide.html">CUDA & GPU</a><a href="04_LeetCode_Coding_Interview_Guide.html">Beat the Coding Test</a>
+      <a href="01-hieuluat-retrieval-optimization.html" class="current">1 · Legal search path</a><a href="02-gen-system-inference-optimization.html">2 · Local LLM inference</a><a href="03-reproducible-benchmarking.html">3 · Benchmarking method</a>
+      <div class="gs-label" style="margin-top:14px;">Portfolio</div>
+      <a href="../index.html">Home</a><a href="../benchmarks/README.md">Benchmarks and evidence</a><a href="../projects/gen-system/README.md">gen-system</a><a href="../projects/hieuluat/README.md">HieuLuat</a>
     </div>
 
     <div class="rail-foot">
@@ -273,10 +273,12 @@ html[data-theme="dark"] .ra-sent.speaking{background:#1d3a36;box-shadow:0 0 0 3p
 
   <main class="main">
     <article class="doc" id="doc">
-<h1 id="making-a-legal-search-path-fast-and-still-correct">Making a Legal Search Path Fast and Still Correct</h1>
+<h1 id="making-a-legal-search-path-fast-and-still-correct">Making a legal search path fast and still correct</h1>
 <h3 id="vector-indexing-reranking-and-fp16-embeddings-with-the-trade-offs-measured">Vector indexing, reranking, and FP16 embeddings, with the trade offs measured</h3>
-<blockquote><p><strong>Context:</strong> HieuLuat is a Vietnamese legal question answering system (see <a href="../projects/hieuluat/">project README</a>). This writeup covers how I made its search path fast without making it less trustworthy. In legal work, a fast wrong answer is worse than a slow right one. The code is proprietary. The engineering and the measurements are below.</p></blockquote>
+<blockquote><p><strong>Context:</strong> HieuLuat is a Vietnamese legal question answering system. See the <a href="../projects/hieuluat/README.md">project page</a>. It is a commercial product whose ownership is changing hands, so the code, the corpus and the prompts are private. <strong>What this covers:</strong> how I made its search path fast without making it less trustworthy. In legal work, a fast wrong answer is worse than a slow right one. The engineering and the measurements are below; the code is not.</p></blockquote>
 <hr>
+<h2 id="0-the-machine">0. The machine</h2>
+<p>One consumer GPU. The rows in section 5 were measured in August 2026 by HieuLuat's own retrieval bench on an NVIDIA RTX 4060 Ti with 16 GB, against a fixed, labeled evaluation set, and written into <a href="../benchmarks/results/measured.json"><code>benchmarks/results/measured.json</code></a> one label per configuration. The harness itself and its commit are in the private repository, so these rows carry the date, the evaluation set and the GPU, and nothing more. They have not been re-run since, and this writeup does not pretend otherwise. Where the text below reads a number out of a table, the table wins.</p>
 <h2 id="1-where-it-started">1. Where it started</h2>
 <p>The search path had three parts that used the GPU or the database heavily: an embedder (bge-m3), a pgvector cosine search, and a cross encoder reranker.</p>
 <p>All three worked. None of them were tuned. Three problems stood out:</p>
@@ -300,7 +302,7 @@ html[data-theme="dark"] .ra-sent.speaking{background:#1d3a36;box-shadow:0 0 0 3p
 <h2 id="5-results">5. Results</h2>
 <!--measured:hieuluat-->
 <h3 id="measured-results">Measured results</h3>
-<p><em>Rendered from <code>benchmarks/results/measured.json</code>. Every number below comes from the project's own harness on the hardware described above.</em></p>
+<p><em>Rendered from <code>benchmarks/results/measured.json</code>. Every number below comes from the project's own harness on the machine described in section 0.</em></p>
 <p><strong>Vector index: recall vs latency</strong></p>
 <table>
 <thead><tr><th>index</th><th>recall at 10</th><th>p50 latency ms</th><th>p95 latency ms</th></tr></thead>
@@ -332,6 +334,7 @@ html[data-theme="dark"] .ra-sent.speaking{background:#1d3a36;box-shadow:0 0 0 3p
 </table>
 <p><em>Measured 2026-08, fixed evaluation set.</em></p>
 <!--/measured-->
+<h3 id="what-the-numbers-say">What the numbers say</h3>
 <table>
 <thead><tr><th>Change</th><th>Effort</th><th>Effect</th><th>What I measured</th></tr></thead>
 <tbody>
@@ -340,23 +343,23 @@ html[data-theme="dark"] .ra-sent.speaking{background:#1d3a36;box-shadow:0 0 0 3p
 <tr><td>FP16 embeddings</td><td>Low</td><td>Faster embedding, less VRAM</td><td>FP32 to FP16 throughput, batch size sweep</td></tr>
 </tbody>
 </table>
+<p>Three readings. The tuned index matches the exhaustive scan's recall at about a sixth of its median latency. The reranker adds 384 ms and changes answer quality by nothing. FP16 embeds the corpus about 2.9 times faster than FP32 in bulk, and the VRAM column reads n/a because the harness did not sample it, not because it was zero. The first and second readings are section 6.</p>
 <h2 id="6-the-recall-ceiling-and-why-reranking-did-not-help">6. The recall ceiling, and why reranking did not help</h2>
 <p>One result in that table looks like a failure. It is worth reading carefully, because the interesting part is which component it actually blames.</p>
 <p>Recall at 10 is 0.75 on the full scan. <strong>The full scan is exhaustive.</strong> It compares the question to every row, so there is no approximation in it to lose recall to. That means 0.75 is not a result about the index at all. It is the ceiling of what this embedding model finds at k equals 10 on this evaluation set. About a quarter of the correct chunks are not in the top ten under any index.</p>
 <p>Read against that ceiling, the index work did exactly what it should. HNSW and tuned IVFFlat both return 0.75, matching the exhaustive scan, while cutting median latency from 6.4 ms to about 1 ms. Untuned IVFFlat sits at 0.70, which is the honest cost of leaving <code>probes</code> at its default and the reason the tuning step was not optional. So the index bought a roughly six times latency reduction at no cost to recall. It did not "stay flat."</p>
 <p><strong>The reranker is a different story, and a genuinely negative result.</strong> Retrieving 50 candidates and rescoring them added 384 ms and changed answer quality by nothing.</p>
 <p>That follows from the ceiling above. A reranker reorders the candidates it is given. It cannot find a chunk that retrieval never returned. If the right chunk is missing from the candidate set, no amount of rescoring brings it back.</p>
-<p><strong>What I have not separated yet.</strong> A flat 0.75 across every configuration is also what a broken evaluation set looks like. The measurement that tells the two apart is recall at 50, which is the candidate set the reranker actually sees.</p>
+<p><strong>What I have not separated.</strong> A flat 0.75 across every configuration is also what a broken evaluation set looks like. The measurement that tells the two apart is recall at 50, which is the candidate set the reranker actually sees.</p>
 <ul><li>If recall at 50 is also around 0.75, the misses are real retrieval misses. Then the fix is upstream of both the index and the reranker: better chunking, hybrid keyword and vector search, or a better embedding model for Vietnamese legal text.</li><li>If recall at 50 is much higher, the candidates were there and the reranker failed to promote them. That is a reranker problem, and an easier one.</li></ul>
-<p>Until that number exists, the honest claim is the narrow one. The index is not the bottleneck, and the reranker is not paying for its 384 ms.</p>
-<p>Until recall at 50 is measured, the reranker has not earned its 384 ms, and the default answer path should not pay for it. Removing a component that costs that much and buys nothing measurable is good engineering, and the measurement that could bring it back is named above.</p>
+<p>That number was not measured before the product changed hands, so the honest claim stays the narrow one. The index is not the bottleneck, and the reranker has not earned its 384 ms. The default answer path should not pay for it. Removing a component that costs that much and buys nothing measurable is good engineering, and the measurement that could bring it back is named above.</p>
 <h2 id="7-future-work">7. Future work</h2>
-<p>The deepest extension is a hand written CUDA kernel for part of the scoring path. It would fuse the normalize and dot product steps over the candidate set. I would profile it with Nsight against the NumPy and pgvector versions. That moves this from using the GPU to programming the GPU.</p>
-<p>One caveat I should state rather than let a reader work out. The scoring path is under 1 ms of a request that currently takes about 385 ms. So a kernel there is a capability demonstration, not an end to end speedup. The honest version of this work says that up front, shows the roofline that predicts the result, and then measures it.</p>
+<p>The deepest extension is a hand written CUDA kernel for part of the scoring path. It would fuse the normalize and dot product steps over the candidate set, profiled with Nsight against the NumPy and pgvector versions. That moves this from using the GPU to programming the GPU. With HieuLuat's code private, that work now happens in gen-system, whose retrieval path has the same cosine scoring shape; the plan is in the <a href="02-gen-system-inference-optimization.html">inference writeup</a>.</p>
+<p>One caveat stated rather than left for a reader to work out. The scoring path is under 1 ms of a request that took about 385 ms with the reranker on. So a kernel there is a capability demonstration, not an end to end speedup. The honest version of this work says that up front, shows the roofline that predicts the result, and then measures it.</p>
 <h2 id="8-what-i-would-want-a-reader-to-take-from-this">8. What I would want a reader to take from this</h2>
 <p>Not "I added an index." Rather: I treated a correctness critical search path as a set of measured trade offs. I chose the index operating point against a safety promise, and I split the embedding work into the two jobs that actually have different bottlenecks.</p>
 <p>The part I would point at first is section 6. The reranking result was negative. The recall number looked flat enough to be embarrassing. The useful work was figuring out which component the number actually blames, and naming the one measurement that would settle it. That is worth more than another win would have been.</p>
-<p><em>Measurements were taken before and after against fixed evaluation sets. See <a href="03-reproducible-benchmarking.md">reproducible benchmarking</a>. Hardware numbers depend on the GPU. The pattern transfers; the absolute values do not.</em></p>
+<p><em>Measurements were taken before and after against fixed evaluation sets, on the machine in section 0. The method is in <a href="03-reproducible-benchmarking.html">reproducible benchmarking</a>. Absolute values depend on the GPU; the shape of each trade off is the part that transfers.</em></p>
 </article>
   </main>
 </div>

@@ -2,26 +2,30 @@
 
 > An AI model is a black box. gen-system makes what the model believes about your code visible.
 > It checks those beliefs against a deterministic graph built from the AST, and lets you correct
-> them. Then it verifies the generated output from outside. It runs entirely on your own machine. The source is
-> open under Apache-2.0 and published on [my GitHub](https://github.com/hpdkhoa). This page
-> covers the architecture and the reasoning.
+> them. Then it verifies the generated output from outside. It runs entirely on your own machine.
+> The source is being prepared for release under Apache-2.0 at
+> [github.com/hpdkhoa/gen-system](https://github.com/hpdkhoa/gen-system); the repository opens
+> with the release. This page covers the architecture and the reasoning.
 
 ---
 
 ## Fast facts
 
-- **History:** built since November 2025, working alone; public under Apache-2.0
-- **Engine:** Go, 613 source files, 136,987 lines
+- **History:** built since November 2025, working alone. Apache-2.0, release in preparation.
+- **Engine:** Go. 266 source files with 49,079 lines, plus 79 test files with 15,197 lines and
+  598 test functions, in 54 packages. The benchmark harness adds 1,155 lines of Python and 3,308
+  lines of shell. Counted on 2026-09-11 at commit `cfb0bff2`, test and generated code excluded from
+  the source count.
 - **Languages it reads:** Go, COBOL with copybooks, CA Gen, Java, TypeScript, Python. Exact symbol
   resolution, call graphs, control flow graphs
 - **Inference:** open weight models through Ollama on one RTX 4060 Ti with 16 GB. `qwen3:14b` plans
   and `qwen2.5-coder:14b` writes code
 - **Quality gate:** 13 benchmark suites, frozen baselines, and repeatable runs at temperature 0
-  with a fixed seed.
+  with a fixed seed. Every campaign ends with a manifest and an attestation.
 
 Speed and VRAM numbers live in the [inference writeup](../../writeups/02-gen-system-inference-optimization.md),
-where they are generated from measured runs. They are not repeated here, because a copied number
-goes stale the first time you rerun anything.
+where they are rendered from [measured runs](../../benchmarks/results/measured.json). They are not
+repeated here, because a copied number goes stale the first time you rerun anything.
 
 ## The idea
 
@@ -51,7 +55,7 @@ answer costs the most.
 
 A paper in January 2026, Reliable Graph-RAG for Codebases (arXiv 2601.08773), reached the same
 finding on Java. Deterministic AST graphs ground a model more reliably and more cheaply than LLM
-built graphs or vector search. gen-system's first release was November 2025. It covers six
+built graphs or vector search. gen-system's first version was November 2025. It covers six
 languages, and it goes past retrieval into beliefs, generation, and verification. Same idea,
 arrived at independently, taken further in execution.
 
@@ -120,6 +124,8 @@ The benchmarking method behind it, with frozen baselines and gates, is its own w
 
 → [Reproducible benchmarking and regression gates](../../writeups/03-reproducible-benchmarking.md)
 
+The tables themselves, with their provenance, are in [benchmarks/](../../benchmarks/README.md).
+
 ## Stack
 
 Go. Local LLMs through Ollama, with a planner model and a coder model. Compiler accurate analysis
@@ -128,9 +134,12 @@ benchmark harness with regression gating.
 
 ## Where the code is
 
-The full source is public under Apache-2.0 on [my GitHub](https://github.com/hpdkhoa). That includes the six
-parsers, the belief layer, the generation pipeline, the benchmark drivers under `bench/`, the
-engineering docs under `docs/`, and the test suite.
+The source is being prepared for release under Apache-2.0 at
+[github.com/hpdkhoa/gen-system](https://github.com/hpdkhoa/gen-system). The repository is private
+until the release and opens with it. It contains the six parsers, the belief layer, the generation
+pipeline, the benchmark drivers under `bench/`, the results of the 2026-09-09 campaign with their
+manifest and attestation, the engineering docs under `docs/`, and the test suite.
 
 Two determinism bugs found during this work are described in the inference writeup, together with
-the tests that fail against the old code. They are in the repo history, not just in the writeup.
+the tests that fail against the old code. They are in the repository history, not just in the
+writeup.
