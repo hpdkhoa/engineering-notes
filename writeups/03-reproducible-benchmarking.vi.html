@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="vi" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Making a legal search path fast and still correct</title>
+<title>Benchmark tái lập được và regression gate</title>
 <script>
 window.MathJax={tex:{inlineMath:[['\\\\(','\\\\)']],displayMath:[['$$','$$'],['\\\\[','\\\\]']],processEscapes:true,tags:'none'},
 options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};
@@ -200,13 +200,13 @@ html[data-theme="dark"] .ra-sent.speaking{background:#1d3a36;box-shadow:0 0 0 3p
 <body>
 <div class="read-hairline" id="readHairline"></div>
 
-<button class="menu-toggle" id="menuToggle" aria-label="Open contents" onclick="window.__openMenu()">
+<button class="menu-toggle" id="menuToggle" aria-label="Mở mục lục" onclick="window.__openMenu()">
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
 </button>
 <div class="menu-scrim" id="menuScrim"></div>
 
 <div class="topbar">
-  <button class="icon-btn" id="themeBtn" aria-label="Toggle light/dark theme" onclick="window.__toggleTheme()">
+  <button class="icon-btn" id="themeBtn" aria-label="Chuyển giao diện sáng tối" onclick="window.__toggleTheme()">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="themeIcon"></svg>
   </button>
 </div>
@@ -221,37 +221,37 @@ html[data-theme="dark"] .ra-sent.speaking{background:#1d3a36;box-shadow:0 0 0 3p
         <circle cx="20" cy="20" r="3.4" fill="#B45309"/>
         <path d="M11 11L20 20L29 11M11 29L20 20L29 29M20 11.5V28.5" stroke="#FAF8F3" stroke-width="1.5" opacity="0.8"/>
       </svg>
-      <span class="bt">Engineering<br>Writeups</span>
+      <span class="bt">Bài viết<br>kỹ thuật</span>
     </div>
-    <div class="kicker">Writeup · 1 of 3</div>
-    <h1 class="title">Making a legal search path fast and still correct</h1>
-    <p class="subtitle">Architecture and measured results: the web version of the portfolio writeups.</p>
+    <div class="kicker">Bài viết · 3 trên 3</div>
+    <h1 class="title">Benchmark tái lập được và regression gate</h1>
+    <p class="subtitle">Kiến trúc và kết quả đo: bản web của các bài viết trong portfolio.</p>
 
     <div class="progress-card">
-      <div class="progress-top"><span class="progress-label">Reading progress</span><span class="progress-pct" id="progPct">0%</span></div>
+      <div class="progress-top"><span class="progress-label">Tiến độ đọc</span><span class="progress-pct" id="progPct">0%</span></div>
       <div class="progress-bar"><div class="progress-fill" id="progFill"></div></div>
     </div>
 
     <button class="ra-launch" id="raLaunch" type="button" aria-pressed="false">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 010 7M19 5a9 9 0 010 14"/></svg>
-      <span>Read aloud<span class="ra-launch-sub" id="raLaunchSub">Listen sentence by sentence</span></span>
+      <span>Đọc to<span class="ra-launch-sub" id="raLaunchSub">Nghe từng câu</span></span>
     </button>
-    <div class="ra-unsupported" id="raUnsupported">Your browser doesn't support speech synthesis.</div>
+    <div class="ra-unsupported" id="raUnsupported">Trình duyệt này không hỗ trợ đọc to.</div>
 
     <div class="ra-panel" id="raPanel">
       <div class="ra-row">
-        <button class="ra-btn" id="raPrev" aria-label="Previous sentence"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M19 20L9 12l10-8v16zM5 19V5"/></svg></button>
-        <button class="ra-btn primary" id="raPlay" aria-label="Play / pause"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 4l14 8-14 8V4z" id="raPlayIcon"/></svg></button>
-        <button class="ra-btn" id="raNext" aria-label="Next sentence"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M5 4l10 8-10 8V4zM19 5v14"/></svg></button>
-        <button class="ra-btn" id="raStop" aria-label="Stop"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="5" y="5" width="14" height="14" rx="2"/></svg></button>
-        <span class="ra-status" id="raStatus">Idle</span>
+        <button class="ra-btn" id="raPrev" aria-label="Câu trước"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M19 20L9 12l10-8v16zM5 19V5"/></svg></button>
+        <button class="ra-btn primary" id="raPlay" aria-label="Phát / tạm dừng"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 4l14 8-14 8V4z" id="raPlayIcon"/></svg></button>
+        <button class="ra-btn" id="raNext" aria-label="Câu sau"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M5 4l10 8-10 8V4zM19 5v14"/></svg></button>
+        <button class="ra-btn" id="raStop" aria-label="Dừng"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="5" y="5" width="14" height="14" rx="2"/></svg></button>
+        <span class="ra-status" id="raStatus">Đang nghỉ</span>
       </div>
       <div class="ra-ctl">
-        <label for="raRate">Speed <span class="ra-rate-val" id="raRateVal">1.00×</span></label>
+        <label for="raRate">Tốc độ <span class="ra-rate-val" id="raRateVal">1.00×</span></label>
         <input type="range" id="raRate" min="0.5" max="2" step="0.05" value="1">
       </div>
       <div class="ra-ctl">
-        <label for="raVoice">Voice</label>
+        <label for="raVoice">Giọng đọc</label>
         <select id="raVoice"></select>
       </div>
     </div>
@@ -259,112 +259,55 @@ html[data-theme="dark"] .ra-sent.speaking{background:#1d3a36;box-shadow:0 0 0 3p
     <nav><ul class="toc" id="toc"></ul></nav>
 
     <div class="guide-switch">
-      <div class="gs-label">Portfolio writeups</div>
-      <a href="01-hieuluat-retrieval-optimization.html" class="current">1 · Legal search path</a><a href="02-gen-system-inference-optimization.html">2 · Local LLM inference</a><a href="03-reproducible-benchmarking.html">3 · Benchmarking method</a>
+      <div class="gs-label">Bài viết</div>
+      <a href="01-hieuluat-retrieval-optimization.vi.html">1 · Đường tìm kiếm pháp luật</a><a href="02-gen-system-inference-optimization.vi.html">2 · Inference LLM cục bộ</a><a href="03-reproducible-benchmarking.vi.html" class="current">3 · Phương pháp benchmark</a>
       <div class="gs-label" style="margin-top:14px;">Portfolio</div>
-      <a href="../index.html">Home</a><a href="../benchmarks/README.md">Benchmarks and evidence</a><a href="../projects/gen-system/README.md">gen-system</a><a href="../projects/hieuluat/README.md">HieuLuat</a>
-      <div class="gs-label" style="margin-top:14px;">Language</div>
-      <a href="01-hieuluat-retrieval-optimization.vi.html" hreflang="vi">Tiếng Việt</a>
+      <a href="../index.html">Trang chủ</a><a href="../benchmarks/README.vi.md">Benchmark và bằng chứng</a><a href="../projects/gen-system/README.vi.md">gen-system</a><a href="../projects/hieuluat/README.vi.md">HieuLuat</a>
+      <div class="gs-label" style="margin-top:14px;">Ngôn ngữ</div>
+      <a href="03-reproducible-benchmarking.html" hreflang="en">English</a>
     </div>
 
     <div class="rail-foot">
-      Theme &amp; position save in this browser.
-      <br><button id="resetBtn">Reset reading position</button>
+      Giao diện và vị trí đọc được lưu trong trình duyệt này.
+      <br><button id="resetBtn">Đặt lại vị trí đọc</button>
     </div>
   </aside>
 
   <main class="main">
     <article class="doc" id="doc">
-<p><strong>English</strong> · <a href="01-hieuluat-retrieval-optimization.vi.html">Tiếng Việt</a></p>
-<h1 id="making-a-legal-search-path-fast-and-still-correct">Making a legal search path fast and still correct</h1>
-<h3 id="vector-indexing-reranking-and-fp16-embeddings-with-the-trade-offs-measured">Vector indexing, reranking, and FP16 embeddings, with the trade offs measured</h3>
-<blockquote><p><strong>Context:</strong> HieuLuat is a Vietnamese legal question answering system. See the <a href="../projects/hieuluat/README.md">project page</a>. It is a commercial product whose ownership is changing hands, so the code, the corpus and the prompts are private. <strong>What this covers:</strong> how I</p>
-<blockquote><p>made its search path fast without making it less trustworthy. A wrong answer that arrives</p></blockquote>
-<p>quickly is still an answer a lawyer repeats to a client. The measurements are below. The code is not.</p></blockquote>
+<p><a href="03-reproducible-benchmarking.html">English</a> · <strong>Tiếng Việt</strong></p>
+<h1 id="benchmark-tái-lập-được-và-regression-gate">Benchmark tái lập được và regression gate</h1>
+<h3 id="phương-pháp-khiến-mọi-con-số-khác-trong-repository-này-đáng-để-đọc">Phương pháp khiến mọi con số khác trong repository này đáng để đọc</h3>
+<blockquote><p><strong>Bối cảnh:</strong> cả hai dự án ở đây đều được tinh chỉnh dựa trên các phép đo cố định, lặp lại được. Dự án thứ nhất là gen-system, có harness và kết quả nằm trong <a href="../projects/gen-system/README.vi.md">repository của nó</a>. Dự án thứ hai là HieuLuat, có harness không công khai nhưng các dòng số liệu tuân theo cùng quy tắc. <strong>Nội dung bài:</strong> ba quy tắc; thế nào là một baseline đóng băng và một gate; cách làm cho các lần chạy lặp lại được và những chỗ chúng không lặp lại được; và hai lần một thước đo chất lượng hóa ra không đo được gì. &gt; Mỗi bài học trong hai bài học đó đã lấy của tôi trọn một campaign.</p></blockquote>
 <hr>
-<h2 id="0-the-machine">0. The machine</h2>
-<p>One consumer GPU. The rows in section 5 were measured in August 2026 by HieuLuat's own retrieval bench on an NVIDIA RTX 4060 Ti with 16 GB, against a fixed, labeled evaluation set, and written into <a href="../benchmarks/results/measured.json"><code>benchmarks/results/measured.json</code></a> one label per configuration. The harness itself and its commit are in the private repository, so these rows carry the date, the evaluation set and the GPU, and nothing more. They have not been re-run since. Where the text quotes a number, the table above it is the source: the harness writes <code>measured.json</code>, <code>tools/fill_portfolio.py</code> renders the tables, and I fix the text when a table moves.</p>
-<h2 id="1-where-it-started">1. Where it started</h2>
-<p>The search path had three parts that used the GPU or the database heavily: an embedder (bge-m3), a pgvector cosine search, and a cross encoder reranker.</p>
-<p>All three worked. Nobody had tuned any of them.</p>
-<ol><li><strong>The vector search had no index.</strong> Postgres computed the distance to every row, then sorted. That is fine for a few thousand chunks. It gets slow as the corpus grows.</li><li><strong>The reranker was switched off.</strong> The component that judges relevance best was not being used.</li><li><strong>The embedder ran in full precision.</strong> No FP16 path, so it used more memory bandwidth than it needed to.</li></ol>
-<h2 id="2-move-1-add-a-real-vector-index">2. Move 1: add a real vector index</h2>
-<p>This was the cheapest change and the biggest win. I replaced the full scan with an approximate nearest neighbor index. There are two options in pgvector: IVFFlat, which groups vectors into lists, and HNSW, which builds a graph. Both replace a full scan with a lookup that scales.</p>
-<p><strong>The catch is the word approximate.</strong> These indexes can miss the true nearest neighbor. In most products that is a small quality loss. In a legal product it is not. HieuLuat promises to say "no information" when it cannot find an answer. If the index drops the chunk that held the answer, the system says "no information" when the answer existed. That is a correctness bug, not a speed tuning detail.</p>
-<p>So the swap costs something. You trade recall against latency, and the dial is <code>probes</code> on IVFFlat or <code>ef_search</code> on HNSW.</p>
-<p><strong>What I measured.</strong> Query latency as the corpus grows, for full scan, IVFFlat, and HNSW. Then recall at k against latency as I turned the dial. That second curve is the useful one. It shows how much latency buys how much recall, so the operating point can be chosen against the correctness bar instead of guessed.</p>
-<p>I was not shopping for the fastest index. I wanted the setting where recall still keeps the promise, and then the lowest latency I could get at that setting.</p>
-<h2 id="3-move-2-retrieve-wide-then-rerank">3. Move 2: retrieve wide, then rerank</h2>
-<p>Once the index was in place, retrieval became cheap enough to pull a larger candidate set and rescore it. The cross encoder scores each question and chunk pair, then keeps the best few.</p>
-<p>This is a standard two stage pattern. It usually improves how well answers are grounded in the source, which for legal work is the metric that matters.</p>
-<p>It also creates a GPU batching problem worth solving properly. The reranker should score the whole candidate set in one batched FP16 forward pass, not in a Python loop.</p>
-<p>The cost is latency. Retrieving more and reranking it takes time. So the result to report has three axes: recall, answer quality, and the added milliseconds.</p>
-<h2 id="4-move-3-fp16-embeddings">4. Move 3: FP16 embeddings</h2>
-<p>Running bge-m3 in half precision roughly halves the memory it needs and the bandwidth it uses. On a modern GPU it also speeds up the forward pass. Quality loss for this use is negligible.</p>
-<p>The part worth getting right is that there are two different jobs here, and they have different bottlenecks:</p>
-<ul><li><strong>Bulk ingest</strong>, when embedding again the whole corpus, is limited by throughput. Large batches and FP16 help a lot.</li><li><strong>Online query</strong>, when embedding one question, is limited by latency and fixed overhead. Batch size barely matters. Keeping the model warm matters more.</li></ul>
-<p>Using one batch size for both jobs is the common mistake. I measured them separately: the FP32 to FP16 throughput difference, and a batch size sweep showing the embedder is limited by memory bandwidth, which is what you would expect.</p>
-<h2 id="5-results">5. Results</h2>
-<!--measured:hieuluat-->
-<h3 id="measured-results">Measured results</h3>
-<p><em>Rendered from <code>benchmarks/results/measured.json</code>. Every number below comes from the project's own harness on the machine described in section 0.</em></p>
-<p><strong>Vector index: recall vs latency</strong></p>
-<table>
-<thead><tr><th>index</th><th>recall at 10</th><th>p50 latency ms</th><th>p95 latency ms</th></tr></thead>
-<tbody>
-<tr><td>sequential scan</td><td>0.75</td><td>6.4</td><td>6.9</td></tr>
-<tr><td>sequential scan, FP32 embeddings</td><td>0.75</td><td>6.4</td><td>7.6</td></tr>
-<tr><td>IVFFlat (lists=100)</td><td>0.7</td><td>0.8</td><td>0.9</td></tr>
-<tr><td>IVFFlat (lists=100, probes=10)</td><td>0.75</td><td>1.0</td><td>1.3</td></tr>
-<tr><td>HNSW (m=16)</td><td>0.75</td><td>0.9</td><td>1.3</td></tr>
-</tbody>
-</table>
-<p><em>Measured 2026-08, fixed evaluation set.</em></p>
-<p><strong>Two-stage rerank: quality vs added latency</strong></p>
-<table>
-<thead><tr><th>config</th><th>answer quality pct</th><th>added latency ms</th></tr></thead>
-<tbody>
-<tr><td>retrieve only (k=10)</td><td>75.0</td><td>0</td></tr>
-<tr><td>retrieve k=50 + cross-encoder rerank</td><td>75.0</td><td>383.6</td></tr>
-</tbody>
-</table>
-<p><em>Measured 2026-08, fixed evaluation set.</em></p>
-<p><strong>Embedding precision: throughput &amp; VRAM</strong></p>
-<table>
-<thead><tr><th>precision</th><th>docs per sec bulk</th><th>vram gb</th></tr></thead>
-<tbody>
-<tr><td>FP16</td><td>1414.5</td><td>n/a</td></tr>
-<tr><td>FP32</td><td>490.5</td><td>n/a</td></tr>
-</tbody>
-</table>
-<p><em>Measured 2026-08, fixed evaluation set.</em></p>
-<!--/measured-->
-<h3 id="what-the-numbers-say">What the numbers say</h3>
-<table>
-<thead><tr><th>Change</th><th>Effort</th><th>Effect</th><th>What I measured</th></tr></thead>
-<tbody>
-<tr><td>Vector index (IVFFlat or HNSW)</td><td>Low</td><td>Search scales as the corpus grows</td><td>Latency against corpus size, recall at k against latency</td></tr>
-<tr><td>Retrieve wide, then rerank</td><td>Medium</td><td>Better grounded answers</td><td>Recall, answer quality, added latency</td></tr>
-<tr><td>FP16 embeddings</td><td>Low</td><td>Faster embedding, less VRAM</td><td>FP32 to FP16 throughput, batch size sweep</td></tr>
-</tbody>
-</table>
-<p>Three things worth pulling out of it. The tuned index matches the exhaustive scan's recall at about a sixth of its median latency. The reranker adds 384 ms and changes answer quality by nothing. FP16 embeds the corpus about 2.9 times faster than FP32 in bulk, and the VRAM column reads n/a because the harness did not sample it, not because it was zero. The first and second readings are section 6.</p>
-<h2 id="6-the-recall-ceiling-and-why-reranking-did-not-help">6. The recall ceiling, and why reranking did not help</h2>
-<p>One result in that table looks like a failure. It took me a while to work out which component it blames.</p>
-<p>Recall at 10 is 0.75 on the full scan. <strong>The full scan is exhaustive.</strong> It compares the question to every row, so there is no approximation in it to lose recall to. That means 0.75 is not a result about the index at all. It is the ceiling of what this embedding model finds at k equals 10 on this evaluation set. About a quarter of the correct chunks are not in the top ten under any index.</p>
-<p>Read against that ceiling, the index work did exactly what it should. HNSW and tuned IVFFlat both return 0.75, matching the exhaustive scan, while cutting median latency from 6.4 ms to about 1 ms. Untuned IVFFlat sits at 0.70, which is the honest cost of leaving <code>probes</code> at its default and the reason the tuning step was not optional. So the index bought a roughly six times latency reduction at no cost to recall. It did not "stay flat."</p>
-<p><strong>The reranker is a different story, and a genuinely negative result.</strong> Retrieving 50 candidates and rescoring them added 384 ms and changed answer quality by nothing.</p>
-<p>That follows from the ceiling. A reranker only reorders the candidates it was handed, so when the right chunk never came back from retrieval, rescoring cannot invent it.</p>
-<p><strong>What I have not separated.</strong> A flat 0.75 across every configuration is also what a broken evaluation set looks like. The measurement that tells the two apart is recall at 50, which is the candidate set the reranker actually sees.</p>
-<ul><li>If recall at 50 is also around 0.75, the misses are real retrieval misses. Then the fix is upstream of both the index and the reranker: better chunking, hybrid keyword and vector search, or a better embedding model for Vietnamese legal text.</li><li>If recall at 50 is much higher, the candidates were there and the reranker failed to promote them. That is a reranker problem, and an easier one.</li></ul>
-<p>That number was not measured before the product changed hands, so the honest claim stays the narrow one. The index is not the bottleneck, and the reranker has not earned its 384 ms. So it comes out of the default answer path, and it stays out until someone measures recall at 50.</p>
-<h2 id="7-future-work">7. Future work</h2>
-<p>The deepest extension is a hand written CUDA kernel for part of the scoring path. It would fuse the normalize and dot product steps over the candidate set, profiled with Nsight against the NumPy and pgvector versions. That is the difference between calling a GPU library and writing the kernel. With HieuLuat's code private, that work now happens in gen-system, whose retrieval path has the same cosine scoring shape; the plan is in the <a href="02-gen-system-inference-optimization.html">inference writeup</a>.</p>
-<p>The caveat comes first, because it is the whole shape of the thing. The scoring path is under 1 ms of a request that took about 385 ms with the reranker on. A kernel there demonstrates the capability. It will not speed up the request. So I say that at the start, show the roofline that predicts the result, and then measure it anyway.</p>
-<h2 id="8-what-i-would-do-again">8. What I would do again</h2>
-<p>I chose the index operating point against the safety promise rather than a latency target, and I split the embedding work into the two jobs that bottleneck on different things. Neither is clever. Both are what you skip when you are in a hurry.</p>
-<p>Section 6 is the part I still think about. The reranking result came out negative and the recall number sat flat enough to be embarrassing. Working out which component the flat number blames, and naming the one measurement that would settle it, took longer than all the tuning did.</p>
-<p><em>Measurements were taken before and after against fixed evaluation sets, on the machine in section 0. The method is in <a href="03-reproducible-benchmarking.html">reproducible benchmarking</a>. Absolute values depend on the GPU. The shape of each trade off should hold on another card.</em></p>
+<h2 id="1-ba-quy-tắc">1. Ba quy tắc</h2>
+<p>Ba quy tắc, và tôi đã phá cả ba ít nhất một lần.</p>
+<ol><li><strong>Đo trước và sau, lần nào cũng vậy.</strong> Mọi thay đổi đều được báo cáo so với một baseline đã ghi lại. Không có baseline thì không có nhận định.</li><li><strong>Làm cho các lần chạy lặp lại được khi công việc cho phép.</strong> Nếu không, chạy lại là con số đổi, và bạn không tách được thay đổi của mình khỏi nhiễu.</li><li><strong>Gắn chất lượng với một thứ khách quan.</strong> Tốc độ đổi bằng việc âm thầm mất chất lượng không phải là thắng lợi. Vì vậy chất lượng được đo song song với hiệu năng, không bao giờ được mặc định là giữ nguyên.</li></ol>
+<h2 id="2-baseline-đóng-băng">2. Baseline đóng băng</h2>
+<p>Baseline là một phép đo đã ghi lại của hệ thống trước một thay đổi. Nó gắn với một phiên bản và được thực hiện trong điều kiện cố định. Nó nằm trong một file, không nằm trong đầu tôi.</p>
+<p>Mọi tối ưu hóa trong cả hai dự án đều được báo cáo so với một baseline như vậy. Nhờ đó một câu như "thay đổi này cải thiện throughput" kiểm tra được, thay vì là điều người đọc phải tin suông.</p>
+<h2 id="3-regression-gate">3. Regression gate</h2>
+<p>Phiên bản mạnh hơn của "đo sau" là làm cho mọi sự suy giảm tự động khiến build thất bại.</p>
+<p>Trong gen-system, một lần chạy benchmark có thể được diff với một baseline đã commit. Nếu độ lệch vượt quá ngưỡng dung sai, lệnh thoát với mã khác 0. Baseline COBOL đóng băng hoạt động theo cách này: một repository COBOL của bên thứ ba ở một commit cố định, với recall phân giải đã được ghi lại. Một thay đổi parser làm giảm recall đó sẽ bị gate chặn lại, không phải vài tuần sau mới phát hiện.</p>
+<p>Cùng ý tưởng đó áp dụng cho các eval set đã gán nhãn của HieuLuat. Một thay đổi trên luồng retrieval chỉ được chấp nhận nếu chất lượng đã đo giữ nguyên hoặc tốt hơn trên các trường hợp cố định đó. Một index nhanh hơn nhưng âm thầm làm giảm recall sẽ bị loại, không được đưa vào sản phẩm.</p>
+<h2 id="4-khả-năng-lặp-lại">4. Khả năng lặp lại</h2>
+<p>Khi công việc cho phép, các lần chạy được làm cho deterministic. gen-system sinh output ở temperature 0 với seed cố định. Một bộ kiểm thử xác nhận rằng cùng một prompt cho ra đúng một output duy nhất qua các lần chạy lặp lại.</p>
+<p>Lợi ích là khác biệt giữa hai lần chạy phản ánh thay đổi bạn đã làm, không phải biến động ngẫu nhiên. Khi một thành phần thực sự mang tính ngẫu nhiên, câu trả lời trung thực là chạy lặp lại nhiều lần và báo cáo một khoảng giá trị, không phải một con số duy nhất.</p>
+<p>Việc cố định này tạo ra một thiên hướng mạnh, không phải một sự chứng minh. Bộ kiểm thử determinism đạt trên một prompt đơn lẻ. Toàn bộ pipeline sinh vẫn rơi vào một trong hai output khác nhau qua các lần chạy lặp lại, trên cùng model với cùng seed. Rơi vào output nào phụ thuộc vào trạng thái của server local, không phụ thuộc vào bất cứ thứ gì trong lần chạy. Đó là lý do mọi bảng gen-system trong repository này đều ghi <code>n</code> và một khoảng giá trị. Một khác biệt chỉ xuất hiện ở một trong ba lần chạy không được báo cáo như một phát hiện.</p>
+<h2 id="5-chọn-một-thước-đo-chất-lượng-thực-sự-có-thể-thay-đổi">5. Chọn một thước đo chất lượng thực sự có thể thay đổi</h2>
+<p>Cả hai dự án đều đo chất lượng trực tiếp thay vì qua một thước đo gián tiếp. Đó là phần có ích. Nhưng chọn thước đo khó hơn vẻ ngoài của nó, và gen-system đã chọn sai ở lần đầu.</p>
+<p>Kế hoạch ban đầu là báo cáo tỷ lệ compile thành công. Code được sinh ra có build được không? Con số trả về là 100 phần trăm ở mọi lần chạy. Không phải vì model hoàn hảo, mà vì công cụ thay một thao tác bị lỗi bằng một stub compile được. Thước đo này không thể giảm, nên nó không đo được gì.</p>
+<p>Thước đo thay thế đếm những gì thực sự thay đổi. Đó là lượng logic được sinh ra vượt qua gate compile thay vì quay về stub, và số vòng sửa lỗi cần để đạt được điều đó. Chi tiết nằm ở <a href="02-gen-system-inference-optimization.vi.html">mục 4 của writeup về inference</a>.</p>
+<p>Điều này quan trọng nhất với công việc quantization, nơi toàn bộ rủi ro là mất chất lượng một cách âm thầm. Phần lớn các writeup về inference chỉ có thể đưa ra một đường cong perplexity và hy vọng nó phản ánh đúng mức hữu ích. Một thước đo khách quan nhưng bị kẹt còn tệ hơn một thước đo gián tiếp, vì nó trông giống bằng chứng. Vì vậy bài học không chỉ là chọn một thước đo khách quan. Bài học là kiểm tra xem thước đo đó có thực sự thay đổi được hay không.</p>
+<p>Chuyện này xảy ra lần thứ hai, theo chiều ngược lại. Bước verify đọc lại code đã sinh và chấm tỷ lệ phân giải nội bộ đạt 100 phần trăm trên mọi repository Python mà nó gặp. Nó tính một lời gọi là nội bộ khi có bất kỳ symbol nào mang tên trần của lời gọi đó. Sau đó nó phân giải lời gọi theo chính tên trần đó, nên nó không thể trượt. Khi resolver được sửa để lần theo lời gọi qua các import của nơi gọi, con số 100 đó trở thành 92.6 và 96.1 trên hai repository công khai. Một con số giảm xuống khi công cụ trở nên chặt chẽ hơn là một con số đo được điều gì đó. Bài kiểm thử cố định cho lỗi này nạp cùng một repository khi có và khi không gắn thư viện chuẩn, và yêu cầu recall nội bộ phải bằng nhau.</p>
+<p>HieuLuat gặp cùng dạng vấn đề từ phía bên kia: một giá trị recall đứng yên ở 0.75 với mọi index và mọi thiết lập reranker. Mục 6 của <a href="01-hieuluat-retrieval-optimization.vi.html">writeup về tìm kiếm pháp luật</a> đọc con số đứng yên đó là giới hạn trần của embedding model, chứ không phải một kết quả về index. Mục đó cũng chỉ ra một phép đo có thể phân định vấn đề: recall tại 50.</p>
+<h2 id="6-phương-pháp-này-xuất-hiện-ở-đâu">6. Phương pháp này xuất hiện ở đâu</h2>
+<ul><li><a href="01-hieuluat-retrieval-optimization.vi.html">Writeup về luồng tìm kiếm pháp luật</a>: recall và latency được đo trên các eval set cố định theo phương pháp này. Mục 6 trong đó là một ví dụ cụ thể về cách đọc đúng một con số đứng yên.</li><li><a href="02-gen-system-inference-optimization.vi.html">Writeup về inference</a>: tốc độ, VRAM, tỷ lệ stub và số vòng sửa lỗi đều chạy qua harness benchmark so với các baseline đóng băng. Nguồn gốc của mọi bảng được in ngay bên dưới bảng đó.</li><li><a href="../benchmarks/README.vi.md">Thư mục benchmarks</a>: chính các bảng kết quả đo, môi trường nơi chúng được đo, và nơi lưu manifest và attestation của campaign gen-system.</li></ul>
+<h2 id="7-thứ-tự-commit-chứng-minh-được-gì-và-không-chứng-minh-được-gì">7. Thứ tự commit chứng minh được gì, và không chứng minh được gì</h2>
+<p>Baseline làm trước, và bộ tác vụ được commit trước lần chạy đầu tiên để không thể nắn nó theo kết quả. Chất lượng nằm sau một gate, các lần chạy giữ cho lặp lại được ở những chỗ công việc cho phép. Chỉ có vậy, và phần lớn là chuyện sổ sách.</p>
+<p>Một lưu ý trung thực về chuyện đó. Lịch sử công khai của gen-system bắt đầu từ ngày repository được chuẩn bị để phát hành, nên người đọc không thấy được những tuần trước đó. Điều người đọc có thể kiểm tra là thứ tự bên trong lịch sử đó: commit thêm bộ tác vụ đứng trước commit thêm thư mục kết quả. Ngày đóng băng cũng được ghi trong file tác vụ. Mỗi campaign kết thúc bằng một attestation và một manifest liệt kê mọi file dữ liệu thô kèm hash, nên một con số trong writeup truy được về file chứ không truy về trí nhớ của tôi. Các dòng số liệu của HieuLuat không có được dấu vết đó, vì harness không công khai. Các bảng nói điều đó thay vì ngầm ý ngược lại.</p>
+<p>Mục 5 là phần mất nhiều thời gian nhất. Tôi giữ một thước đo suốt mấy tháng mới nhận ra nó chỉ trả về đúng một giá trị.</p>
+<p><em>Các con số nằm trong hai writeup dự án, và chúng phụ thuộc vào card trong <a href="../benchmarks/ENVIRONMENT.vi.md">ENVIRONMENT.vi.md</a>. Các quy tắc ở đây thì không.</em></p>
 </article>
   </main>
 </div>
@@ -525,7 +468,7 @@ document.addEventListener('DOMContentLoaded',function(){
   function loadVoices(){
     var voices=synth.getVoices();
     voiceSel.innerHTML='';
-    var auto=document.createElement('option'); auto.value=''; auto.textContent='Automatic';
+    var auto=document.createElement('option'); auto.value=''; auto.textContent='Tự động';
     voiceSel.appendChild(auto);
     voices.forEach(function(v){
       var o=document.createElement('option');
@@ -540,7 +483,7 @@ document.addEventListener('DOMContentLoaded',function(){
   function pickVoice(){
     var voices=synth.getVoices();
     if(voiceURI){ var f=voices.filter(function(v){return v.voiceURI===voiceURI;}); if(f[0]) return f[0]; }
-    var en=voices.filter(function(v){return /^en(-|$)/i.test(v.lang);});
+    var en=voices.filter(function(v){return /^vi(-|$)/i.test(v.lang);});
     return en[0]||voices[0]||null;
   }
 
@@ -561,7 +504,7 @@ document.addEventListener('DOMContentLoaded',function(){
 
   function speakCurrent(){
     if(idx>=sentences.length){ stop(); return; }
-    var u=new SpeechSynthesisUtterance(sentences[idx].text);
+    var u=new SpeechSynthesisUtterance(sentences[idx].text); u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN';
     u.rate=rate; var v=pickVoice(); if(v) u.voice=v;
     u.onend=function(){
       if(playing&&!paused){ idx++; highlight(idx); speakCurrent(); }
@@ -595,8 +538,8 @@ document.addEventListener('DOMContentLoaded',function(){
     launch.setAttribute('aria-pressed',playing?'true':'false');
     document.getElementById('raPlayIcon').innerHTML =
       (playing&&!paused)?ICON_PAUSE:ICON_PLAY;
-    statusEl.textContent = !playing ? 'Idle' :
-       (paused?'Paused':('Reading '+(idx+1)+' / '+sentences.length));
+    statusEl.textContent = !playing ? 'Đang nghỉ' :
+       (paused?'Tạm dừng':('Đang đọc '+(idx+1)+' / '+sentences.length));
   }
 
   var ICON_PLAY='<path d="M6 4l14 8-14 8V4z"/>';

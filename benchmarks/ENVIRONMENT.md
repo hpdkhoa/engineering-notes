@@ -1,3 +1,5 @@
+**English** · [Tiếng Việt](ENVIRONMENT.vi.md)
+
 # Measured environment
 
 *Captured by gen-system's `bench/freeze-env.sh` on 2026-09-09 at 16:52 UTC, on the machine every

@@ -1,3 +1,5 @@
+**English** · [Tiếng Việt](02-gen-system-inference-optimization.vi.md)
+
 # Tuning local LLM inference for a code engine
 
 ### GPU offload, streaming, quantization, and two models sharing one consumer card
@@ -13,21 +15,19 @@
 
 ## 0. The machine
 
-One consumer GPU, not a lab machine. An NVIDIA RTX 4060 Ti with 16 GB, running Ollama, with a
-planner model and a coder model sharing the card.
+One consumer GPU, the card in my own desktop. An NVIDIA RTX 4060 Ti with 16 GB, running Ollama, with
+a planner model and a coder model sharing it.
 
 The production roles are `qwen3:14b` for planning and `qwen2.5-coder:14b` for code. The
 quantization study uses `deepseek-coder-v2:16b-lite-instruct` at Q4_K_M, Q5_K_M, and Q8_0.
 
-Decoding is deterministic: temperature 0, seed 42, top_p 1. That is verified, not assumed, and
-section 6 says where the pin stops holding.
+Decoding is deterministic: temperature 0, seed 42, top_p 1. A test checks that, and section 6 shows
+where the pin stops holding.
 
 The exact GPU, driver, runtime versions, commit and model list are captured by the harness into
 [ENVIRONMENT.md](../benchmarks/ENVIRONMENT.md). Every table in section 6 carries the commit and
 date it was measured at, and is rendered from
-[`benchmarks/results/measured.json`](../benchmarks/results/measured.json). The tables are the
-source of every number. Where the text below reads a number out of a table, the table wins, and
-the text is rewritten when the table changes.
+[`benchmarks/results/measured.json`](../benchmarks/results/measured.json). The tables are the source of every number. When a table moves, I rewrite the text under it.
 
 ## 1. Where it started
 
@@ -45,8 +45,8 @@ correct, it was deterministic, and it was completely untuned.
 - **Two models shared 16 GB.** This is why the system needs keep alive and a long timeout. A
   model reload could land in the middle of a run, and nothing measured how much it cost.
 
-The correctness layer was already strong. The performance layer was untouched, and that layer is
-the actual job.
+The determinism tests, the compile gate and the verify pass were already there. Nothing underneath
+them had been measured.
 
 ## 2. Move 1: expose the GPU controls
 
@@ -70,14 +70,14 @@ The bench driver sweeps `OLLAMA_NUM_GPU` and samples peak VRAM at each step.
 Streaming sits behind `OLLAMA_STREAM`. The reader consumes the stream and joins the fragments back
 into one string. That string is identical to what the old buffered path returned.
 
-That matters more than it sounds. Everything downstream sees the same input either way: the JSON
-extraction, the rule that generated function bodies must come back alone, and the determinism
-check. Transport is not allowed to change meaning. A test asserts one unique output across five
+Everything downstream sees the same input either way: the JSON extraction, the rule that generated
+function bodies come back alone, and the determinism check. Streaming changes when the text arrives,
+not what it says. A test asserts one unique output across five
 identical streamed responses.
 
 Buffered stays the default. Streaming is opt in until the measurement says otherwise.
 
-What gets measured is time to first token and total time, with streaming on and off, on the same
+I measured time to first token and total time, with streaming on and off, on the same
 prompt, three runs each.
 
 ## 4. Move 3: quantization, and the broken metric underneath it
@@ -85,10 +85,9 @@ prompt, three runs each.
 Quantization is an experiment here, not a fixed choice. The same model runs at Q4_K_M, Q5_K_M, and
 Q8_0 on the coder role, with the planner held fixed. Each run measures speed, VRAM, and quality.
 
-The quality axis is where this got interesting, and where the first version of this writeup was
-wrong.
+I got the quality axis wrong in the first version of this writeup.
 
-**The obvious metric does not work.** The plan was to report compile pass rate. Generated code
+**The obvious metric does not work.** I planned to report compile pass rate, since generated code
 either builds or it does not. Every run came back at 100 percent.
 
 That is not because the model is perfect. It is **by construction**. When a model written operation
@@ -96,8 +95,7 @@ fails to compile, the engine sends it back to the model with the build error. If
 the engine replaces the body with an explicit `not implemented` stub. The stub compiles. The
 service always builds.
 
-A metric that cannot go down measures nothing. A quantization that badly damaged the output would
-still score 100 percent.
+The number could not go down. A quantization that wrecked the output would still score 100 percent.
 
 **What replaced it.** The instrumentation now counts what actually changes. All of it comes from
 the same code path production uses:
@@ -128,10 +126,9 @@ strategies run against the same frozen task set:
 | B. Both resident | Keep alive never expires, so both models should stay warm. | VRAM headroom, and speed under contention. Whether both even fit is itself a result, and section 6 gives the answer. |
 | C. One shared model | The coder model plans as well, so nothing ever swaps. | Planning quality, visible as stub rate, repair counts, and extra entities. |
 
-One clarification belongs everywhere this is described. **There is no scheduler.** "Sequential
-scheduling with keep alive" means Ollama's own keep alive, two model roles, and measurement of what
-that costs. No scheduling code was written. Claiming otherwise would not survive a reading of the
-source.
+One clarification, because this gets misread. **There is no scheduler.** "Sequential scheduling with
+keep alive" means Ollama's own keep alive, two model roles, and a measurement of what that costs. I
+wrote no scheduling code, and the source shows it.
 
 ## 6. Results
 
@@ -235,8 +232,7 @@ Every table above comes from one campaign, run on 2026-09-09 at one clean commit
 directory. The manifest and the attestation sit beside the raw files in the gen-system
 repository. Three earlier campaigns led to it. The first ran with a dirty tree. The second and
 third were one run that crossed midnight and split into two directories, which is how a date bug
-in the drivers was found. Each of those found something the tables now reflect. Nine things are
-worth reading out of the tables.
+in the drivers was found. Each of those found something the tables now reflect.
 
 **The quality metric moved.** Stub rate is different for every quantization. That was the
 whole point of replacing compile pass, which was 100 percent by construction. Gate 2 of the plan
@@ -257,7 +253,7 @@ four campaigns to see that column move twice. It is reported so nobody reads a 0
 
 **Speed and quality moved in opposite directions.** Q4_K_M was about three times faster than Q8_0
 in tokens per second and used about 4 GB less VRAM. It also produced almost nothing that
-compiled. For this pipeline, on this card, the faster quant is not the cheaper one.
+compiled. On this card the faster quant stubbed nearly everything it wrote, so the speed bought nothing.
 
 **Strategy B once measured nothing, and the harness now catches that.** In the first campaign
 the driver set `OLLAMA_KEEP_ALIVE=-1`, the request door sent it as the string "-1", Ollama
@@ -280,8 +276,7 @@ the first output three times and B the second. In the next campaign the assignme
 the second three times and B the first. Which output a run lands on depends on server state, not
 on the strategy. With three operations per run, one flip moves the stub rate by a third. That is
 why every row carries n and a range, and why the stub rate column in the strategies table should
-not be read as a strategy effect. A determinism pin on a local server is a strong preference,
-not a proof.
+not be read as a strategy effect. The pin is a strong preference. The server can still land somewhere else.
 
 **A second metric that was 100 percent by construction.** Until this campaign the verify pass
 counted a call as internal when any symbol carried its bare name. It then resolved the call by
@@ -290,7 +285,7 @@ follows a package qualified call through the caller's imports, and a call it can
 unresolved. On the same SWE-bench repositories the internal resolution is now 92.6 percent for
 astropy and 96.1 percent for django. The internal edge counts on the Go repositories dropped by
 up to a seventh. Calls into packages the index does not hold are now external instead of
-captured. Those are real numbers replacing a tautology. The same change reduced the
+captured. Those are numbers that can move, replacing one that could not. The same change reduced the
 verify findings on generated backends from several hundred per run, almost all standard library
 calls, to zero.
 
@@ -299,7 +294,7 @@ recall on the first 60 tasks of SWE-bench Verified in instance order, 22 astropy
 django tasks. It is not a solve rate. Hop 1 adds nothing over hop 0. The seed identifiers from
 the issue text already sit in the gold files, or they do not. Hop 2 raises recall while the
 median neighbourhood grows to about 420 files, which is more than half of astropy and a sixth of
-django. A net that wide catches gold files by width. The tighter resolver shrank that
+django. At that width the net catches the gold file by covering most of the repository. The tighter resolver shrank that
 neighbourhood by about a tenth with no change in recall, which says the width was never doing
 the work. The seed rule takes up to 80 identifiers from the issue text by exact name. In a
 repository of 2,500 files a name like `Model` matches in hundreds of places. The metric is
@@ -322,14 +317,13 @@ a flag, and measuring it properly. I expect no effect on Go repair, because the 
 tells the model what is wrong. I expect a possible effect on COBOL and on belief enrichment, where
 there is no compiler to lean on. The result gets published either way, including if it is null.
 
-## 8. What I would want a reader to take from this
+## 8. Three things I found by rereading my own code
 
-Not "I tuned some settings." The untuned runtime was an opportunity. Each control became a measured
-experiment. When the headline quality metric turned out to be 100 percent by construction, the
-response was to say so and build a metric that can move.
+The runtime arrived untuned, so every control turned into a sweep with a number at the end of it.
+When the headline quality metric turned out to be 100 percent by construction, I said so in the
+tables and built one that can move.
 
-The broken metric was not the only thing this pass turned up. The rest is the part I would actually
-want read. Three stories, one shape.
+The broken metric was not the only thing this pass turned up.
 
 **Two determinism bugs, found by reading my own code.** Neither came from a bug report. Determinism
 is the load bearing claim of this system: temperature 0, fixed seed, identical output. Symbol
@@ -341,14 +335,14 @@ I fixed it, wrote tests, and moved on. Then it turned out there was a second res
 different code path with the same flaw, plus a worse one. It had no tier preference at all, so a
 standard library symbol could capture a project call. My tests had gone through the fixed path and
 passed while the bug sat next door. The second fix deletes the duplicate rather than repairing it.
-Two functions answering the same question differently is how the split happened.
+Two functions answered the same question differently, and nothing forced them to agree.
 
-**Six tests that passed for the wrong reason.** A group of frontend tests had been failing. My first
-read was that they looked environmental. They were not. Three failed because a test helper matched
+**Six tests that failed for the wrong reason.** Seven tests had been failing. My first read was that
+they looked environmental. Six of them were not. Three failed because a test helper matched
 nodes by name, while call nodes carry their identifier in a different field. Every lookup silently
 found nothing, and a correct frontend took the blame. Two were a formatting artifact that rendered
 a flowchart label as broken text. One asserted a rule that a later version had deliberately
-replaced. Only one was genuinely platform specific.
+replaced. Only the seventh was genuinely platform specific.
 
 **A resolver that could not miss.** The verify pass that rereads generated code reported 100
 percent internal resolution on every Python repository. At the same time it reported hundreds of
@@ -357,15 +351,14 @@ by its bare name against every symbol the index held. Following a call through t
 imports instead turned the 100 into 92.6 and 96.1 on two public repositories, and turned the
 hundreds of findings into zero. Section 6 has both numbers.
 
-All three stories have the same shape, and that shape is the point. **The failure was not a wrong
-answer. It was a confident one.** A metric stuck at 100 percent. A test suite that was green on the
-path I happened to test. Six red tests I was ready to explain away as someone else's problem. A
-resolver that could not miss.
+All three have the same mechanic underneath: a comparison that could only come back one way. A
+metric stuck at 100 percent. A test suite green on the path I happened to test. Six red tests I was
+ready to blame on the platform. A resolver that could not miss.
 
-None of that is caught by running the thing and watching it work. It is caught by going back and
-asking what each number would look like if it were lying to you. The tables in section 6 are only
-worth what that habit is worth.
+Running the thing and watching it work catches none of that. I found all three by rereading code
+that had already passed its tests, and asking what each number would look like if it were lying to
+me.
 
 *All timings are native local GPU measurements taken through the project's own harness, on the
 machine described in section 0. The method is in [reproducible benchmarking](03-reproducible-benchmarking.md).
-Absolute speed depends on the GPU; the shape of each trade off is the part that transfers.*
+Absolute speed depends on the GPU. The shape of each trade off should hold on another card.*

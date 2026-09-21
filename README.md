@@ -1,100 +1,105 @@
-# Engineering portfolio: systems, applied LLMs, and GPU work
+**English** · [Tiếng Việt](README.vi.md)
 
-> Production systems I have designed and built, presented as architecture and measured results.
-> gen-system is being prepared for release under Apache-2.0. HieuLuat is a commercial product with
-> private code, so for it the writeup and the measured tables stand in for the source. Every
-> gen-system number in this repository links to the campaign, the commit, and the manifest that
-> produced it, so the claims can be checked without me in the room.
+# gen-system, HieuLuat, Beastwarden
 
----
+Three systems I work on. This is what I can publish about each.
 
-## About me
+gen-system has [its own repository](https://github.com/hpdkhoa/gen-system) with the code, the tests
+and the benchmark drivers. The other two I cannot open. HieuLuat runs on a law firm's real case
+files and the company is being sold, so its source, prompts and legal corpus stay where they are,
+and Beastwarden is half built. For those two this repository has the design docs and the tables,
+and that is all it has.
 
-I am Khoa Hoang. I spent a year at National Australia Bank and two and a half years at FPT Software
-as a solution architect, moving legacy systems to cloud native architectures.
+Everything here is written twice, English and Vietnamese. The Vietnamese files end in `.vi`.
 
-The hard part was never the target design. It was that nobody could say for certain what the old
-system actually did. That is a black box problem. An AI model has the same problem with your code,
-and you usually find out when the output is wrong.
+## The three systems
 
-Since November 2025 I have been building my own systems full time. One is a Go engine that makes
-an AI model's beliefs about a codebase visible and checkable. It grounds the model in a
-deterministic graph built from the AST, and it verifies the output from outside. Its proving
-ground is legacy code, COBOL and CA Gen included. The other is a Vietnamese legal question
-answering system that refuses to answer without citing the law. Both follow one rule: **measure
-it, do not assume it.**
-
----
-
-## Why this repo looks like this
-
-Each project here is real and shipped. gen-system's code, tests, benchmark drivers and engineering
-docs are in [its own repository](https://github.com/hpdkhoa/gen-system), which opens with the
-Apache-2.0 release. The other two stay private. HieuLuat is a commercial product whose ownership is
-changing hands and holds real legal data. Beastwarden is still in development.
-
-For the private ones, what is published is the part that shows the engineering: how the system is
-built, why I made the calls I made, and what the numbers say. Every claim points at the test, the
-measured run, or the table behind it.
-
-If you are hiring, start with the writeups. Each one includes a section on something that went
-wrong and what it cost, because that is where judgment shows. Writeup 03 states exactly how every
-number was produced, and gen-system's task set is committed before the first run, so it cannot be
-tuned to the results.
-
-## The projects
-
-| Project | What it is | Stack | Where |
+| System | What it does | Stack | Pages |
 |---|---|---|---|
-| **gen-system** | Makes an AI model's beliefs about code visible and checkable, grounds it in a graph built from the AST, and verifies the output from outside | Go, local LLMs via Ollama, deterministic graph RAG | [projects/gen-system/README.md](projects/gen-system/README.md) |
-| **HieuLuat** | A Vietnamese legal question answering system that will not answer without grounding | Python, pgvector, GPU embeddings (bge-m3), cross encoder rerank | [projects/hieuluat/README.md](projects/hieuluat/README.md) |
-| **Beastwarden** | A deterministic tactics roguelite with a seeded core and about 2,000 tests. Also a case study in directing AI assisted development | TypeScript, Vite, Pixi, Vitest | [projects/beastwarden/README.md](projects/beastwarden/README.md) |
-| **GPU and inference work** | Offload, streaming, quantization, two models on one card, roofline | Go harness, Ollama, Nsight method | [writeups/README.md](writeups/README.md) |
+| gen-system | Reads a codebase into a deterministic graph built from the AST, states what the model assumes about each routine, and checks the generated code from outside | Go, local models through Ollama, graph RAG | [projects/gen-system/README.md](projects/gen-system/README.md) |
+| HieuLuat | Vietnamese legal question answering. It cites the law it used, or it answers that it does not know | Python, pgvector, bge-m3 embeddings on GPU, cross encoder rerank | [projects/hieuluat/README.md](projects/hieuluat/README.md) |
+| Beastwarden | A tactics roguelite with a seeded deterministic core and about 2,000 tests. Also my notes on directing AI assisted development | TypeScript, Vite, Pixi, Vitest | [projects/beastwarden/README.md](projects/beastwarden/README.md) |
 
-## The writeups
+## Writeups
 
-Start here. They are the point of the repo.
+- [01, making a legal search path fast and still correct](writeups/01-hieuluat-retrieval-optimization.md).
+  Vector indexing, retrieve then rerank, FP16 embeddings, and how much of the request each stage
+  actually costs.
+- [02, tuning local LLM inference for a code engine](writeups/02-gen-system-inference-optimization.md).
+  GPU layer offload, streaming, quantization as a measured variable, and two models sharing one
+  16 GB card.
+- [03, reproducible benchmarking and regression gates](writeups/03-reproducible-benchmarking.md).
+  The method under the other two: frozen baselines, committed task sets, repeatable runs.
 
-- **[Making a legal search path fast and still correct](writeups/01-hieuluat-retrieval-optimization.md)**
-  Vector indexing, retrieve then rerank, FP16 embeddings. Includes a negative result: the reranker
-  cost 384 ms and improved nothing, and section 6 works out which component that actually blames.
+Each one has a section on something I got wrong. In 01 the reranker cost 384 ms and improved
+nothing. In 02 my quality metric could not move, so it could never fail. I keep writing those
+down, otherwise I walk into them again a year later.
 
-- **[Tuning local LLM inference for a code engine](writeups/02-gen-system-inference-optimization.md)**
-  GPU offload, streaming, quantization as a measured variable, and two models sharing one 16 GB
-  card. Section 4 is about discovering my own quality metric was broken, and what replaced it.
+The writeups are markdown. There is an HTML version of each one too, linked from
+[index.html](index.html), if you would rather read it that way.
 
-- **[Reproducible benchmarking and regression gates](writeups/03-reproducible-benchmarking.md)**
-  The method underneath both: frozen baselines, gates, repeatable runs, and why an objective
-  metric that cannot move is worse than a proxy.
+## Where the numbers come from
 
-## The evidence
-
-- [benchmarks/README.md](benchmarks/README.md): where every table comes from and how to read it.
-- [benchmarks/results/measured.json](benchmarks/results/measured.json): the measured tables, written
-  by the harnesses, never by hand. The writeups render from this file.
-- [benchmarks/ENVIRONMENT.md](benchmarks/ENVIRONMENT.md): the GPU, driver, runtime versions, commit
-  and models the gen-system campaign was frozen with, and the capture time.
-- The 2026-09-09 campaign's `ATTESTATION.md` and `MANIFEST.sha256` are in the gen-system
-  repository beside the raw files.
+- [benchmarks/results/measured.json](benchmarks/results/measured.json) holds every table. The
+  harnesses write that file. I do not type a number into a writeup by hand.
+- [benchmarks/ENVIRONMENT.md](benchmarks/ENVIRONMENT.md) records the machine behind the gen-system
+  tables: an RTX 4060 Ti with 16 GB, driver 595.71.05, Ollama 0.24.0, Go 1.25.0, and the commit the
+  campaign froze at.
+- The 2026-09-09 campaign keeps its raw files, `MANIFEST.sha256` and `ATTESTATION.md` in the
+  gen-system repository, beside the code that produced them.
+- gen-system rows carry the date, the commit, the frozen task set, `n` and a range. HieuLuat rows
+  carry the date, the evaluation set and the GPU, because that harness is private.
+- [benchmarks/README.md](benchmarks/README.md) explains how to read a table.
 
 ## Snippets
 
-The [snippets/](snippets/README.md) folder has small Python files that run on their own with toy
-data. They show the ideas from the writeups without any production code in them.
+Two small Python files that run on toy data with no dependencies:
 
-## What I am working on next
+```bash
+python snippets/toy_retrieval.py
+python snippets/roofline_demo.py
+```
 
-Turning the GPU work from understanding into a demonstrated kernel: a hand written, profiled CUDA
-kernel inside gen-system, measured by its own harness, with Nsight traces before and after and a
-roofline analysis. Writeup 01 states the honest limit of the original target up front: the scoring
-path it aimed at was under 1 ms of a 385 ms request, so the kernel is a capability demonstration,
-not an end to end speedup.
+`toy_retrieval.py` runs the retrieve then rerank pattern over random vectors, and shows why an
+approximate index needs its recall measured. `roofline_demo.py` is naive against blocked matrix
+multiply in plain Python, so the memory wall shows up without a GPU in the room. No production
+code in either. See [snippets/README.md](snippets/README.md).
 
-## Contact and licensing
+## Regenerating the repo
 
-**Khoa Hoang**
+`tools/fill_portfolio.py` runs on my own machine, where the private repositories live. It collects
+repository statistics from git, captures the environment with `nvidia-smi` and `ollama list`, and
+injects the tables from `measured.json` between the `<!--measured:...-->` markers. It never copies
+source into this repository.
+
+`tools/regen_writeup_html.py` rebuilds the HTML twin of each writeup, English and Vietnamese. Run
+it after `fill_portfolio.py`, or the twins go out of date with the markdown. The HTML files are
+generated, so edit the markdown and rerun the tool.
+
+## Status
+
+- gen-system: preparing the Apache-2.0 release.
+- HieuLuat: commercial, and its ownership is changing hands. The implementation stays private.
+- Beastwarden: in development.
+- Next: a hand written CUDA kernel inside gen-system, profiled with Nsight before and after, with a
+  roofline analysis. The path it targets is under 1 ms of a 385 ms request, so it demonstrates the
+  capability rather than speeding the request up.
+
+## About me
+
+Khoa Hoang. I spent a year at National Australia Bank, then two and a half years at FPT Software as
+a solution architect, moving legacy systems onto cloud native architectures.
+
+The target design was rarely the hard part. The hard part was that nobody could say what the old
+system actually did, and the people who knew had left years ago. An AI model has the same trouble
+with a codebase, except you find out when the output is wrong. I have built my own systems full
+time since November 2025. Both come back to that: write down what the machine is assuming, then
+run a check that can fail.
+
 [hpdkhoa2311@gmail.com](mailto:hpdkhoa2311@gmail.com) · [github.com/hpdkhoa](https://github.com/hpdkhoa)
 
-The writeups, architecture docs, benchmark tables and snippets in this repo are shared for
-portfolio review. See [LICENSE](LICENSE). gen-system is licensed separately under Apache-2.0 in its
-own repository. The HieuLuat implementation is proprietary and not included here.
+## License
+
+See [LICENSE](LICENSE). The writeups, architecture docs, benchmark tables and snippets are here to
+read and quote with attribution. gen-system is licensed separately under Apache-2.0 in its own
+repository. HieuLuat's implementation is proprietary and is not included here.

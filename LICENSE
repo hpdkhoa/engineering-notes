@@ -1,31 +1,24 @@
-Portfolio Content License
-=========================
+License
+=======
 
-Copyright (c) 2026 Khoa Hoang. All rights reserved.
+Copyright 2026 Khoa Hoang.
 
-This repository is a PORTFOLIO SHOWCASE. It contains two kinds of material with
-different terms:
+This repository holds documents and small teaching files, not the products they describe.
 
-1. WRITEUPS, ARCHITECTURE DOCUMENTS, BENCHMARK TABLES, AND SNIPPETS (the
-   contents of /writeups, /projects/*/README.md, /benchmarks, and /snippets):
-   These are shared publicly for the purpose of portfolio review and technical
-   discussion. You may read, reference, and quote them with attribution to
-   Khoa Hoang. The runnable snippets in /snippets are provided "as is" for
-   illustration and may be used and adapted freely for learning purposes.
+The writeups, project pages, benchmark tables and snippets are free to read, reference and quote,
+with attribution to Khoa Hoang. That covers everything under `writeups/`, `projects/*/README.md`,
+`benchmarks/` and `snippets/`. The snippets run on toy data, so use or adapt them however you like.
 
-2. THE UNDERLYING PRODUCTS:
-   HieuLuat: its implementation, source code, prompts, configuration, legal
-   corpus, and evaluation data are PROPRIETARY and are NOT included in this
-   repository. No license to those works is granted by this repository. The
-   architecture descriptions here do not constitute a release of that source.
-   gen-system: its source is licensed separately under the Apache License 2.0
-   in its own repository, https://github.com/hpdkhoa/gen-system, which opens
-   with its release. Nothing in this repository changes those terms. The
-   benchmark tables here are copies of that repository's measured results.
+The products behind the documents are not here.
 
-THE MATERIALS IN THIS REPOSITORY ARE PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
-KIND, EXPRESS OR IMPLIED. THE AUTHOR IS NOT LIABLE FOR ANY CLAIM, DAMAGES, OR
-OTHER LIABILITY ARISING FROM THE USE OF THESE MATERIALS.
+HieuLuat is a commercial product. Its source, prompts, configuration, legal corpus and evaluation
+data are private. Nothing in this repository grants a license to any of it, and an architecture
+description is a description, not a release.
 
-For deeper technical detail, including material that may be shared under NDA,
-contact hpdkhoa2311@gmail.com.
+gen-system lives at https://github.com/hpdkhoa/gen-system under the Apache License 2.0, and those
+terms govern that code. The benchmark tables here are copies of results measured there.
+
+No warranty. These materials come as they are, and I am not liable for any claim or damage that
+follows from using them.
+
+Questions: hpdkhoa2311@gmail.com

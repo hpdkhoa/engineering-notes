@@ -1,10 +1,12 @@
+**English** · [Tiếng Việt](README.vi.md)
+
 # Snippets: small runnable examples
 
-These are small Python files that run on their own with toy data. They show techniques used in the
-projects. They contain none of the production code, prompts, data, or configuration from HieuLuat
-or gen-system.
+Small Python files that run on their own with toy data, showing techniques the projects use. None of
+the production code, prompts, data or configuration from HieuLuat or gen-system is in here.
 
-They exist so the ideas in the writeups are easy to check without exposing anything private.
+They exist so you can check a claim from a writeup yourself, without me handing over anything
+private.
 
 Each file runs with a standard Python 3 install. Only the standard library is needed, plus NumPy
 where noted. No GPU, database, or network required.
@@ -21,6 +23,6 @@ python3 toy_retrieval.py
 python3 roofline_demo.py
 ```
 
-> These are teaching examples, not the systems. HieuLuat's implementation is proprietary.
-> gen-system's is being prepared for release under Apache-2.0. The point is to make the claims in the writeups
-> concrete enough to check.
+> > These are teaching examples. The real systems are larger and messier. HieuLuat's implementation
+> is proprietary, and gen-system's is being prepared for release under Apache-2.0. Run these two
+> and the claims in the writeups stop being claims.

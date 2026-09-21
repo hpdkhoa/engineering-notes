@@ -1,3 +1,5 @@
+**English** · [Tiếng Việt](01-hieuluat-retrieval-optimization.vi.md)
+
 # Making a legal search path fast and still correct
 
 ### Vector indexing, reranking, and FP16 embeddings, with the trade offs measured
@@ -5,8 +7,9 @@
 > **Context:** HieuLuat is a Vietnamese legal question answering system. See the
 > [project page](../projects/hieuluat/README.md). It is a commercial product whose ownership is
 > changing hands, so the code, the corpus and the prompts are private. **What this covers:** how I
-> made its search path fast without making it less trustworthy. In legal work, a fast wrong answer
-> is worse than a slow right one. The engineering and the measurements are below; the code is not.
+> > made its search path fast without making it less trustworthy. A wrong answer that arrives
+> quickly is still an answer a lawyer repeats to a client. The measurements are below. The code is
+> not.
 
 ---
 
@@ -16,16 +19,16 @@ One consumer GPU. The rows in section 5 were measured in August 2026 by HieuLuat
 bench on an NVIDIA RTX 4060 Ti with 16 GB, against a fixed, labeled evaluation set, and written into
 [`benchmarks/results/measured.json`](../benchmarks/results/measured.json) one label per
 configuration. The harness itself and its commit are in the private repository, so these rows
-carry the date, the evaluation set and the GPU, and nothing more. They have not been re-run since,
-and this writeup does not pretend otherwise. Where the text below reads a number out of a table,
-the table wins.
+carry the date, the evaluation set and the GPU, and nothing more. They have not been re-run since. Where the text quotes a number, the table above it is the source:
+the harness writes `measured.json`, `tools/fill_portfolio.py` renders the tables, and I fix the text
+when a table moves.
 
 ## 1. Where it started
 
 The search path had three parts that used the GPU or the database heavily: an embedder (bge-m3),
 a pgvector cosine search, and a cross encoder reranker.
 
-All three worked. None of them were tuned. Three problems stood out:
+All three worked. Nobody had tuned any of them.
 
 1. **The vector search had no index.** Postgres computed the distance to every row, then sorted.
    That is fine for a few thousand chunks. It gets slow as the corpus grows.
@@ -45,16 +48,16 @@ products that is a small quality loss. In a legal product it is not. HieuLuat pr
 the system says "no information" when the answer existed. That is a correctness bug, not a speed
 tuning detail.
 
-So this is not a free swap. It is a trade off between recall and latency, and the `probes` or
-`ef_search` setting is the dial.
+So the swap costs something. You trade recall against latency, and the dial is `probes` on IVFFlat
+or `ef_search` on HNSW.
 
 **What I measured.** Query latency as the corpus grows, for full scan, IVFFlat, and HNSW. Then
 recall at k against latency as I turned the dial. That second curve is the useful one. It shows
 how much latency buys how much recall, so the operating point can be chosen against the
 correctness bar instead of guessed.
 
-The goal was never to use the fastest index. It was to find the point where recall stays high
-enough to keep the promise. Then take the lowest latency available at that point.
+I was not shopping for the fastest index. I wanted the setting where recall still keeps the promise,
+and then the lowest latency I could get at that setting.
 
 ## 3. Move 2: retrieve wide, then rerank
 
@@ -134,15 +137,15 @@ bandwidth, which is what you would expect.
 | Retrieve wide, then rerank | Medium | Better grounded answers | Recall, answer quality, added latency |
 | FP16 embeddings | Low | Faster embedding, less VRAM | FP32 to FP16 throughput, batch size sweep |
 
-Three readings. The tuned index matches the exhaustive scan's recall at about a sixth of its
+Three things worth pulling out of it. The tuned index matches the exhaustive scan's recall at about a sixth of its
 median latency. The reranker adds 384 ms and changes answer quality by nothing. FP16 embeds the
 corpus about 2.9 times faster than FP32 in bulk, and the VRAM column reads n/a because the harness
 did not sample it, not because it was zero. The first and second readings are section 6.
 
 ## 6. The recall ceiling, and why reranking did not help
 
-One result in that table looks like a failure. It is worth reading carefully, because the
-interesting part is which component it actually blames.
+One result in that table looks like a failure. It took me a while to work out which component it
+blames.
 
 Recall at 10 is 0.75 on the full scan. **The full scan is exhaustive.** It compares the question to
 every row, so there is no approximation in it to lose recall to. That means 0.75 is not a result
@@ -158,9 +161,8 @@ reduction at no cost to recall. It did not "stay flat."
 **The reranker is a different story, and a genuinely negative result.** Retrieving 50 candidates
 and rescoring them added 384 ms and changed answer quality by nothing.
 
-That follows from the ceiling above. A reranker reorders the candidates it is given. It cannot find
-a chunk that retrieval never returned. If the right chunk is missing from the candidate set, no
-amount of rescoring brings it back.
+That follows from the ceiling. A reranker only reorders the candidates it was handed, so when the
+right chunk never came back from retrieval, rescoring cannot invent it.
 
 **What I have not separated.** A flat 0.75 across every configuration is also what a broken
 evaluation set looks like. The measurement that tells the two apart is recall at 50, which is the
@@ -173,35 +175,30 @@ candidate set the reranker actually sees.
   them. That is a reranker problem, and an easier one.
 
 That number was not measured before the product changed hands, so the honest claim stays the
-narrow one. The index is not the bottleneck, and the reranker has not earned its 384 ms. The
-default answer path should not pay for it. Removing a component that costs that much and buys
-nothing measurable is good engineering, and the measurement that could bring it back is named
-above.
+narrow one. The index is not the bottleneck, and the reranker has not earned its 384 ms. So it comes out of the default answer path, and it stays out until someone measures recall at 50.
 
 ## 7. Future work
 
 The deepest extension is a hand written CUDA kernel for part of the scoring path. It would fuse the
 normalize and dot product steps over the candidate set, profiled with Nsight against the NumPy and
-pgvector versions. That moves this from using the GPU to programming the GPU. With HieuLuat's code
+pgvector versions. That is the difference between calling a GPU library and writing the kernel. With HieuLuat's code
 private, that work now happens in gen-system, whose retrieval path has the same cosine scoring
 shape; the plan is in the [inference writeup](02-gen-system-inference-optimization.md).
 
-One caveat stated rather than left for a reader to work out. The scoring path is under 1 ms of a
-request that took about 385 ms with the reranker on. So a kernel there is a capability
-demonstration, not an end to end speedup. The honest version of this work says that up front,
-shows the roofline that predicts the result, and then measures it.
+The caveat comes first, because it is the whole shape of the thing. The scoring path is under 1 ms
+of a request that took about 385 ms with the reranker on. A kernel there demonstrates the
+capability. It will not speed up the request. So I say that at the start, show the roofline that
+predicts the result, and then measure it anyway.
 
-## 8. What I would want a reader to take from this
+## 8. What I would do again
 
-Not "I added an index." Rather: I treated a correctness critical search path as a set of measured
-trade offs. I chose the index operating point against a safety promise, and I split the embedding
-work into the two jobs that actually have different bottlenecks.
+I chose the index operating point against the safety promise rather than a latency target, and I
+split the embedding work into the two jobs that bottleneck on different things. Neither is clever.
+Both are what you skip when you are in a hurry.
 
-The part I would point at first is section 6. The reranking result was negative. The recall number
-looked flat enough to be embarrassing. The useful work was figuring out which component the number
-actually blames, and naming the one measurement that would settle it. That is worth more than
-another win would have been.
+Section 6 is the part I still think about. The reranking result came out negative and the recall
+number sat flat enough to be embarrassing. Working out which component the flat number blames, and
+naming the one measurement that would settle it, took longer than all the tuning did.
 
 *Measurements were taken before and after against fixed evaluation sets, on the machine in
-section 0. The method is in [reproducible benchmarking](03-reproducible-benchmarking.md). Absolute
-values depend on the GPU; the shape of each trade off is the part that transfers.*
+section 0. The method is in [reproducible benchmarking](03-reproducible-benchmarking.md). Absolute values depend on the GPU. The shape of each trade off should hold on another card.*

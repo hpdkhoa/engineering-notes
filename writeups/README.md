@@ -1,6 +1,8 @@
+**English** · [Tiếng Việt](README.vi.md)
+
 # Writeups
 
-Architecture and measured results, one writeup per topic. Each is available as markdown, which
+One writeup per topic: the architecture, and the numbers the harness reported. Each is available as markdown, which
 GitHub renders directly, and as a self contained HTML page. The [landing page](../index.html)
 links the HTML versions.
 

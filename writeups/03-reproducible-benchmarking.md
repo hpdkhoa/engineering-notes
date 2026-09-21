@@ -1,38 +1,39 @@
+**English** · [Tiếng Việt](03-reproducible-benchmarking.vi.md)
+
 # Reproducible benchmarking and regression gates
 
-### The method that makes every other number in this repository worth reading
+### Frozen baselines, gates, determinism, and the two metrics that measured nothing
 
 > **Context:** both projects here are tuned against fixed, repeatable measurements: gen-system,
 > whose harness and results are in [its repository](../projects/gen-system/README.md), and
 > HieuLuat, whose harness is private but whose rows follow the same rules. **What this covers:**
 > the three rules, what a frozen baseline and a gate are, how repeatable runs are made and where
-> they are not, and the two times a quality metric turned out to measure nothing. An optimization
-> without a before number is a guess. A benchmark you cannot reproduce is a story.
+> they are not, and the two times a quality metric turned out to measure nothing. Both of those lessons cost me a campaign each.
 
 ---
 
 ## 1. The three rules
 
-Performance work is only as good as its measurement. Three rules cover all of it.
+Three rules, and I have broken all three at least once.
 
 1. **Measure before and after, every time.** Every change is reported against a recorded baseline.
    No baseline, no claim.
-2. **Make runs repeatable where the work allows it.** That is what turns a measurement into
-   evidence. You want to measure the system, not sample noise.
+2. **Make runs repeatable where the work allows it.** Otherwise a rerun moves the number and you cannot tell your change from the noise.
 3. **Tie quality to something objective.** Speed bought with silent quality loss is not a win. So
    quality gets measured next to performance, never assumed to hold.
 
 ## 2. Frozen baselines
 
 A baseline is a recorded measurement of the system before a change, tagged with a version and taken
-under fixed conditions. It is stored, not remembered.
+under fixed conditions. It lives in a file, not in my head.
 
-Every optimization in both projects is reported against one. That is what makes a sentence like
-"this change improved throughput" checkable instead of something you have to take on trust.
+Every optimization in both projects is reported against one, so "this change improved throughput" is
+a sentence someone else can check.
 
 ## 3. Regression gates
 
-The stronger version of "measure after" is to make a regression fail the build automatically.
+Measuring after the fact only helps if somebody looks. A gate makes the regression fail the build
+instead.
 
 In gen-system, a benchmark run can be diffed against a committed baseline, and a drift beyond a
 tolerance exits non zero. The frozen COBOL baseline works this way: a third party COBOL repository
@@ -102,25 +103,21 @@ embedding model rather than a result about the index, and names the one measurem
   environment they were taken on, and where the manifest and attestation for the gen-system
   campaign live.
 
-## 7. What I would want a reader to take from this
+## 7. What the commit order proves, and what it does not
 
-Reproducible measurement is not paperwork. It is what makes the rest of this repository evidence
-instead of assertion.
+The baseline comes first, and the task set gets committed before the first run so it cannot be
+shaped around the results. Quality sits behind a gate, and runs stay repeatable where the work
+allows it. That is the whole of it, and it is mostly bookkeeping.
 
-I build the baseline first. I commit the task set before the first run, so it cannot be tuned to
-fit the results. I gate on a quality metric and keep runs repeatable. Then when I say a change made
-something faster while quality held, there is a number behind every word.
-
-One honest note on that proof. The public gen-system history starts on the day the repository was
+One honest note on that. The public gen-system history starts on the day the repository was
 prepared for release, so a reader cannot see the weeks before it. What a reader can check is the
 order inside that history: the commit that adds the task set comes before the commit that adds the
-results directory. The frozen date is also written inside the task file. Each campaign also ends
-with an attestation and a manifest. The manifest lists every raw file with its hash. So the
-numbers in the writeups can be traced to files and not to memory. HieuLuat's rows cannot offer
+results directory. The frozen date is also written inside the task file. Each campaign ends with an attestation and a manifest listing every raw file with its hash, so a
+number in a writeup traces back to a file rather than to my memory of a run. HieuLuat's rows cannot offer
 that trail, because the harness is private, and the tables say so instead of implying otherwise.
 
-The part that took longest to learn is in section 5. Having a metric is not the same as having a
-metric that works.
+Section 5 took the longest to learn. I had a metric for months before I noticed it could only return
+one value.
 
-*This writeup describes method. The figures live in the project writeups and depend on hardware.
-The method is the part that transfers.*
+*The figures live in the two project writeups, and they depend on the card in
+[ENVIRONMENT.md](../benchmarks/ENVIRONMENT.md). The rules here do not.*

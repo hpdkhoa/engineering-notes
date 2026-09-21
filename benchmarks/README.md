@@ -1,10 +1,10 @@
+**English** · [Tiếng Việt](README.vi.md)
+
 # Benchmarks
 
-Every number quoted in the writeups comes from a run recorded here. This folder is the evidence
-the rest of the repository rests on.
+Every number quoted in the writeups comes from a run recorded here. This folder holds the numbers the writeups quote.
 
-`results/measured.json` holds the measured tables. It is written by the projects' own harnesses,
-never by hand. The tables in the writeups are rendered from this file by `tools/fill_portfolio.py`,
+`results/measured.json` holds the measured tables. The projects' own harnesses write it. The tables in the writeups are rendered from this file by `tools/fill_portfolio.py`,
 so a table in a writeup and the JSON here cannot drift apart.
 
 ## Where each table comes from
@@ -16,8 +16,7 @@ gen-system table in this repository comes from one campaign, run on 2026-09-09 a
 frozen task set and the GPU. Rows carry `n`, and where the harness measured them, the min and max.
 A cell showing n/a means the harness did not measure that value. It is not a rounded zero.
 
-The campaign's results directory in the gen-system repository also holds two files that make the
-numbers checkable without me in the room:
+The campaign's results directory in the gen-system repository also holds two files that let someone else re-derive the rows:
 
 - `ATTESTATION.md` says what ran, on which commit and machine, which runs were dropped as not
   measured and why, and what did not run.
@@ -40,6 +39,5 @@ commit, and the models present when the gen-system campaign was frozen, with the
 - `stub rate pct` is the share of model written operations that failed the compile gate twice and
   were replaced by an explicit stub. It is the quality signal; compile pass rate is 100 percent by
   construction and is not a table.
-- The SWE-bench tables are localization recall on the first 60 tasks of SWE-bench Verified. They
-  are not a solve rate, and the neighbourhood size column is printed next to the recall so the
-  width of the net is visible.
+- The SWE-bench tables are localization recall on the first 60 tasks of SWE-bench Verified. They are not a solve rate. The neighbourhood size column sits next to the recall, because a recall
+number means little until you know how many files the search returned.

@@ -102,7 +102,21 @@ def render_table(section, title):
         prov_line = f"\n*Measured {' · '.join(bits)}.*\n"
     return f"\n**{title}**\n\n{header}\n{sep}\n{body}\n{prov_line}"
 
-def inject_measured(md_path, marker, blocks):
+MEASURED_HEAD = {
+    "en": ("### Measured results",
+           "*Rendered from `benchmarks/results/measured.json`. Every number below "
+           "comes from the project's own harness on the machine described in section 0.*"),
+    "vi": ("### K\u1ebft qu\u1ea3 \u0111o",
+           "*D\u1ef1ng t\u1eeb `benchmarks/results/measured.json`. M\u1ecdi con s\u1ed1 d\u01b0\u1edbi \u0111\u00e2y "
+           "\u0111\u1ebfn t\u1eeb harness c\u1ee7a ch\u00ednh d\u1ef1 \u00e1n, tr\u00ean m\u00e1y \u0111\u01b0\u1ee3c m\u00f4 t\u1ea3 \u1edf m\u1ee5c 0.*"),
+}
+
+def vi_twin(path):
+    """The Vietnamese sibling of a markdown file (README.md -> README.vi.md), or None."""
+    p = path.with_name(path.stem + ".vi" + path.suffix)
+    return p if p.exists() else None
+
+def inject_measured(md_path, marker, blocks, lang="en"):
     text = md_path.read_text(encoding="utf-8")
     pat = re.compile(r"(<!--measured:%s-->)(.*?)(<!--/measured-->)" % marker, re.S)
     if not pat.search(text):
@@ -111,10 +125,9 @@ def inject_measured(md_path, marker, blocks):
     content = "".join(blocks).strip()
     if not content:
         return False
-    payload = ("\n### Measured results\n\n"
-               "*Rendered from `benchmarks/results/measured.json`. Every number below "
-               "comes from the project's own harness on the machine described in section 0.*\n"
-               + "".join(blocks) + "\n")
+    head, caption = MEASURED_HEAD[lang]
+    # the tables themselves stay as rendered from the json, so both languages show the same data
+    payload = "\n" + head + "\n\n" + caption + "\n" + "".join(blocks) + "\n"
     new = pat.sub(lambda m: m.group(1) + payload + m.group(3), text)
     if new != text:
         md_path.write_text(new, encoding="utf-8")
@@ -138,11 +151,12 @@ def main():
                   ROOT / "projects/beastwarden/README.md"]
     w01 = ROOT / "writeups/01-hieuluat-retrieval-optimization.md"
     w02 = ROOT / "writeups/02-gen-system-inference-optimization.md"
+    md_targets = md_targets + [t for t in (vi_twin(f) for f in md_targets) if t]
 
     # ---------- check mode ----------
     if args.check:
         unfilled = []
-        for f in md_targets + [w01, w02, ROOT / "index.html"]:
+        for f in md_targets + [w01, w02, ROOT / "index.html"] + [t for t in (vi_twin(w01), vi_twin(w02)) if t]:
             t = f.read_text(encoding="utf-8")
             for m in re.finditer(r"<!--stat:(\w+)-->(.*?)<!--/stat-->", t, re.S):
                 if m.group(2).strip() in {"", "—", "-"}:
@@ -219,6 +233,8 @@ def main():
               render_table(hl.get("rerank_effect", {}), "Two-stage rerank: quality vs added latency"),
               render_table(hl.get("embedding_throughput", {}), "Embedding precision: throughput & VRAM")]
     inject_measured(w01, "hieuluat", blocks)
+    if vi_twin(w01):
+        inject_measured(vi_twin(w01), "hieuluat", blocks, "vi")
 
     gs = mj.get("gen_system", {})
     blocks = [render_table(gs.get("offload_curve", {}), "GPU-layer offload: tokens/sec vs VRAM"),
@@ -230,6 +246,8 @@ def main():
               render_table(gs.get("swebench_verified_localization_by_repo", {}), "SWE-bench Verified: localization recall by repository"),
               render_table(gs.get("swebench_verified_repos", {}), "SWE-bench Verified: can the parsers read the repositories")]
     inject_measured(w02, "gen", blocks)
+    if vi_twin(w02):
+        inject_measured(vi_twin(w02), "gen", blocks, "vi")
 
     # ---------- 5. environment capture ----------
     # Only on request: ENVIRONMENT.md describes the benchmark machine, and a

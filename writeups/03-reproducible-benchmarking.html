@@ -263,6 +263,8 @@ html[data-theme="dark"] .ra-sent.speaking{background:#1d3a36;box-shadow:0 0 0 3p
       <a href="01-hieuluat-retrieval-optimization.html">1 · Legal search path</a><a href="02-gen-system-inference-optimization.html">2 · Local LLM inference</a><a href="03-reproducible-benchmarking.html" class="current">3 · Benchmarking method</a>
       <div class="gs-label" style="margin-top:14px;">Portfolio</div>
       <a href="../index.html">Home</a><a href="../benchmarks/README.md">Benchmarks and evidence</a><a href="../projects/gen-system/README.md">gen-system</a><a href="../projects/hieuluat/README.md">HieuLuat</a>
+      <div class="gs-label" style="margin-top:14px;">Language</div>
+      <a href="03-reproducible-benchmarking.vi.html" hreflang="vi">Tiếng Việt</a>
     </div>
 
     <div class="rail-foot">
@@ -273,18 +275,19 @@ html[data-theme="dark"] .ra-sent.speaking{background:#1d3a36;box-shadow:0 0 0 3p
 
   <main class="main">
     <article class="doc" id="doc">
+<p><strong>English</strong> · <a href="03-reproducible-benchmarking.vi.html">Tiếng Việt</a></p>
 <h1 id="reproducible-benchmarking-and-regression-gates">Reproducible benchmarking and regression gates</h1>
-<h3 id="the-method-that-makes-every-other-number-in-this-repository-worth-reading">The method that makes every other number in this repository worth reading</h3>
-<blockquote><p><strong>Context:</strong> both projects here are tuned against fixed, repeatable measurements: gen-system, whose harness and results are in <a href="../projects/gen-system/README.md">its repository</a>, and HieuLuat, whose harness is private but whose rows follow the same rules. <strong>What this covers:</strong> the three rules, what a frozen baseline and a gate are, how repeatable runs are made and where they are not, and the two times a quality metric turned out to measure nothing. An optimization without a before number is a guess. A benchmark you cannot reproduce is a story.</p></blockquote>
+<h3 id="frozen-baselines-gates-determinism-and-the-two-metrics-that-measured-nothing">Frozen baselines, gates, determinism, and the two metrics that measured nothing</h3>
+<blockquote><p><strong>Context:</strong> both projects here are tuned against fixed, repeatable measurements: gen-system, whose harness and results are in <a href="../projects/gen-system/README.md">its repository</a>, and HieuLuat, whose harness is private but whose rows follow the same rules. <strong>What this covers:</strong> the three rules, what a frozen baseline and a gate are, how repeatable runs are made and where they are not, and the two times a quality metric turned out to measure nothing. Both of those lessons cost me a campaign each.</p></blockquote>
 <hr>
 <h2 id="1-the-three-rules">1. The three rules</h2>
-<p>Performance work is only as good as its measurement. Three rules cover all of it.</p>
-<ol><li><strong>Measure before and after, every time.</strong> Every change is reported against a recorded baseline. No baseline, no claim.</li><li><strong>Make runs repeatable where the work allows it.</strong> That is what turns a measurement into evidence. You want to measure the system, not sample noise.</li><li><strong>Tie quality to something objective.</strong> Speed bought with silent quality loss is not a win. So quality gets measured next to performance, never assumed to hold.</li></ol>
+<p>Three rules, and I have broken all three at least once.</p>
+<ol><li><strong>Measure before and after, every time.</strong> Every change is reported against a recorded baseline. No baseline, no claim.</li><li><strong>Make runs repeatable where the work allows it.</strong> Otherwise a rerun moves the number and you cannot tell your change from the noise.</li><li><strong>Tie quality to something objective.</strong> Speed bought with silent quality loss is not a win. So quality gets measured next to performance, never assumed to hold.</li></ol>
 <h2 id="2-frozen-baselines">2. Frozen baselines</h2>
-<p>A baseline is a recorded measurement of the system before a change, tagged with a version and taken under fixed conditions. It is stored, not remembered.</p>
-<p>Every optimization in both projects is reported against one. That is what makes a sentence like "this change improved throughput" checkable instead of something you have to take on trust.</p>
+<p>A baseline is a recorded measurement of the system before a change, tagged with a version and taken under fixed conditions. It lives in a file, not in my head.</p>
+<p>Every optimization in both projects is reported against one, so "this change improved throughput" is a sentence someone else can check.</p>
 <h2 id="3-regression-gates">3. Regression gates</h2>
-<p>The stronger version of "measure after" is to make a regression fail the build automatically.</p>
+<p>Measuring after the fact only helps if somebody looks. A gate makes the regression fail the build instead.</p>
 <p>In gen-system, a benchmark run can be diffed against a committed baseline, and a drift beyond a tolerance exits non zero. The frozen COBOL baseline works this way: a third party COBOL repository at a pinned commit, whose resolution recall is recorded. A parser change that lowers that recall is caught by the gate, not found weeks later.</p>
 <p>The same idea applies to HieuLuat's labeled evaluation sets. A change to the retrieval path is accepted only if measured quality holds or improves on those fixed cases. A faster index that quietly drops recall is rejected rather than shipped.</p>
 <h2 id="4-repeatability">4. Repeatability</h2>
@@ -300,12 +303,11 @@ html[data-theme="dark"] .ra-sent.speaking{background:#1d3a36;box-shadow:0 0 0 3p
 <p>HieuLuat had the same shape of problem from the other side: a recall that stayed at 0.75 under every index and every reranker setting. Section 6 of the <a href="01-hieuluat-retrieval-optimization.html">legal search writeup</a> reads that flat number as a ceiling of the embedding model rather than a result about the index, and names the one measurement, recall at 50, that would settle it.</p>
 <h2 id="6-where-this-shows-up">6. Where this shows up</h2>
 <ul><li>The <a href="01-hieuluat-retrieval-optimization.html">legal search path writeup</a>: recall and latency measured against fixed evaluation sets under this method. Section 6 there is a worked example of reading a flat number correctly.</li><li>The <a href="02-gen-system-inference-optimization.html">inference writeup</a>: speed, VRAM, stub rate, and repair counts all run through the benchmark harness against frozen baselines, with the provenance of every table printed under it.</li><li>The <a href="../benchmarks/README.md">benchmarks folder</a>: the measured tables themselves, the environment they were taken on, and where the manifest and attestation for the gen-system campaign live.</li></ul>
-<h2 id="7-what-i-would-want-a-reader-to-take-from-this">7. What I would want a reader to take from this</h2>
-<p>Reproducible measurement is not paperwork. It is what makes the rest of this repository evidence instead of assertion.</p>
-<p>I build the baseline first. I commit the task set before the first run, so it cannot be tuned to fit the results. I gate on a quality metric and keep runs repeatable. Then when I say a change made something faster while quality held, there is a number behind every word.</p>
-<p>One honest note on that proof. The public gen-system history starts on the day the repository was prepared for release, so a reader cannot see the weeks before it. What a reader can check is the order inside that history: the commit that adds the task set comes before the commit that adds the results directory. The frozen date is also written inside the task file. Each campaign also ends with an attestation and a manifest. The manifest lists every raw file with its hash. So the numbers in the writeups can be traced to files and not to memory. HieuLuat's rows cannot offer that trail, because the harness is private, and the tables say so instead of implying otherwise.</p>
-<p>The part that took longest to learn is in section 5. Having a metric is not the same as having a metric that works.</p>
-<p><em>This writeup describes method. The figures live in the project writeups and depend on hardware. The method is the part that transfers.</em></p>
+<h2 id="7-what-the-commit-order-proves-and-what-it-does-not">7. What the commit order proves, and what it does not</h2>
+<p>The baseline comes first, and the task set gets committed before the first run so it cannot be shaped around the results. Quality sits behind a gate, and runs stay repeatable where the work allows it. That is the whole of it, and it is mostly bookkeeping.</p>
+<p>One honest note on that. The public gen-system history starts on the day the repository was prepared for release, so a reader cannot see the weeks before it. What a reader can check is the order inside that history: the commit that adds the task set comes before the commit that adds the results directory. The frozen date is also written inside the task file. Each campaign ends with an attestation and a manifest listing every raw file with its hash, so a number in a writeup traces back to a file rather than to my memory of a run. HieuLuat's rows cannot offer that trail, because the harness is private, and the tables say so instead of implying otherwise.</p>
+<p>Section 5 took the longest to learn. I had a metric for months before I noticed it could only return one value.</p>
+<p><em>The figures live in the two project writeups, and they depend on the card in <a href="../benchmarks/ENVIRONMENT.md">ENVIRONMENT.md</a>. The rules here do not.</em></p>
 </article>
   </main>
 </div>
@@ -412,50 +414,45 @@ document.addEventListener('DOMContentLoaded',function(){
   var blocks=doc.querySelectorAll('p, li, blockquote');
   var sentences=[]; // {el, text}
   blocks.forEach(function(bl){
-    // skip code blocks entirely
+    // skip code blocks, and blocks that hold other blocks (their children are wrapped on their own)
     if(bl.closest('pre')) return;
+    if(bl.querySelector('p, li, blockquote')) return;
     wrapSentences(bl);
   });
   function wrapSentences(bl){
+    // Wrap the text nodes, not the block, so strong, em, code and links keep their markup.
+    // A sentence that crosses an inline element becomes several spans with one index.
     var raw=bl.textContent.replace(/\s+/g,' ').trim();
     if(!raw) return;
-    // If the block contains inline markup (bold/italic/code/links), DON'T
-    // flatten it, since that would strip the formatting. Instead treat the whole
-    // block as a single read-aloud unit, preserving its HTML. We add a
-    // transparent wrapper span only for highlight bookkeeping.
-    var hasMarkup = bl.querySelector('strong,em,code,a,b,i') !== null;
-    if(hasMarkup){
-      bl.setAttribute('data-ra-block','1');
-      bl.classList.add('ra-sent');
-      bl.dataset.idx=sentences.length;
-      bl.addEventListener('click',function(){ startFrom(+this.dataset.idx); });
-      sentences.push({el:bl,text:raw});
-      return;
-    }
-    // Plain-text block: split into sentences for finer highlighting.
-    // This split NEVER drops characters.
-    var parts=[], buf='';
-    for(var i=0;i<raw.length;i++){
-      var c=raw[i]; buf+=c;
-      if(c==='.'||c==='!'||c==='?'){
-        while(i+1<raw.length && '"\u201D\u2019\')]'.indexOf(raw[i+1])>=0){ buf+=raw[++i]; }
-        parts.push(buf); buf='';
-      }
-    }
-    if(buf.trim()) parts.push(buf);
-    if(!parts.length) parts=[raw];
     bl.setAttribute('data-ra-block','1');
-    bl.innerHTML='';
-    parts.forEach(function(s){
-      s=s.trim(); if(!s) return;
-      var span=document.createElement('span');
-      span.className='ra-sent';
-      span.textContent=s+' ';
-      span.dataset.idx=sentences.length;
-      span.addEventListener('click',function(){ startFrom(+this.dataset.idx); });
-      bl.appendChild(span);
-      sentences.push({el:span,text:s});
+    var walker=document.createTreeWalker(bl,NodeFilter.SHOW_TEXT,null);
+    var nodes=[]; while(walker.nextNode()) nodes.push(walker.currentNode);
+    var curText='', curSpans=[];
+    function onClick(){ startFrom(+this.dataset.idx); }
+    function closeSentence(){
+      var t=curText.replace(/\s+/g,' ').trim();
+      if(curSpans.length&&t){
+        var i=sentences.length;
+        curSpans.forEach(function(sp){ sp.dataset.idx=i; sp.addEventListener('click',onClick); });
+        sentences.push({el:curSpans[0],els:curSpans,text:t});
+      }
+      curText=''; curSpans=[];
+    }
+    nodes.forEach(function(tn){
+      if(!tn.nodeValue||tn.parentNode.closest('pre')) return;
+      var pieces=tn.nodeValue.split(/([.!?]+(?=\s|$))/);
+      var frag=document.createDocumentFragment();
+      for(var k=0;k<pieces.length;k+=2){
+        var chunk=pieces[k]+(pieces[k+1]||'');
+        if(!chunk) continue;
+        var span=document.createElement('span');
+        span.className='ra-sent'; span.textContent=chunk;
+        frag.appendChild(span); curSpans.push(span); curText+=chunk;
+        if(pieces[k+1]!==undefined) closeSentence();
+      }
+      tn.parentNode.replaceChild(frag,tn);
     });
+    closeSentence();
   }
 
   var idx=0, playing=false, paused=false;
@@ -492,7 +489,7 @@ document.addEventListener('DOMContentLoaded',function(){
 
   function highlight(i){
     sentences.forEach(function(s,j){
-      s.el.classList.toggle('speaking',j===i);
+      (s.els||[s.el]).forEach(function(e){ e.classList.toggle('speaking',j===i); });
     });
     document.querySelectorAll('.ra-active-block').forEach(function(b){b.classList.remove('ra-active-block');});
     if(sentences[i]){
@@ -530,7 +527,7 @@ document.addEventListener('DOMContentLoaded',function(){
   }
   function stop(){
     playing=false; paused=false; synth.cancel();
-    sentences.forEach(function(s){s.el.classList.remove('speaking');});
+    sentences.forEach(function(s){ (s.els||[s.el]).forEach(function(e){ e.classList.remove('speaking'); }); });
     document.querySelectorAll('.ra-active-block').forEach(function(b){b.classList.remove('ra-active-block');});
     setUI();
   }

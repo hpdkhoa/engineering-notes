@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="vi" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Making a legal search path fast and still correct</title>
+<title>Làm cho luồng tìm kiếm pháp luật nhanh mà vẫn đúng</title>
 <script>
 window.MathJax={tex:{inlineMath:[['\\\\(','\\\\)']],displayMath:[['$$','$$'],['\\\\[','\\\\]']],processEscapes:true,tags:'none'},
 options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};
@@ -200,13 +200,13 @@ html[data-theme="dark"] .ra-sent.speaking{background:#1d3a36;box-shadow:0 0 0 3p
 <body>
 <div class="read-hairline" id="readHairline"></div>
 
-<button class="menu-toggle" id="menuToggle" aria-label="Open contents" onclick="window.__openMenu()">
+<button class="menu-toggle" id="menuToggle" aria-label="Mở mục lục" onclick="window.__openMenu()">
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
 </button>
 <div class="menu-scrim" id="menuScrim"></div>
 
 <div class="topbar">
-  <button class="icon-btn" id="themeBtn" aria-label="Toggle light/dark theme" onclick="window.__toggleTheme()">
+  <button class="icon-btn" id="themeBtn" aria-label="Chuyển giao diện sáng tối" onclick="window.__toggleTheme()">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="themeIcon"></svg>
   </button>
 </div>
@@ -221,37 +221,37 @@ html[data-theme="dark"] .ra-sent.speaking{background:#1d3a36;box-shadow:0 0 0 3p
         <circle cx="20" cy="20" r="3.4" fill="#B45309"/>
         <path d="M11 11L20 20L29 11M11 29L20 20L29 29M20 11.5V28.5" stroke="#FAF8F3" stroke-width="1.5" opacity="0.8"/>
       </svg>
-      <span class="bt">Engineering<br>Writeups</span>
+      <span class="bt">Bài viết<br>kỹ thuật</span>
     </div>
-    <div class="kicker">Writeup · 1 of 3</div>
-    <h1 class="title">Making a legal search path fast and still correct</h1>
-    <p class="subtitle">Architecture and measured results: the web version of the portfolio writeups.</p>
+    <div class="kicker">Bài viết · 1 trên 3</div>
+    <h1 class="title">Làm cho luồng tìm kiếm pháp luật nhanh mà vẫn đúng</h1>
+    <p class="subtitle">Kiến trúc và kết quả đo: bản web của các bài viết trong portfolio.</p>
 
     <div class="progress-card">
-      <div class="progress-top"><span class="progress-label">Reading progress</span><span class="progress-pct" id="progPct">0%</span></div>
+      <div class="progress-top"><span class="progress-label">Tiến độ đọc</span><span class="progress-pct" id="progPct">0%</span></div>
       <div class="progress-bar"><div class="progress-fill" id="progFill"></div></div>
     </div>
 
     <button class="ra-launch" id="raLaunch" type="button" aria-pressed="false">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 010 7M19 5a9 9 0 010 14"/></svg>
-      <span>Read aloud<span class="ra-launch-sub" id="raLaunchSub">Listen sentence by sentence</span></span>
+      <span>Đọc to<span class="ra-launch-sub" id="raLaunchSub">Nghe từng câu</span></span>
     </button>
-    <div class="ra-unsupported" id="raUnsupported">Your browser doesn't support speech synthesis.</div>
+    <div class="ra-unsupported" id="raUnsupported">Trình duyệt này không hỗ trợ đọc to.</div>
 
     <div class="ra-panel" id="raPanel">
       <div class="ra-row">
-        <button class="ra-btn" id="raPrev" aria-label="Previous sentence"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M19 20L9 12l10-8v16zM5 19V5"/></svg></button>
-        <button class="ra-btn primary" id="raPlay" aria-label="Play / pause"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 4l14 8-14 8V4z" id="raPlayIcon"/></svg></button>
-        <button class="ra-btn" id="raNext" aria-label="Next sentence"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M5 4l10 8-10 8V4zM19 5v14"/></svg></button>
-        <button class="ra-btn" id="raStop" aria-label="Stop"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="5" y="5" width="14" height="14" rx="2"/></svg></button>
-        <span class="ra-status" id="raStatus">Idle</span>
+        <button class="ra-btn" id="raPrev" aria-label="Câu trước"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M19 20L9 12l10-8v16zM5 19V5"/></svg></button>
+        <button class="ra-btn primary" id="raPlay" aria-label="Phát / tạm dừng"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 4l14 8-14 8V4z" id="raPlayIcon"/></svg></button>
+        <button class="ra-btn" id="raNext" aria-label="Câu sau"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M5 4l10 8-10 8V4zM19 5v14"/></svg></button>
+        <button class="ra-btn" id="raStop" aria-label="Dừng"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="5" y="5" width="14" height="14" rx="2"/></svg></button>
+        <span class="ra-status" id="raStatus">Đang nghỉ</span>
       </div>
       <div class="ra-ctl">
-        <label for="raRate">Speed <span class="ra-rate-val" id="raRateVal">1.00×</span></label>
+        <label for="raRate">Tốc độ <span class="ra-rate-val" id="raRateVal">1.00×</span></label>
         <input type="range" id="raRate" min="0.5" max="2" step="0.05" value="1">
       </div>
       <div class="ra-ctl">
-        <label for="raVoice">Voice</label>
+        <label for="raVoice">Giọng đọc</label>
         <select id="raVoice"></select>
       </div>
     </div>
@@ -259,55 +259,55 @@ html[data-theme="dark"] .ra-sent.speaking{background:#1d3a36;box-shadow:0 0 0 3p
     <nav><ul class="toc" id="toc"></ul></nav>
 
     <div class="guide-switch">
-      <div class="gs-label">Portfolio writeups</div>
-      <a href="01-hieuluat-retrieval-optimization.html" class="current">1 · Legal search path</a><a href="02-gen-system-inference-optimization.html">2 · Local LLM inference</a><a href="03-reproducible-benchmarking.html">3 · Benchmarking method</a>
+      <div class="gs-label">Bài viết</div>
+      <a href="01-hieuluat-retrieval-optimization.vi.html" class="current">1 · Đường tìm kiếm pháp luật</a><a href="02-gen-system-inference-optimization.vi.html">2 · Inference LLM cục bộ</a><a href="03-reproducible-benchmarking.vi.html">3 · Phương pháp benchmark</a>
       <div class="gs-label" style="margin-top:14px;">Portfolio</div>
-      <a href="../index.html">Home</a><a href="../benchmarks/README.md">Benchmarks and evidence</a><a href="../projects/gen-system/README.md">gen-system</a><a href="../projects/hieuluat/README.md">HieuLuat</a>
-      <div class="gs-label" style="margin-top:14px;">Language</div>
-      <a href="01-hieuluat-retrieval-optimization.vi.html" hreflang="vi">Tiếng Việt</a>
+      <a href="../index.html">Trang chủ</a><a href="../benchmarks/README.vi.md">Benchmark và bằng chứng</a><a href="../projects/gen-system/README.vi.md">gen-system</a><a href="../projects/hieuluat/README.vi.md">HieuLuat</a>
+      <div class="gs-label" style="margin-top:14px;">Ngôn ngữ</div>
+      <a href="01-hieuluat-retrieval-optimization.html" hreflang="en">English</a>
     </div>
 
     <div class="rail-foot">
-      Theme &amp; position save in this browser.
-      <br><button id="resetBtn">Reset reading position</button>
+      Giao diện và vị trí đọc được lưu trong trình duyệt này.
+      <br><button id="resetBtn">Đặt lại vị trí đọc</button>
     </div>
   </aside>
 
   <main class="main">
     <article class="doc" id="doc">
-<p><strong>English</strong> · <a href="01-hieuluat-retrieval-optimization.vi.html">Tiếng Việt</a></p>
-<h1 id="making-a-legal-search-path-fast-and-still-correct">Making a legal search path fast and still correct</h1>
-<h3 id="vector-indexing-reranking-and-fp16-embeddings-with-the-trade-offs-measured">Vector indexing, reranking, and FP16 embeddings, with the trade offs measured</h3>
-<blockquote><p><strong>Context:</strong> HieuLuat is a Vietnamese legal question answering system. See the <a href="../projects/hieuluat/README.md">project page</a>. It is a commercial product whose ownership is changing hands, so the code, the corpus and the prompts are private. <strong>What this covers:</strong> how I</p>
-<blockquote><p>made its search path fast without making it less trustworthy. A wrong answer that arrives</p></blockquote>
-<p>quickly is still an answer a lawyer repeats to a client. The measurements are below. The code is not.</p></blockquote>
+<p><a href="01-hieuluat-retrieval-optimization.html">English</a> · <strong>Tiếng Việt</strong></p>
+<h1 id="làm-cho-luồng-tìm-kiếm-pháp-luật-nhanh-mà-vẫn-đúng">Làm cho luồng tìm kiếm pháp luật nhanh mà vẫn đúng</h1>
+<h3 id="vector-index-rerank-và-embedding-fp16-cùng-các-đánh-đổi-đã-đo">Vector index, rerank và embedding FP16, cùng các đánh đổi đã đo</h3>
+<blockquote><p><strong>Bối cảnh:</strong> HieuLuat là một hệ thống hỏi đáp pháp luật Việt Nam. Xem <a href="../projects/hieuluat/README.vi.md">trang dự án</a>. Đây là một sản phẩm thương mại đang được chuyển giao quyền sở hữu, nên code, corpus và prompt là riêng tư. <strong>Nội dung bài:</strong> cách tôi làm cho</p>
+<blockquote><p>luồng tìm kiếm của nó nhanh hơn mà không làm nó kém tin cậy đi. Một câu trả lời sai đến nhanh</p></blockquote>
+<p>thì vẫn là câu mà luật sư sẽ nhắc lại với khách hàng. Các phép đo nằm bên dưới. Code thì không.</p></blockquote>
 <hr>
-<h2 id="0-the-machine">0. The machine</h2>
-<p>One consumer GPU. The rows in section 5 were measured in August 2026 by HieuLuat's own retrieval bench on an NVIDIA RTX 4060 Ti with 16 GB, against a fixed, labeled evaluation set, and written into <a href="../benchmarks/results/measured.json"><code>benchmarks/results/measured.json</code></a> one label per configuration. The harness itself and its commit are in the private repository, so these rows carry the date, the evaluation set and the GPU, and nothing more. They have not been re-run since. Where the text quotes a number, the table above it is the source: the harness writes <code>measured.json</code>, <code>tools/fill_portfolio.py</code> renders the tables, and I fix the text when a table moves.</p>
-<h2 id="1-where-it-started">1. Where it started</h2>
-<p>The search path had three parts that used the GPU or the database heavily: an embedder (bge-m3), a pgvector cosine search, and a cross encoder reranker.</p>
-<p>All three worked. Nobody had tuned any of them.</p>
-<ol><li><strong>The vector search had no index.</strong> Postgres computed the distance to every row, then sorted. That is fine for a few thousand chunks. It gets slow as the corpus grows.</li><li><strong>The reranker was switched off.</strong> The component that judges relevance best was not being used.</li><li><strong>The embedder ran in full precision.</strong> No FP16 path, so it used more memory bandwidth than it needed to.</li></ol>
-<h2 id="2-move-1-add-a-real-vector-index">2. Move 1: add a real vector index</h2>
-<p>This was the cheapest change and the biggest win. I replaced the full scan with an approximate nearest neighbor index. There are two options in pgvector: IVFFlat, which groups vectors into lists, and HNSW, which builds a graph. Both replace a full scan with a lookup that scales.</p>
-<p><strong>The catch is the word approximate.</strong> These indexes can miss the true nearest neighbor. In most products that is a small quality loss. In a legal product it is not. HieuLuat promises to say "no information" when it cannot find an answer. If the index drops the chunk that held the answer, the system says "no information" when the answer existed. That is a correctness bug, not a speed tuning detail.</p>
-<p>So the swap costs something. You trade recall against latency, and the dial is <code>probes</code> on IVFFlat or <code>ef_search</code> on HNSW.</p>
-<p><strong>What I measured.</strong> Query latency as the corpus grows, for full scan, IVFFlat, and HNSW. Then recall at k against latency as I turned the dial. That second curve is the useful one. It shows how much latency buys how much recall, so the operating point can be chosen against the correctness bar instead of guessed.</p>
-<p>I was not shopping for the fastest index. I wanted the setting where recall still keeps the promise, and then the lowest latency I could get at that setting.</p>
-<h2 id="3-move-2-retrieve-wide-then-rerank">3. Move 2: retrieve wide, then rerank</h2>
-<p>Once the index was in place, retrieval became cheap enough to pull a larger candidate set and rescore it. The cross encoder scores each question and chunk pair, then keeps the best few.</p>
-<p>This is a standard two stage pattern. It usually improves how well answers are grounded in the source, which for legal work is the metric that matters.</p>
-<p>It also creates a GPU batching problem worth solving properly. The reranker should score the whole candidate set in one batched FP16 forward pass, not in a Python loop.</p>
-<p>The cost is latency. Retrieving more and reranking it takes time. So the result to report has three axes: recall, answer quality, and the added milliseconds.</p>
-<h2 id="4-move-3-fp16-embeddings">4. Move 3: FP16 embeddings</h2>
-<p>Running bge-m3 in half precision roughly halves the memory it needs and the bandwidth it uses. On a modern GPU it also speeds up the forward pass. Quality loss for this use is negligible.</p>
-<p>The part worth getting right is that there are two different jobs here, and they have different bottlenecks:</p>
-<ul><li><strong>Bulk ingest</strong>, when embedding again the whole corpus, is limited by throughput. Large batches and FP16 help a lot.</li><li><strong>Online query</strong>, when embedding one question, is limited by latency and fixed overhead. Batch size barely matters. Keeping the model warm matters more.</li></ul>
-<p>Using one batch size for both jobs is the common mistake. I measured them separately: the FP32 to FP16 throughput difference, and a batch size sweep showing the embedder is limited by memory bandwidth, which is what you would expect.</p>
-<h2 id="5-results">5. Results</h2>
+<h2 id="0-máy-chạy">0. Máy chạy</h2>
+<p>Một GPU phổ thông. Các dòng ở mục 5 đã được đo vào tháng 8 năm 2026 bằng benchmark retrieval riêng của HieuLuat, trên một NVIDIA RTX 4060 Ti 16 GB, với một bộ đánh giá cố định đã gán nhãn. Kết quả được ghi vào <a href="../benchmarks/results/measured.json"><code>benchmarks/results/measured.json</code></a>, mỗi cấu hình một nhãn. Bản thân harness và commit của nó nằm trong repository riêng tư. Vì vậy các dòng này chỉ mang theo ngày đo, bộ đánh giá và GPU, không có gì hơn. Từ đó đến nay chúng chưa được chạy lại, và writeup này không giả vờ là đã chạy lại. Chỗ nào văn bản bên dưới đọc một con số từ bảng, thì lấy bảng làm chuẩn.</p>
+<h2 id="1-điểm-xuất-phát">1. Điểm xuất phát</h2>
+<p>Luồng tìm kiếm có ba phần dùng GPU hoặc database nhiều: một embedder (bge-m3), một phép tìm kiếm cosine trên pgvector, và một reranker cross encoder.</p>
+<p>Cả ba đều chạy được. Không phần nào được tinh chỉnh. Có ba vấn đề nổi bật:</p>
+<ol><li><strong>Tìm kiếm vector không có index.</strong> Postgres tính khoảng cách tới từng dòng, rồi sắp xếp. Với vài nghìn chunk thì không sao. Khi corpus lớn dần, nó chậm đi.</li><li><strong>Reranker bị tắt.</strong> Thành phần đánh giá độ liên quan tốt nhất lại không được dùng.</li><li><strong>Embedder chạy ở độ chính xác đầy đủ.</strong> Không có đường chạy FP16, nên nó dùng nhiều băng thông bộ nhớ hơn mức cần.</li></ol>
+<h2 id="2-bước-1-thêm-một-vector-index-thật-sự">2. Bước 1: thêm một vector index thật sự</h2>
+<p>Đây là thay đổi rẻ nhất và mang lại lợi ích lớn nhất. Tôi thay phép quét toàn bộ bằng một index tìm láng giềng gần nhất xấp xỉ. pgvector có hai lựa chọn: IVFFlat, gom các vector thành các list, và HNSW, dựng một graph. Cả hai đều thay phép quét toàn bộ bằng một phép tra cứu mở rộng được.</p>
+<p><strong>Vấn đề nằm ở chữ xấp xỉ.</strong> Các index này có thể bỏ sót láng giềng gần nhất thật sự. Trong đa số sản phẩm, đó là một mất mát nhỏ về chất lượng. Trong một sản phẩm pháp luật thì không. HieuLuat cam kết sẽ nói "không có thông tin" khi không tìm được câu trả lời. Nếu index bỏ mất chunk chứa câu trả lời, hệ thống sẽ nói "không có thông tin" trong khi câu trả lời có tồn tại. Đó là một lỗi về tính đúng, không phải một chi tiết tinh chỉnh tốc độ.</p>
+<p>Vì vậy đây không phải một phép thay thế miễn phí. Đây là một đánh đổi giữa recall và latency, và thiết lập <code>probes</code> hoặc <code>ef_search</code> là núm vặn.</p>
+<p><strong>Những gì tôi đã đo.</strong> Latency của truy vấn khi corpus lớn dần, cho quét toàn bộ, IVFFlat và HNSW. Sau đó là recall at k so với latency khi tôi vặn núm. Đường cong thứ hai mới là đường hữu ích. Nó cho thấy bao nhiêu latency đổi được bao nhiêu recall. Nhờ vậy điểm vận hành được chọn theo ngưỡng về tính đúng, thay vì đoán.</p>
+<p>Mục tiêu chưa bao giờ là dùng index nhanh nhất. Mục tiêu là tìm điểm mà recall vẫn đủ cao để giữ lời cam kết. Rồi lấy latency thấp nhất có được tại điểm đó.</p>
+<h2 id="3-bước-2-retrieval-diện-rộng-rồi-rerank">3. Bước 2: retrieval diện rộng, rồi rerank</h2>
+<p>Khi đã có index, retrieval trở nên đủ rẻ để lấy một tập ứng viên lớn hơn và chấm điểm lại. Cross encoder chấm điểm từng cặp câu hỏi và chunk, rồi giữ lại vài cặp tốt nhất.</p>
+<p>Đây là một mẫu hai giai đoạn phổ biến. Nó thường cải thiện mức độ câu trả lời bám vào nguồn. Với công việc pháp lý, đó là thước đo có ý nghĩa.</p>
+<p>Nó cũng tạo ra một bài toán batching trên GPU đáng giải cho đúng. Reranker nên chấm điểm toàn bộ tập ứng viên trong một forward pass FP16 theo batch, không phải trong một vòng lặp Python.</p>
+<p>Cái giá là latency. Lấy nhiều hơn rồi rerank thì tốn thời gian. Vì vậy kết quả cần báo cáo có ba trục: recall, chất lượng câu trả lời, và số mili giây tăng thêm.</p>
+<h2 id="4-bước-3-embedding-fp16">4. Bước 3: embedding FP16</h2>
+<p>Chạy bge-m3 ở half precision giảm khoảng một nửa bộ nhớ cần dùng và băng thông sử dụng. Trên một GPU hiện đại, nó cũng tăng tốc forward pass. Với mục đích này, mất mát chất lượng là không đáng kể.</p>
+<p>Phần cần làm cho đúng là ở đây có hai công việc khác nhau, và chúng có nút thắt khác nhau:</p>
+<ul><li><strong>Ingest hàng loạt</strong>, khi embedding lại toàn bộ corpus, bị giới hạn bởi thông lượng. Batch lớn và FP16 giúp nhiều.</li><li><strong>Truy vấn online</strong>, khi embedding một câu hỏi, bị giới hạn bởi latency và chi phí cố định. Batch size gần như không ảnh hưởng. Giữ model luôn nạp sẵn quan trọng hơn.</li></ul>
+<p>Dùng một batch size cho cả hai công việc là lỗi thường gặp. Tôi đo chúng riêng: chênh lệch thông lượng giữa FP32 và FP16, và một phép quét batch size. Phép quét cho thấy embedder bị giới hạn bởi băng thông bộ nhớ, đúng như kỳ vọng.</p>
+<h2 id="5-kết-quả">5. Kết quả</h2>
 <!--measured:hieuluat-->
-<h3 id="measured-results">Measured results</h3>
-<p><em>Rendered from <code>benchmarks/results/measured.json</code>. Every number below comes from the project's own harness on the machine described in section 0.</em></p>
+<h3 id="kết-quả-đo">Kết quả đo</h3>
+<p><em>Dựng từ <code>benchmarks/results/measured.json</code>. Mọi con số dưới đây đến từ harness của chính dự án, trên máy được mô tả ở mục 0.</em></p>
 <p><strong>Vector index: recall vs latency</strong></p>
 <table>
 <thead><tr><th>index</th><th>recall at 10</th><th>p50 latency ms</th><th>p95 latency ms</th></tr></thead>
@@ -339,32 +339,32 @@ html[data-theme="dark"] .ra-sent.speaking{background:#1d3a36;box-shadow:0 0 0 3p
 </table>
 <p><em>Measured 2026-08, fixed evaluation set.</em></p>
 <!--/measured-->
-<h3 id="what-the-numbers-say">What the numbers say</h3>
+<h3 id="các-con-số-nói-gì">Các con số nói gì</h3>
 <table>
-<thead><tr><th>Change</th><th>Effort</th><th>Effect</th><th>What I measured</th></tr></thead>
+<thead><tr><th>Thay đổi</th><th>Công sức</th><th>Tác động</th><th>Những gì tôi đã đo</th></tr></thead>
 <tbody>
-<tr><td>Vector index (IVFFlat or HNSW)</td><td>Low</td><td>Search scales as the corpus grows</td><td>Latency against corpus size, recall at k against latency</td></tr>
-<tr><td>Retrieve wide, then rerank</td><td>Medium</td><td>Better grounded answers</td><td>Recall, answer quality, added latency</td></tr>
-<tr><td>FP16 embeddings</td><td>Low</td><td>Faster embedding, less VRAM</td><td>FP32 to FP16 throughput, batch size sweep</td></tr>
+<tr><td>Vector index (IVFFlat hoặc HNSW)</td><td>Thấp</td><td>Tìm kiếm mở rộng được khi corpus lớn dần</td><td>Latency theo kích thước corpus, recall at k so với latency</td></tr>
+<tr><td>Retrieval diện rộng, rồi rerank</td><td>Trung bình</td><td>Câu trả lời bám nguồn tốt hơn</td><td>Recall, chất lượng câu trả lời, latency tăng thêm</td></tr>
+<tr><td>Embedding FP16</td><td>Thấp</td><td>Embedding nhanh hơn, ít VRAM hơn</td><td>Thông lượng FP32 so với FP16, quét batch size</td></tr>
 </tbody>
 </table>
-<p>Three things worth pulling out of it. The tuned index matches the exhaustive scan's recall at about a sixth of its median latency. The reranker adds 384 ms and changes answer quality by nothing. FP16 embeds the corpus about 2.9 times faster than FP32 in bulk, and the VRAM column reads n/a because the harness did not sample it, not because it was zero. The first and second readings are section 6.</p>
-<h2 id="6-the-recall-ceiling-and-why-reranking-did-not-help">6. The recall ceiling, and why reranking did not help</h2>
-<p>One result in that table looks like a failure. It took me a while to work out which component it blames.</p>
-<p>Recall at 10 is 0.75 on the full scan. <strong>The full scan is exhaustive.</strong> It compares the question to every row, so there is no approximation in it to lose recall to. That means 0.75 is not a result about the index at all. It is the ceiling of what this embedding model finds at k equals 10 on this evaluation set. About a quarter of the correct chunks are not in the top ten under any index.</p>
-<p>Read against that ceiling, the index work did exactly what it should. HNSW and tuned IVFFlat both return 0.75, matching the exhaustive scan, while cutting median latency from 6.4 ms to about 1 ms. Untuned IVFFlat sits at 0.70, which is the honest cost of leaving <code>probes</code> at its default and the reason the tuning step was not optional. So the index bought a roughly six times latency reduction at no cost to recall. It did not "stay flat."</p>
-<p><strong>The reranker is a different story, and a genuinely negative result.</strong> Retrieving 50 candidates and rescoring them added 384 ms and changed answer quality by nothing.</p>
-<p>That follows from the ceiling. A reranker only reorders the candidates it was handed, so when the right chunk never came back from retrieval, rescoring cannot invent it.</p>
-<p><strong>What I have not separated.</strong> A flat 0.75 across every configuration is also what a broken evaluation set looks like. The measurement that tells the two apart is recall at 50, which is the candidate set the reranker actually sees.</p>
-<ul><li>If recall at 50 is also around 0.75, the misses are real retrieval misses. Then the fix is upstream of both the index and the reranker: better chunking, hybrid keyword and vector search, or a better embedding model for Vietnamese legal text.</li><li>If recall at 50 is much higher, the candidates were there and the reranker failed to promote them. That is a reranker problem, and an easier one.</li></ul>
-<p>That number was not measured before the product changed hands, so the honest claim stays the narrow one. The index is not the bottleneck, and the reranker has not earned its 384 ms. So it comes out of the default answer path, and it stays out until someone measures recall at 50.</p>
-<h2 id="7-future-work">7. Future work</h2>
-<p>The deepest extension is a hand written CUDA kernel for part of the scoring path. It would fuse the normalize and dot product steps over the candidate set, profiled with Nsight against the NumPy and pgvector versions. That is the difference between calling a GPU library and writing the kernel. With HieuLuat's code private, that work now happens in gen-system, whose retrieval path has the same cosine scoring shape; the plan is in the <a href="02-gen-system-inference-optimization.html">inference writeup</a>.</p>
-<p>The caveat comes first, because it is the whole shape of the thing. The scoring path is under 1 ms of a request that took about 385 ms with the reranker on. A kernel there demonstrates the capability. It will not speed up the request. So I say that at the start, show the roofline that predicts the result, and then measure it anyway.</p>
-<h2 id="8-what-i-would-do-again">8. What I would do again</h2>
-<p>I chose the index operating point against the safety promise rather than a latency target, and I split the embedding work into the two jobs that bottleneck on different things. Neither is clever. Both are what you skip when you are in a hurry.</p>
-<p>Section 6 is the part I still think about. The reranking result came out negative and the recall number sat flat enough to be embarrassing. Working out which component the flat number blames, and naming the one measurement that would settle it, took longer than all the tuning did.</p>
-<p><em>Measurements were taken before and after against fixed evaluation sets, on the machine in section 0. The method is in <a href="03-reproducible-benchmarking.html">reproducible benchmarking</a>. Absolute values depend on the GPU. The shape of each trade off should hold on another card.</em></p>
+<p>Ba nhận xét. Index đã tinh chỉnh đạt recall bằng phép quét vét cạn, với khoảng một phần sáu latency trung vị của phép quét đó. Reranker thêm 384 ms và không thay đổi chất lượng câu trả lời chút nào. Khi embedding corpus hàng loạt, FP16 nhanh hơn FP32 khoảng 2.9 lần. Cột VRAM ghi n/a vì harness không lấy mẫu giá trị này, không phải vì nó bằng không. Nhận xét thứ nhất và thứ hai là nội dung của mục 6.</p>
+<h2 id="6-trần-recall-và-vì-sao-rerank-không-giúp-được">6. Trần recall, và vì sao rerank không giúp được</h2>
+<p>Một kết quả trong bảng đó trông như một thất bại. Nó đáng đọc kỹ, vì phần thú vị là nó thực sự quy lỗi cho thành phần nào.</p>
+<p>Recall at 10 là 0.75 với phép quét toàn bộ. <strong>Phép quét toàn bộ là vét cạn.</strong> Nó so câu hỏi với từng dòng, nên trong đó không có phép xấp xỉ nào làm mất recall. Nghĩa là 0.75 hoàn toàn không phải một kết quả về index. Đó là trần của những gì embedding model này tìm được với k bằng 10 trên bộ đánh giá này. Khoảng một phần tư số chunk đúng không nằm trong top mười, với bất kỳ index nào.</p>
+<p>Đọc theo mức trần đó, phần việc về index đã làm đúng những gì nó cần làm. HNSW và IVFFlat đã tinh chỉnh đều trả về 0.75, bằng phép quét vét cạn, trong khi cắt latency trung vị từ 6.4 ms xuống khoảng 1 ms. IVFFlat chưa tinh chỉnh ở mức 0.70. Đó là cái giá thật của việc để <code>probes</code> ở giá trị mặc định, và là lý do bước tinh chỉnh không phải tùy chọn. Vậy index mang lại mức giảm latency khoảng sáu lần mà không tốn recall. Nó không "đứng yên".</p>
+<p><strong>Reranker là một chuyện khác, và là một kết quả âm tính thật sự.</strong> Lấy 50 ứng viên rồi chấm điểm lại chúng thêm 384 ms và không thay đổi chất lượng câu trả lời chút nào.</p>
+<p>Điều đó suy ra từ mức trần ở trên. Reranker sắp xếp lại các ứng viên được đưa cho nó. Nó không thể tìm ra một chunk mà retrieval chưa bao giờ trả về. Nếu chunk đúng không có trong tập ứng viên, chấm điểm lại bao nhiêu cũng không đưa nó trở lại.</p>
+<p><strong>Điều tôi chưa tách bạch.</strong> Một mức 0.75 phẳng trên mọi cấu hình cũng là hình dạng của một bộ đánh giá bị hỏng. Phép đo phân biệt được hai trường hợp là recall at 50, tức tập ứng viên mà reranker thực sự nhìn thấy.</p>
+<ul><li>Nếu recall at 50 cũng quanh 0.75, các lần bỏ sót là bỏ sót retrieval thật. Khi đó cách sửa nằm ở phía trước cả index lẫn reranker: chia chunk tốt hơn, tìm kiếm lai giữa keyword và vector, hoặc một embedding model tốt hơn cho văn bản pháp luật tiếng Việt.</li><li>Nếu recall at 50 cao hơn nhiều, các ứng viên đã có ở đó và reranker không đẩy được chúng lên. Đó là vấn đề của reranker, và là vấn đề dễ hơn.</li></ul>
+<p>Con số đó chưa được đo trước khi sản phẩm đổi chủ, nên nhận định trung thực vẫn là nhận định hẹp. Index không phải nút thắt, và reranker chưa xứng đáng với 384 ms của nó. Đường trả lời mặc định không nên trả chi phí đó. Bỏ một thành phần tốn chừng đó mà không mang lại gì đo được là làm kỹ thuật tốt. Phép đo có thể đưa nó trở lại đã được nêu ở trên.</p>
+<h2 id="7-hướng-phát-triển">7. Hướng phát triển</h2>
+<p>Hướng mở rộng sâu nhất là một CUDA kernel viết tay cho một phần của đường chấm điểm. Nó sẽ gộp bước chuẩn hóa và bước tích vô hướng trên tập ứng viên, và được profile bằng Nsight so với phiên bản NumPy và phiên bản pgvector. Đó là khác biệt giữa gọi một thư viện GPU và tự viết kernel. Vì code của HieuLuat là riêng tư, phần việc đó giờ diễn ra trong gen-system. Đường retrieval của gen-system có cùng dạng chấm điểm cosine; kế hoạch nằm trong <a href="02-gen-system-inference-optimization.vi.html">writeup về inference</a>.</p>
+<p>Lưu ý này phải nói trước, vì nó là toàn bộ hình dạng của việc này. Đường chấm điểm chiếm dưới 1 ms trong một request mất khoảng 385 ms khi bật reranker. Một kernel ở đó chứng minh năng lực. Nó sẽ không làm request nhanh lên. Nên tôi nói thẳng ngay từ đầu, đưa ra roofline dự đoán kết quả, rồi vẫn cứ đo.</p>
+<h2 id="8-điều-tôi-sẽ-làm-lại">8. Điều tôi sẽ làm lại</h2>
+<p>Tôi chọn điểm vận hành của index theo cam kết an toàn chứ không theo mục tiêu latency, và tách phần việc embedding thành hai công việc nghẽn ở chỗ khác nhau. Không có gì thông minh ở đây. Cả hai đều là thứ người ta bỏ qua khi đang vội.</p>
+<p>Mục 6 mới là phần tôi còn nghĩ tới. Kết quả rerank ra âm tính, còn con số recall thì phẳng tới mức đáng ngượng. Tìm ra con số phẳng đó quy lỗi cho thành phần nào, rồi gọi tên đúng một phép đo phân định được, tốn thời gian hơn toàn bộ phần tinh chỉnh.</p>
+<p><em>Các phép đo được thực hiện trước và sau, với các bộ đánh giá cố định, trên máy ở mục 0. Phương pháp nằm trong <a href="03-reproducible-benchmarking.vi.html">benchmarking tái lập được</a>. Giá trị tuyệt đối phụ thuộc vào GPU. Hình dạng của mỗi đánh đổi thì vẫn đúng trên card khác.</em></p>
 </article>
   </main>
 </div>
@@ -525,7 +525,7 @@ document.addEventListener('DOMContentLoaded',function(){
   function loadVoices(){
     var voices=synth.getVoices();
     voiceSel.innerHTML='';
-    var auto=document.createElement('option'); auto.value=''; auto.textContent='Automatic';
+    var auto=document.createElement('option'); auto.value=''; auto.textContent='Tự động';
     voiceSel.appendChild(auto);
     voices.forEach(function(v){
       var o=document.createElement('option');
@@ -540,7 +540,7 @@ document.addEventListener('DOMContentLoaded',function(){
   function pickVoice(){
     var voices=synth.getVoices();
     if(voiceURI){ var f=voices.filter(function(v){return v.voiceURI===voiceURI;}); if(f[0]) return f[0]; }
-    var en=voices.filter(function(v){return /^en(-|$)/i.test(v.lang);});
+    var en=voices.filter(function(v){return /^vi(-|$)/i.test(v.lang);});
     return en[0]||voices[0]||null;
   }
 
@@ -561,7 +561,7 @@ document.addEventListener('DOMContentLoaded',function(){
 
   function speakCurrent(){
     if(idx>=sentences.length){ stop(); return; }
-    var u=new SpeechSynthesisUtterance(sentences[idx].text);
+    var u=new SpeechSynthesisUtterance(sentences[idx].text); u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN';
     u.rate=rate; var v=pickVoice(); if(v) u.voice=v;
     u.onend=function(){
       if(playing&&!paused){ idx++; highlight(idx); speakCurrent(); }
@@ -595,8 +595,8 @@ document.addEventListener('DOMContentLoaded',function(){
     launch.setAttribute('aria-pressed',playing?'true':'false');
     document.getElementById('raPlayIcon').innerHTML =
       (playing&&!paused)?ICON_PAUSE:ICON_PLAY;
-    statusEl.textContent = !playing ? 'Idle' :
-       (paused?'Paused':('Reading '+(idx+1)+' / '+sentences.length));
+    statusEl.textContent = !playing ? 'Đang nghỉ' :
+       (paused?'Tạm dừng':('Đang đọc '+(idx+1)+' / '+sentences.length));
   }
 
   var ICON_PLAY='<path d="M6 4l14 8-14 8V4z"/>';

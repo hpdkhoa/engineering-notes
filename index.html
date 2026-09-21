@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -119,16 +119,22 @@ footer a:hover{text-decoration:underline;}
   h1.title{font-size:34px;} .lede{font-size:18px;} body{font-size:17px;}
   .hero{padding:80px 0 34px;}
 }
+.lang-block{display:none;}
+html[data-lang="en"] .lang-block[data-lang="en"],html[data-lang="vi"] .lang-block[data-lang="vi"]{display:block;}
+.topbar{display:flex; gap:8px;}
+.lang-btn{font-family:"JetBrains Mono",monospace; font-weight:600; font-size:12px; letter-spacing:.06em;}
 </style>
 </head>
 <body>
 
 <div class="topbar">
+  <button class="icon-btn lang-btn" id="langBtn" type="button" aria-label="Chuyển sang tiếng Việt">VI</button>
   <button class="icon-btn" id="themeBtn" aria-label="Toggle light/dark theme">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="themeIcon"></svg>
   </button>
 </div>
 
+<div class="lang-block" data-lang="en" lang="en">
 <div class="wrap">
 
   <!-- HERO -->
@@ -141,16 +147,16 @@ footer a:hover{text-decoration:underline;}
         <circle cx="20" cy="20" r="3.4" fill="#B45309"/>
         <path d="M11 11L20 20L29 11M11 29L20 20L29 29M20 11.5V28.5" stroke="#FAF8F3" stroke-width="1.5" opacity="0.8"/>
       </svg>
-      <span class="bt">Khoa Hoang<br>Engineering Portfolio</span>
+      <span class="bt">Khoa Hoang<br>Engineering notes</span>
     </div>
-    <div class="kicker">Khoa Hoang · Systems · Applied LLMs · GPU and inference</div>
-    <h1 class="title">I build systems, ship applied LLM products, and measure them on the GPU.</h1>
-    <p class="lede">Architecture and <strong>measured results</strong> for the systems I have built. gen-system is being prepared for release under Apache-2.0. HieuLuat is a commercial product with private code, so its writeup and measured tables stand in for the source. Every gen-system number links to the campaign, the commit and the manifest that produced it.</p>
+    <div class="kicker">Khoa Hoang · systems, applied LLMs, GPU and inference</div>
+    <h1 class="title">I build systems, ship applied LLM products, and measure what they do on the GPU.</h1>
+    <p class="lede">Architecture and <strong>measured results</strong> for three systems I work on. gen-system is getting its Apache-2.0 release. HieuLuat runs on a law firm's real case files and its code stays private, so the writeup and the tables are what I can show. Every gen-system number links back to the campaign, the commit and the manifest it came from.</p>
     <div class="cta-row">
       <a class="btn primary" href="#writeups">Read the writeups
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
       </a>
-      <a class="btn ghost" href="https://github.com/hpdkhoa/my-portfolio" id="repoLink">
+      <a class="btn ghost" href="https://github.com/hpdkhoa/engineering-notes" id="repoLink">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.9a3.4 3.4 0 0 0-.9-2.6c3-.3 6.2-1.5 6.2-6.7A5.2 5.2 0 0 0 20 4.8 4.9 4.9 0 0 0 19.9 1S18.7.7 16 2.5a13.4 13.4 0 0 0-7 0C6.3.7 5.1 1 5.1 1A4.9 4.9 0 0 0 5 4.8a5.2 5.2 0 0 0-1.4 3.7c0 5.2 3.2 6.4 6.2 6.7a3.4 3.4 0 0 0-.9 2.6V22"/></svg>
         View the repo
       </a>
@@ -159,7 +165,7 @@ footer a:hover{text-decoration:underline;}
 
   <!-- WRITEUPS -->
   <section class="sec" id="writeups">
-    <p class="sec-head">Portfolio writeups</p>
+    <p class="sec-head">Writeups</p>
     <h2 class="sec-title">Architecture &amp; measured results</h2>
     <p class="sec-sub">Each writeup is a styled, read-aloud page with a table of contents and dark/light theme. Markdown versions are on GitHub.</p>
     <div class="cards">
@@ -198,7 +204,7 @@ footer a:hover{text-decoration:underline;}
   <section class="sec">
     <p class="sec-head">The systems</p>
     <h2 class="sec-title">What the writeups are about</h2>
-    <p class="sec-sub">Real, shipped systems. gen-system is being prepared for release under Apache-2.0. HieuLuat and Beastwarden are private, and for those the architecture and the measured results are public.</p>
+    <p class="sec-sub">Three systems that run. gen-system is getting its Apache-2.0 release. HieuLuat and Beastwarden stay private, so for those the architecture and the measured results are the public part.</p>
     <div class="cards">
 
       <a class="card" href="projects/hieuluat/README.md">
@@ -211,7 +217,7 @@ footer a:hover{text-decoration:underline;}
       <a class="card" href="projects/gen-system/README.md">
         <h3>gen-system</h3>
         <div class="tags"><span class="tag">Go</span><span class="tag">Ollama</span><span class="tag">benchmark gated</span></div>
-        <p>An AI model is a black box. gen-system makes <strong>what the model believes about your code visible</strong>, grounds it in a deterministic graph built from the AST, and verifies the output from outside. Six languages, COBOL and CA Gen included.</p>
+        <p>An AI model is a black box. gen-system <strong>writes down what the model assumes about your code</strong>, checks every assumption against a deterministic graph built from the AST, and verifies the output from outside. Six languages, COBOL and CA Gen included.</p>
         <span class="go">Architecture &amp; design →</span>
       </a>
 
@@ -266,13 +272,161 @@ footer a:hover{text-decoration:underline;}
   <footer>
     <strong>Khoa Hoang</strong> · <a href="mailto:hpdkhoa2311@gmail.com">hpdkhoa2311@gmail.com</a> · <a href="https://github.com/hpdkhoa">github.com/hpdkhoa</a>
     <br><br>
-    <strong>What is public.</strong> The writeups, architecture, benchmark tables and snippets here are shared for portfolio review under the <a href="LICENSE">portfolio license</a>. gen-system is licensed separately under Apache-2.0 in <a href="https://github.com/hpdkhoa/gen-system">its own repository</a>, which opens with the release. The HieuLuat implementation is proprietary and not included.
+    <strong>What is public.</strong> The writeups, architecture, benchmark tables and snippets here are yours to read and quote with attribution, under the <a href="LICENSE">license in the repo</a>. gen-system is licensed separately under Apache-2.0 in <a href="https://github.com/hpdkhoa/gen-system">its own repository</a>, which opens with the release. The HieuLuat implementation is proprietary and not included.
     <br><br>
-    <a href="https://github.com/hpdkhoa/my-portfolio">This repository on GitHub</a> ·
+    <a href="https://github.com/hpdkhoa/engineering-notes">This repository on GitHub</a> ·
     <a href="README.md">README</a> ·
     <a href="writeups/README.md">Writeups index</a>
   </footer>
 
+</div>
+</div>
+<div class="lang-block" data-lang="vi" lang="vi">
+<div class="wrap">
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="brandmark">
+      <svg width="40" height="40" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+        <rect x="1" y="1" width="38" height="38" rx="9" fill="#0F766E"/>
+        <circle cx="11" cy="11" r="3" fill="#FAF8F3"/><circle cx="29" cy="11" r="3" fill="#FAF8F3"/>
+        <circle cx="11" cy="29" r="3" fill="#FAF8F3"/><circle cx="29" cy="29" r="3" fill="#5EE6D5"/>
+        <circle cx="20" cy="20" r="3.4" fill="#B45309"/>
+        <path d="M11 11L20 20L29 11M11 29L20 20L29 29M20 11.5V28.5" stroke="#FAF8F3" stroke-width="1.5" opacity="0.8"/>
+      </svg>
+      <span class="bt">Khoa Hoang<br>Ghi chép kỹ thuật</span>
+    </div>
+    <div class="kicker">Khoa Hoang · hệ thống, LLM ứng dụng, GPU và inference</div>
+    <h1 class="title">Tôi xây dựng hệ thống, đưa sản phẩm LLM ứng dụng vào sử dụng, và đo chúng trên GPU.</h1>
+    <p class="lede">Đây là kiến trúc và <strong>kết quả đo</strong> của ba hệ thống tôi đang làm. gen-system sắp phát hành theo giấy phép Apache-2.0. HieuLuat chạy trên hồ sơ vụ việc thật của một văn phòng luật nên code của nó vẫn riêng tư, vì vậy writeup và các bảng số là phần tôi có thể đưa ra. Mỗi con số của gen-system đều dẫn về campaign, commit và manifest đã sinh ra nó.</p>
+    <div class="cta-row">
+      <a class="btn primary" href="#writeups-vi">Đọc các writeup
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+      <a class="btn ghost" href="https://github.com/hpdkhoa/engineering-notes" id="repoLink-vi">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.9a3.4 3.4 0 0 0-.9-2.6c3-.3 6.2-1.5 6.2-6.7A5.2 5.2 0 0 0 20 4.8 4.9 4.9 0 0 0 19.9 1S18.7.7 16 2.5a13.4 13.4 0 0 0-7 0C6.3.7 5.1 1 5.1 1A4.9 4.9 0 0 0 5 4.8a5.2 5.2 0 0 0-1.4 3.7c0 5.2 3.2 6.4 6.2 6.7a3.4 3.4 0 0 0-.9 2.6V22"/></svg>
+        Xem repo
+      </a>
+    </div>
+  </header>
+
+  <!-- WRITEUPS -->
+  <section class="sec" id="writeups-vi">
+    <p class="sec-head">Các writeup</p>
+    <h2 class="sec-title">Kiến trúc &amp; kết quả đo</h2>
+    <p class="sec-sub">Mỗi writeup là một trang web có định dạng, hỗ trợ đọc thành tiếng, có mục lục và giao diện tối/sáng. Bản Markdown có trên GitHub.</p>
+    <div class="cards">
+
+      <a class="card" href="writeups/01-hieuluat-retrieval-optimization.vi.html">
+        <span class="num">Bài viết 01</span>
+        <h3>Làm cho luồng tìm kiếm pháp luật nhanh mà vẫn đúng</h3>
+        <div class="tags"><span class="tag">RAG</span><span class="tag">pgvector</span><span class="tag">FP16 embeddings</span><span class="tag">rerank</span></div>
+        <p>Vector index, retrieval rồi rerank, và embedding FP16. Các đánh đổi giữa recall, latency và chất lượng đã đo trên một eval set cố định. Bài có một kết quả âm tính: reranker tốn 384 ms mà không cải thiện được gì. Mục 6 xác định lỗi đó thuộc về thành phần nào.</p>
+        <span class="go">Đọc bản web →</span>
+        <div class="altlinks">hoặc: <a href="writeups/01-hieuluat-retrieval-optimization.vi.md">markdown</a></div>
+      </a>
+
+      <a class="card" href="writeups/02-gen-system-inference-optimization.vi.html">
+        <span class="num">Bài viết 02</span>
+        <h3>Tinh chỉnh inference LLM cục bộ cho một công cụ xử lý code</h3>
+        <div class="tags"><span class="tag">inference</span><span class="tag">quantization</span><span class="tag">GPU offload</span><span class="tag">streaming</span></div>
+        <p>Offload layer lên GPU, streaming, quantization được xem là một biến số và được đo, và hai model dùng chung một card 16 GB. Các lựa chọn này được đánh giá bằng một thước đo chất lượng <em>khách quan</em>. Mục 4 kể việc tôi phát hiện thước đo chất lượng của chính mình bị hỏng, và thứ đã thay thế nó.</p>
+        <span class="go">Đọc bản web →</span>
+        <div class="altlinks">hoặc: <a href="writeups/02-gen-system-inference-optimization.vi.md">markdown</a></div>
+      </a>
+
+      <a class="card" href="writeups/03-reproducible-benchmarking.vi.html">
+        <span class="num">Bài viết 03</span>
+        <h3>Benchmark tái lập được và regression gate</h3>
+        <div class="tags"><span class="tag">benchmark</span><span class="tag">các regression gate</span><span class="tag">tính determinism</span></div>
+        <p>Đây là phương pháp mà hai bài còn lại dựa vào: baseline cố định, regression gate, các lần chạy lặp lại được. Bài cũng giải thích vì sao một thước đo khách quan không bao giờ thay đổi còn tệ hơn một thước đo gián tiếp.</p>
+        <span class="go">Đọc bản web →</span>
+        <div class="altlinks">hoặc: <a href="writeups/03-reproducible-benchmarking.vi.md">markdown</a></div>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- PROJECTS -->
+  <section class="sec">
+    <p class="sec-head">Các hệ thống</p>
+    <h2 class="sec-title">Các writeup viết về điều gì</h2>
+    <p class="sec-sub">Đây là các hệ thống thật, đã đưa vào sử dụng. gen-system đang được chuẩn bị để phát hành theo giấy phép Apache-2.0. HieuLuat và Beastwarden là riêng tư. Với hai hệ thống này, kiến trúc và kết quả đo được công khai.</p>
+    <div class="cards">
+
+      <a class="card" href="projects/hieuluat/README.vi.md">
+        <h3>HieuLuat</h3>
+        <div class="tags"><span class="tag">Python</span><span class="tag">pgvector</span><span class="tag">bge-m3 (GPU)</span></div>
+        <p>Một hệ thống <strong>hỏi đáp pháp luật</strong> tiếng Việt, xây dựng quanh các bảo đảm bám nguồn. Hệ thống chỉ trả lời từ văn bản luật lấy được qua retrieval, có trích dẫn nguồn, và từ chối trả lời khi corpus không có thông tin. Đây là sản phẩm thương mại có code không công khai.</p>
+        <span class="go">Kiến trúc &amp; thiết kế →</span>
+      </a>
+
+      <a class="card" href="projects/gen-system/README.vi.md">
+        <h3>gen-system</h3>
+        <div class="tags"><span class="tag">Go</span><span class="tag">Ollama</span><span class="tag">chặn bằng benchmark</span></div>
+        <p>Một model AI là một hộp đen. gen-system <strong>ghi lại từng giả định của model về code của bạn</strong>, đối chiếu từng giả định với một graph deterministic dựng từ AST, và kiểm chứng đầu ra từ bên ngoài. Sáu ngôn ngữ, gồm cả COBOL và CA Gen.</p>
+        <span class="go">Kiến trúc &amp; thiết kế →</span>
+      </a>
+
+      <a class="card" href="projects/beastwarden/README.vi.md">
+        <h3>Beastwarden</h3>
+        <div class="tags"><span class="tag">TypeScript</span><span class="tag">Pixi</span><span class="tag">1,993 bài kiểm thử</span></div>
+        <p>Một <strong>game roguelite chiến thuật</strong> deterministic. Lõi của game là thuần và dùng seed, các luật được guard kiểm soát, và forecast phải khớp với kết quả xúc xắc. Vẫn là luận điểm đo chứ không giả định, ở ngôn ngữ thứ ba. Đây cũng là một nghiên cứu điển hình về <strong>cách định hướng phát triển có AI hỗ trợ</strong> dưới các luật do máy kiểm soát.</p>
+        <span class="go">Kiến trúc &amp; kỷ luật &rarr;</span>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- EVIDENCE -->
+  <section class="sec">
+    <p class="sec-head">Bằng chứng</p>
+    <h2 class="sec-title">Mỗi con số đến từ đâu</h2>
+    <p class="sec-sub">Các bảng trong writeup được tạo từ một file duy nhất do các harness ghi ra. Không có gì được gõ tay.</p>
+    <div class="cards">
+      <a class="card" href="benchmarks/README.vi.md">
+        <h3>Benchmark</h3>
+        <p>Mỗi bảng đến từ đâu, cách đọc bảng, và nơi lưu manifest cùng attestation của campaign gen-system ngày 2026-09-09.</p>
+        <span class="go">Các con số được tạo ra thế nào &rarr;</span>
+        <div class="altlinks">hoặc: <a href="benchmarks/results/measured.json">measured.json</a> · <a href="benchmarks/ENVIRONMENT.vi.md">máy và các model</a></div>
+      </a>
+    </div>
+  </section>
+
+  <!-- HOW I WORK -->
+  <section class="sec">
+    <p class="sec-head">Cách tôi làm việc</p>
+    <h2 class="sec-title">Các nguyên tắc đứng sau con số</h2>
+    <div class="approach">
+      <div class="principle"><h4>Đo, không giả định</h4><p>Baseline cố định, regression gate, các lần chạy deterministic. Nếu tôi nói hệ thống nhanh hơn, có một con số đứng sau câu đó.</p></div>
+      <div class="principle"><h4>Tính đúng trước, hiệu năng sau</h4><p>Trong tìm kiếm pháp luật, một câu trả lời nhanh mà sai còn tệ hơn một câu trả lời chậm mà đúng. Vì vậy một index xấp xỉ là một đánh đổi giữa recall và latency. Đánh đổi đó được chọn dựa trên một bảo đảm an toàn.</p></div>
+      <div class="principle"><h4>Thước đo chất lượng khách quan</h4><p>Với việc sinh code, câu hỏi "code có biên dịch và qua test không?" tốt hơn một thước đo gián tiếp như perplexity. Nhờ vậy các regression do quantization và tinh chỉnh lộ ra, thay vì bị che giấu.</p></div>
+      <div class="principle"><h4>Mở hộp đen</h4><p>Bước tiếp theo: đưa phần việc GPU từ mức hiểu sang một CUDA kernel viết tay, đã qua profiler, nằm trong gen-system. Kèm theo là trace Nsight trước và sau, cùng một phân tích roofline.</p></div>
+    </div>
+  </section>
+
+  <!-- SNIPPETS -->
+  <section class="sec">
+    <p class="sec-head">Snippet chạy được</p>
+    <h2 class="sec-title">Minh họa nhỏ, độc lập</h2>
+    <p class="sec-sub">Đây là các ví dụ nhỏ, chạy độc lập với dữ liệu mẫu. Chúng biến các ý tưởng trong writeup thành cụ thể. Chúng không chứa phần nào của code production.</p>
+    <div class="callout">
+      Chạy trực tiếp: <span class="snip">python3 snippets/toy_retrieval.py</span> · <span class="snip">python3 snippets/roofline_demo.py</span><br>
+      <a href="snippets/README.vi.md" style="color:var(--amber);font-weight:600;">Xem thư mục snippets →</a>
+    </div>
+  </section>
+
+  <footer>
+    <strong>Khoa Hoang</strong> · <a href="mailto:hpdkhoa2311@gmail.com">hpdkhoa2311@gmail.com</a> · <a href="https://github.com/hpdkhoa">github.com/hpdkhoa</a>
+    <br><br>
+    <strong>Những gì được công khai.</strong> Các writeup, kiến trúc, bảng benchmark và snippet ở đây ở đây để bạn đọc và trích dẫn kèm ghi nguồn, theo <a href="LICENSE">giấy phép trong repo</a>. gen-system được cấp phép riêng theo Apache-2.0 trong <a href="https://github.com/hpdkhoa/gen-system">repo riêng của nó</a>. Repo đó được mở khi phát hành. Phần triển khai của HieuLuat là độc quyền và không có ở đây.
+    <br><br>
+    <a href="https://github.com/hpdkhoa/engineering-notes">Repo này trên GitHub</a> ·
+    <a href="README.vi.md">README</a> ·
+    <a href="writeups/README.vi.md">Mục lục writeup</a>
+  </footer>
+
+</div>
 </div>
 
 <script>
@@ -292,6 +446,24 @@ footer a:hover{text-decoration:underline;}
     document.documentElement.setAttribute('data-theme',cur);
     localStorage.setItem(KEY,cur); icon();
   });
+})();
+</script>
+<script>
+(function(){
+  var KEY='portfolio-lang';
+  var T={en:{title:'Khoa Hoang: systems, applied LLMs, GPU work',btn:'VI',aria:'Chuy\u1ec3n sang ti\u1ebfng Vi\u1ec7t',theme:'Toggle light/dark theme'},
+         vi:{title:'Khoa Hoang: h\u1ec7 th\u1ed1ng, LLM \u1ee9ng d\u1ee5ng, GPU',btn:'EN',aria:'Switch to English',theme:'Chuy\u1ec3n giao di\u1ec7n s\u00e1ng t\u1ed1i'}};
+  var saved=null; try{ saved=localStorage.getItem(KEY); }catch(e){}
+  var lang=(saved==='vi'||saved==='en')?saved:((navigator.language||'').toLowerCase().indexOf('vi')===0?'vi':'en');
+  function apply(l){
+    lang=l; var h=document.documentElement;
+    h.setAttribute('data-lang',l); h.setAttribute('lang',l); document.title=T[l].title;
+    var b=document.getElementById('langBtn'); b.textContent=T[l].btn; b.setAttribute('aria-label',T[l].aria);
+    document.getElementById('themeBtn').setAttribute('aria-label',T[l].theme);
+    try{ localStorage.setItem(KEY,l); }catch(e){}
+  }
+  apply(lang);
+  document.getElementById('langBtn').addEventListener('click',function(){ apply(lang==='en'?'vi':'en'); });
 })();
 </script>
 </body>

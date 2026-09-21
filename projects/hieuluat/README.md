@@ -1,3 +1,5 @@
+**English** · [Tiếng Việt](README.vi.md)
+
 # HieuLuat: Vietnamese legal question answering
 
 > A system that answers questions about Vietnamese law using only retrieved statute. It cites its
@@ -18,23 +20,23 @@
 - **Promise:** every answer comes from retrieved statute and carries citations. There is a built in path for "no information found"
 - **Quality gate:** labeled evaluation sets decide whether an optimization is accepted
 
-## What can be shown, and what cannot
+## What is here and what is not
 
-The code, the legal corpus, the prompts, the configuration and the evaluation data are private and
-stay that way. What is public here is everything a reviewer needs to judge the engineering without
-them: the pipeline and its stage boundaries, the design decisions and the reasons behind each, the
-measured results of the retrieval work as the product's own harness reported them, and one
-negative result read carefully. The numbers carry their date and evaluation set. They do not carry
-a public commit, because the harness is in the private repository.
+The code, the legal corpus, the prompts, the configuration and the evaluation data stay private.
+This page has the pipeline with its stage boundaries, the calls I made and why, and the retrieval
+numbers the product's own harness reported, including the one that came out negative. Each number
+carries its date and its evaluation set. None of them carries a public commit, because the harness
+sits in the private repository.
 
 ## The problem
 
-Legal question answering has one failure mode that ordinary systems tolerate and law cannot. That
-is a confident answer which is not actually grounded in the statute.
+Legal question answering has one failure mode that ordinary systems live with and law cannot: a
+confident answer that no statute actually supports. A lawyer who repeats it in front of a client
+pays for it, not the system.
 
-The bar here is not that the answer sounds right. It is that every claim traces to a real legal
-provision, and that the system admits it when the corpus is silent. HieuLuat is built around that
-constraint rather than having it added afterwards.
+So the bar is not that the answer sounds right. Every claim has to trace to a real provision, and
+the system has to say so when the corpus is silent. That constraint came first, before the
+pipeline around it.
 
 ## The pipeline
 
@@ -67,9 +69,8 @@ The system is built so that an ungrounded answer is hard to produce.
 and documents from different sources. Retrieval filters on both. Those filters exist for
 correctness, not for speed.
 
-**Evaluation sets as a real deliverable.** The project ships labeled evaluation sets. Quality is
-measured on fixed cases rather than judged by impression. An optimization is accepted or rejected
-against them.
+**Evaluation sets as a real deliverable.** The project ships labeled evaluation sets, so an
+optimization passes or fails on fixed cases instead of on how the demo felt that afternoon.
 
 ## Results
 
@@ -88,10 +89,11 @@ Python. PostgreSQL with pgvector. bge-m3 embeddings on GPU. A cross encoder rera
 
 ## What transfers
 
-The parts of this work that do not depend on the private code are the ones worth carrying to the
-next system: choosing an approximate index's operating point against a correctness promise instead
-of a latency target; splitting embedding into the bulk and online jobs that have different
-bottlenecks; treating a flat quality number as a question about the evaluation set before treating
-it as a result; and removing a component that costs 384 ms and buys nothing measurable, while
-naming the measurement that could bring it back. The method behind all of it is in
+Four things here do not depend on the private code, and I would do them again anywhere.
+
+Pick an approximate index's operating point against the correctness promise, not against a latency
+target. Split embedding into the bulk job and the online job, because they bottleneck on different
+things. When a quality number will not move, suspect the evaluation set before you believe the
+result. And when a component costs 384 ms and buys nothing you can measure, take it out, but write
+down the measurement that would bring it back. The method behind all of it is in
 [writeup 03](../../writeups/03-reproducible-benchmarking.md).
