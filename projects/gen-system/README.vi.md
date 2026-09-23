@@ -11,11 +11,11 @@
 
 ---
 
-## Thông tin nhanh
+## Tóm lược
 
 - **Lịch sử:** tôi tự xây dựng một mình từ tháng 11 năm 2025. Apache-2.0, đang chuẩn bị phát hành.
-- **Công cụ:** Go. 266 tệp nguồn với 49,079 dòng, cùng 79 tệp test với 15,197 dòng và
-  598 hàm test, trong 54 package. Harness benchmark có thêm 1,155 dòng Python và 3,308
+- **Công cụ:** Go. 266 tệp nguồn với 49.079 dòng, cùng 79 tệp test với 15.197 dòng và
+  598 hàm test, trong 54 package. Harness benchmark có thêm 1.155 dòng Python và 3.308
   dòng shell. Đếm ngày 2026-09-11 tại commit `cfb0bff2`. Số dòng nguồn không tính code test và
   code sinh tự động.
 - **Ngôn ngữ đọc được:** Go, COBOL kèm copybook, CA Gen, Java, TypeScript, Python. Phân giải symbol
@@ -29,7 +29,7 @@ Số liệu tốc độ và VRAM nằm trong [writeup về inference](../../writ
 Writeup đó hiển thị chúng từ [các lần chạy đã đo](../../benchmarks/results/measured.json). Trang này
 không lặp lại chúng, vì một con số sao chép sẽ lỗi thời ngay lần đầu bạn chạy lại bất cứ thứ gì.
 
-## Ý tưởng
+## Nguyên lý
 
 Mô hình AI là một hộp đen. Bạn không thấy được nó giả định điều gì về code của bạn. Bạn chỉ biết
 khi đầu ra sai, và đó là thời điểm tốn kém nhất để biết.
@@ -39,28 +39,28 @@ Nên gen-system làm ba việc. Việc thứ ba là việc người ta hay bỏ 
 **Ghi lại các giả định.** Nó dựng một graph deterministic từ AST: symbol, cạnh gọi hàm,
 luồng điều khiển và tác động. Từ graph đó, với mỗi routine, nó liệt kê các đầu vào, các lời gọi
 routine đó thực hiện, dữ liệu routine đó ghi, và hành động mà tên routine gợi ý. Nó gọi mỗi dòng
-như vậy là một niềm tin. Một mô hình cục bộ có thể thêm các claim. gen-system đối chiếu mọi claim
+như vậy là một belief. Một mô hình cục bộ có thể thêm các claim. gen-system đối chiếu mọi claim
 với graph, đánh dấu claim nào mâu thuẫn với những gì parser đã thấy, và không bao giờ dùng claim
 đã đánh dấu. Bạn có thể sửa bất kỳ dòng nào. Chỉ những dòng con người đã xác minh mới định hướng
 việc sinh code.
 
 **Neo mô hình vào graph, không vào văn bản.** Ngữ cảnh cho mô hình lấy từ graph: bản tóm tắt
-kiến trúc, các routine liên quan, các niềm tin đã xác minh. Đây là graph RAG dựng từ AST, không
+kiến trúc, các routine liên quan, các belief đã xác minh. Đây là graph RAG dựng từ AST, không
 phải từ embedding của các đoạn văn bản.
 
-**Kiểm chứng từ bên ngoài hộp đen.** gen-system biên dịch riêng từng operation đã sinh, rồi build
+**Kiểm chứng từ ngoài hộp đen.** gen-system biên dịch riêng từng operation đã sinh, rồi build
 và test cả cây, rồi đọc lại bằng chính công cụ deterministic đã dựng graph. Bước cuối này bắt được những gì trình biên dịch không bắt được: lời gọi chưa phân giải, operation mồ
 côi, một operation tên là đọc nhưng lại ghi. Phép kiểm tra phải đến từ thứ không dùng chung giả định
-với mô hình. Nếu không, đó chỉ là mô hình tự gật đầu với chính nó.
+với mô hình. Nếu không, đó chỉ là mô hình tự xác nhận chính mình.
 
 Nơi thử thách là code legacy. COBOL kèm copybook và CA Gen nằm cạnh Go, Java,
 TypeScript và Python. Legacy là nơi không ai nói được hệ thống làm gì. Đó cũng là nơi một câu
 trả lời sai tốn kém nhất.
 
 Một bài báo tháng 1 năm 2026, Reliable Graph-RAG for Codebases (arXiv 2601.08773), thử điều này trên
-Java và thấy đúng như vậy: graph AST deterministic neo mô hình đáng tin cậy hơn và rẻ hơn graph do
-LLM dựng hoặc vector search. Bản đầu tiên của tôi chạy trước bài báo đó hai tháng, nên đọc nó khá
-yên tâm. gen-system bao phủ sáu ngôn ngữ và đi tiếp qua retrieval, sang niềm tin, sinh code và bước
+Java và thấy đúng như vậy: graph AST deterministic neo mô hình chắc hơn và rẻ hơn graph do
+LLM dựng hoặc vector search. Bản đầu tiên của tôi chạy trước bài báo đó hai tháng, nên đọc nó thấy
+yên tâm. gen-system bao phủ sáu ngôn ngữ và đi tiếp qua retrieval, sang belief, sinh code và bước
 kiểm chứng.
 
 Nó cũng chạy cục bộ, nên không có code nào rời khỏi máy, và cùng một đầu vào cho ra cùng một đầu ra.
@@ -84,10 +84,10 @@ phân giải trên baseline COBOL đã commit sẽ làm gate thất bại ngay l
 **Điều phối.** Retry, ràng buộc đầu ra có cấu trúc, và keep alive cho mô hình để việc nạp lại mô
 hình không rơi vào giữa một lần chạy.
 
-## Các quyết định thiết kế, và lý do
+## Quyết định thiết kế và căn cứ
 
-**Ưu tiên chạy cục bộ.** Tôi chọn quyền riêng tư và khả năng lặp lại, thay vì sự tiện lợi của một
-API được host sẵn. Toàn bộ pipeline chạy trên phần cứng của bạn.
+**Ưu tiên chạy cục bộ.** Tôi chọn quyền riêng tư và khả năng lặp lại, thay vì sự tiện lợi của
+một API dựng sẵn trên cloud. Toàn bộ pipeline chạy trên phần cứng của bạn.
 
 **Determinism.** Temperature 0 và seed cố định. Thiếu nó, một benchmark đo nhiễu lấy mẫu nhiều ngang
 với đo hệ thống.
@@ -118,7 +118,7 @@ manifest. Attestation ghi những gì đã chạy, trên commit nào và máy n�
 vì chưa đo và lý do, và những gì đã không chạy. Manifest liệt kê mọi tệp thô cùng hash của
 nó. Mọi con số trong writeup đều truy ngược được về các tệp đó.
 
-## Kết quả
+## Kết quả đo
 
 Phần tinh chỉnh inference bao gồm offload layer lên GPU, streaming đầu ra, quantization xem như
 một biến cần đo, và vấn đề VRAM khi chạy hai mô hình:
@@ -131,17 +131,17 @@ Phương pháp benchmark đứng sau phần đó, với baseline đóng băng v�
 
 Bản thân các bảng số liệu, kèm nguồn gốc của chúng, nằm trong [benchmarks/](../../benchmarks/README.vi.md).
 
-## Công nghệ sử dụng
+## Nền tảng kỹ thuật
 
 Go. LLM cục bộ qua Ollama, với một mô hình planner và một mô hình coder. Phân tích chính xác ngang
 trình biên dịch, gồm phân giải symbol, call graph và control flow graph. Sinh code deterministic.
 Một harness benchmark có regression gate.
 
-## Mã nguồn ở đâu
+## Vị trí mã nguồn
 
 Tôi đang chuẩn bị mã nguồn để phát hành theo giấy phép Apache-2.0 tại
 [github.com/hpdkhoa/gen-system](https://github.com/hpdkhoa/gen-system). Repo giữ private cho đến khi
-phát hành và mở cùng lúc phát hành. Repo chứa sáu parser, lớp niềm tin, pipeline sinh code, các
+phát hành và mở cùng lúc phát hành. Repo chứa sáu parser, lớp belief, pipeline sinh code, các
 driver benchmark trong `bench/`, kết quả của campaign 2026-09-09 kèm manifest và attestation, tài
 liệu kỹ thuật trong `docs/`, và bộ test.
 

@@ -17,10 +17,10 @@ Mọi thứ ở đây đều viết hai lần, tiếng Anh và tiếng Việt. F
 | Hệ thống | Nó làm gì | Công nghệ | Trang |
 |---|---|---|---|
 | gen-system | Đọc codebase thành một graph deterministic dựng từ AST, nêu rõ mô hình giả định gì về từng hàm, rồi kiểm tra code sinh ra từ bên ngoài | Go, model chạy cục bộ qua Ollama, graph RAG | [projects/gen-system/README.vi.md](projects/gen-system/README.vi.md) |
-| HieuLuat | Hỏi đáp pháp luật tiếng Việt. Nó trích dẫn điều luật đã dùng, hoặc trả lời là nó không biết | Python, pgvector, embedding bge-m3 trên GPU, rerank bằng cross encoder | [projects/hieuluat/README.vi.md](projects/hieuluat/README.vi.md) |
+| HieuLuat | Hỏi đáp pháp luật tiếng Việt. Mỗi câu trả lời đều viện dẫn đúng điều luật, hoặc nêu rõ là không đủ căn cứ | Python, pgvector, embedding bge-m3 trên GPU, rerank bằng cross encoder | [projects/hieuluat/README.vi.md](projects/hieuluat/README.vi.md) |
 | Beastwarden | Game tactics roguelite với lõi deterministic theo seed và khoảng 2.000 test. Đồng thời là ghi chép của tôi về cách điều khiển việc lập trình có AI hỗ trợ | TypeScript, Vite, Pixi, Vitest | [projects/beastwarden/README.vi.md](projects/beastwarden/README.vi.md) |
 
-## Writeup
+## Bài phân tích kỹ thuật
 
 - [01, làm đường tìm kiếm pháp luật nhanh mà vẫn đúng](writeups/01-hieuluat-retrieval-optimization.vi.md).
   Đánh index vector, retrieve rồi rerank, embedding FP16, và mỗi bước thực sự tốn bao nhiêu phần
@@ -32,14 +32,14 @@ Mọi thứ ở đây đều viết hai lần, tiếng Anh và tiếng Việt. F
   Phương pháp nằm dưới hai writeup kia: baseline đóng băng, task set commit trước, chạy lặp lại
   được.
 
-Mỗi writeup có một mục về thứ tôi làm sai. Ở 01, reranker tốn 384 ms mà không cải thiện gì. Ở 02,
+Mỗi bài đều có một mục về chỗ tôi làm sai. Ở 01, reranker tốn 384 ms mà không cải thiện gì. Ở 02,
 chỉ số chất lượng của tôi không thể xê dịch, nên nó không bao giờ báo hỏng. Tôi cứ ghi lại, nếu
 không thì một năm sau tôi lại giẫm đúng vào đó.
 
-Các writeup là markdown. Mỗi bài còn có bản HTML, mở từ [index.html](index.html), nếu bạn thích đọc
+Các bài đều là markdown. Mỗi bài còn có bản HTML, mở từ [index.html](index.html), nếu bạn thích đọc
 kiểu đó hơn.
 
-## Các con số đến từ đâu
+## Xuất xứ các con số
 
 - [benchmarks/results/measured.json](benchmarks/results/measured.json) chứa mọi bảng. Harness ghi
   file đó. Tôi không gõ tay một con số nào vào writeup.
@@ -52,7 +52,7 @@ kiểu đó hơn.
   Dòng của HieuLuat mang theo ngày, tập đánh giá và GPU, vì harness đó riêng tư.
 - [benchmarks/README.vi.md](benchmarks/README.vi.md) giải thích cách đọc một bảng.
 
-## Snippet
+## Đoạn code mẫu
 
 Hai file Python nhỏ chạy trên dữ liệu đồ chơi, không cần thư viện ngoài:
 
@@ -66,7 +66,7 @@ của một index xấp xỉ cần đo chứ không đoán. `roofline_demo.py` s
 chia block, viết bằng Python thuần, nên bạn thấy bức tường bộ nhớ mà không cần GPU. Cả hai đều
 không có code production. Xem [snippets/README.vi.md](snippets/README.vi.md).
 
-## Tạo lại repo
+## Tái tạo repo
 
 `tools/fill_portfolio.py` chạy trên máy của tôi, nơi có các repo riêng tư. Nó lấy thống kê repo từ
 git, chụp lại môi trường bằng `nvidia-smi` và `ollama list`, rồi chèn các bảng từ `measured.json`
@@ -76,7 +76,7 @@ vào giữa các dấu `<!--measured:...-->`. Nó không bao giờ chép source 
 chạy nó sau `fill_portfolio.py`, nếu không bản HTML sẽ lệch với markdown. File HTML do công cụ sinh
 ra, nên hãy sửa markdown rồi chạy lại công cụ.
 
-## Tình trạng
+## Hiện trạng
 
 - gen-system: đang chuẩn bị bản phát hành Apache-2.0.
 - HieuLuat: sản phẩm thương mại, quyền sở hữu đang chuyển giao. Phần cài đặt vẫn riêng tư.
@@ -85,7 +85,7 @@ ra, nên hãy sửa markdown rồi chạy lại công cụ.
   tích roofline. Đoạn nó nhắm tới chiếm chưa tới 1 ms trong một request 385 ms, nên nó chứng minh
   năng lực chứ không làm request nhanh lên.
 
-## Về tôi
+## Người viết
 
 Khoa Hoang. Tôi làm một năm ở National Australia Bank, rồi hai năm rưỡi ở FPT Software với vai trò
 solution architect, chuyển các hệ thống cũ sang kiến trúc cloud native.

@@ -4,16 +4,16 @@
 
 ### GPU offload, streaming, quantization, và hai model dùng chung một card phổ thông
 
-> **Bối cảnh:** gen-system làm cho niềm tin của một model AI về code trở nên nhìn thấy được và kiểm
+> **Bối cảnh:** gen-system ghi ra từng giả định của model AI về code, để người đọc nhìn thấy và kiểm
 > tra được. Nó neo model vào một graph dựng từ AST, và kiểm chứng đầu ra từ bên ngoài. Xem
-> [trang dự án](../projects/gen-system/README.vi.md). Mã nguồn đang được chuẩn bị để phát hành theo
+> [trang dự án](../projects/gen-system/README.vi.md). Tôi đang chuẩn bị mã nguồn để phát hành theo
 > Apache-2.0. **Nội dung bài này:** tinh chỉnh tầng inference của nó. Phép kiểm tra chất lượng là
 > khách quan: code sinh ra hoặc build được và qua test của nó, hoặc không. Mục 4 giải thích vì sao
 > phiên bản dễ nghĩ tới nhất của phép kiểm tra đó vô dụng, và cái gì đã thay thế nó.
 
 ---
 
-## 0. Cỗ máy
+## 0. Cấu hình máy đo
 
 Một GPU phổ thông, chính là card trong máy bàn của tôi. Một NVIDIA RTX 4060 Ti 16 GB, chạy Ollama,
 với một model planner và một model coder dùng chung card.
@@ -26,13 +26,13 @@ chỉ ra chỗ việc ghim tham số không còn giữ được.
 
 Harness ghi lại chính xác GPU, driver, các phiên bản runtime, commit và danh sách model vào
 [ENVIRONMENT.md](../benchmarks/ENVIRONMENT.vi.md). Mỗi bảng ở mục 6 ghi kèm commit và ngày đo. Các
-bảng đó được sinh ra từ
+bảng đó sinh ra từ
 [`benchmarks/results/measured.json`](../benchmarks/results/measured.json). Các bảng là nguồn của mọi con số. Khi một bảng đổi, tôi viết lại phần chữ bên dưới nó.
 
-## 1. Điểm xuất phát
+## 1. Hiện trạng ban đầu
 
 Mọi lệnh inference đi qua một client duy nhất tới một runtime Ollama cục bộ. Bức tranh nhất quán.
-Nó đúng, nó deterministic, và nó hoàn toàn chưa được tinh chỉnh.
+Nó đúng, nó deterministic, và chưa ai tinh chỉnh nó.
 
 - **Mỗi lệnh gọi đều chờ toàn bộ câu trả lời.** Client bị chặn cho tới khi sinh xong. Một lần sinh
   code dài phải chờ trọn thời gian trước khi token đầu tiên xuất hiện. Không bước nào phía sau có
@@ -45,12 +45,12 @@ Nó đúng, nó deterministic, và nó hoàn toàn chưa được tinh chỉnh.
 - **Hai model dùng chung 16 GB.** Đây là lý do hệ thống cần keep alive và một timeout dài. Một lần
   nạp lại model có thể rơi vào giữa một lần chạy, và không có gì đo nó tốn bao nhiêu.
 
-Tầng tính đúng đã vững. Tầng hiệu năng chưa được đụng tới, và tầng đó mới là công việc thực sự.
+Tầng tính đúng đã vững. Tầng hiệu năng thì chưa ai đụng tới, và đó mới là phần việc thật.
 
-## 2. Bước 1: mở các điều khiển GPU
+## 2. Bước 1: mở các tham số điều khiển GPU
 
-Mọi lưu lượng tới model đi qua một hàm duy nhất. Giờ ba thiết lập được đọc từ biến môi trường và
-được gửi kèm mọi request:
+Mọi lưu lượng tới model đi qua một hàm duy nhất. Giờ hàm đó đọc ba thiết lập từ biến môi trường và
+gửi kèm mọi request:
 
 | Biến | Nó điều khiển gì |
 |---|---|
@@ -64,7 +64,7 @@ chạy chưa tinh chỉnh chỉ khác nhau ở thiết lập đang được th�
 
 Bench driver quét `OLLAMA_NUM_GPU` và lấy mẫu VRAM đỉnh ở mỗi bước.
 
-## 3. Bước 2: stream đầu ra
+## 3. Bước 2: bật streaming đầu ra
 
 Streaming được bật qua `OLLAMA_STREAM`. Bộ đọc tiêu thụ stream và ghép các mảnh lại thành một chuỗi.
 Chuỗi đó giống hệt chuỗi mà đường buffered cũ trả về.
@@ -76,10 +76,10 @@ năm response streaming giống hệt nhau.
 
 Buffered vẫn là mặc định. Streaming phải bật chủ động cho tới khi phép đo cho thấy điều khác.
 
-Những gì được đo là time to first token và tổng thời gian, khi bật và khi tắt streaming, trên cùng
+Tôi đo time to first token và tổng thời gian, khi bật và khi tắt streaming, trên cùng
 một prompt, mỗi cấu hình ba lần chạy.
 
-## 4. Bước 3: quantization, và thước đo hỏng nằm bên dưới
+## 4. Bước 3: quantization, và thước đo sai lệch bên dưới
 
 Ở đây quantization là một thí nghiệm, không phải một lựa chọn cố định. Cùng một model chạy ở Q4_K_M,
 Q5_K_M và Q8_0 cho vai trò coder, với planner giữ cố định. Mỗi lần chạy đo tốc độ, VRAM và chất
@@ -110,7 +110,7 @@ mà production dùng:
 | `verify_findings` | Những gì công cụ hiểu code của chính dự án tìm thấy khi đọc lại backend sinh ra: lời gọi chưa resolve được, operation mồ côi, operation đọc nhưng lại ghi. |
 | `prompt_tokens` và `wall_s` | Chi phí cho mỗi lần chạy. |
 
-Tỷ lệ compile thành công vẫn được báo cáo. Nó không còn là con số chính. Lý do nó vô dụng giờ được
+Harness vẫn báo tỷ lệ compile thành công. Nó không còn là con số chính. Lý do nó vô dụng giờ được
 ghi ra thay vì bị giấu đi.
 
 Bộ task gồm năm ý tưởng ứng dụng cố định. Chúng được đóng băng và commit trước lần chạy đầu tiên,
@@ -131,10 +131,10 @@ Có một điều cần làm rõ ở mọi nơi mô tả việc này. **Không c
 alive" nghĩa là keep alive có sẵn của Ollama, hai vai trò model, và phép đo chi phí của cách làm đó.
 Không có dòng code lập lịch nào được viết. Nói khác đi sẽ không đứng vững khi ai đó đọc mã nguồn.
 
-## 6. Kết quả
+## 6. Kết quả đo
 
 <!--measured:gen-->
-### Kết quả đo
+### Bảng số liệu
 
 *Dựng từ `benchmarks/results/measured.json`. Mọi con số dưới đây đến từ harness của chính dự án, trên máy được mô tả ở mục 0.*
 
@@ -220,9 +220,9 @@ Không có dòng code lập lịch nào được viết. Nói khác đi sẽ kh�
 
 <!--/measured-->
 
-### Các con số nói gì
+### Diễn giải số liệu
 
-| Thay đổi | Tác động | Những gì được đo |
+| Thay đổi | Tác động | Đã đo gì |
 |---|---|---|
 | Điều khiển GPU | Tốc độ và khả năng vừa trên một card | Tokens per second và VRAM đỉnh theo số layer được offload |
 | Streaming | Time to first token thấp hơn | Time to first token và tổng thời gian, bật và tắt, ba lần chạy |
@@ -251,7 +251,7 @@ người đọc thấy điều đó trước khi so sánh stub rate.
 **Vòng sửa ở cấp task có chạy, nhưng hiếm.** Trong phần lớn các lần chạy, `heal_attempts` là 0 và
 `go_test_pass` là 5 trên 5. Cả hai đều do cách thiết kế: stub compile được và qua test. Trong một lần
 chạy Q8_0, backend sinh ra build được, test của chính nó fail, và vòng sửa cấp task chạy chín lần.
-Phải qua bốn campaign mới thấy cột đó dịch chuyển hai lần. Nó được báo cáo để không ai đọc số 0 như
+Phải qua bốn campaign mới thấy cột đó dịch chuyển hai lần. Tôi vẫn ghi lại để không ai đọc số 0 như
 một kết quả.
 
 **Tốc độ và chất lượng đi theo hai hướng ngược nhau.** Q4_K_M nhanh hơn Q8_0 khoảng ba lần tính theo
@@ -300,13 +300,13 @@ nằm sẵn trong các file gold, hoặc không. Hop 2 tăng recall trong khi ne
 khoảng 420 file, tức hơn một nửa astropy và một phần sáu django. Một tấm lưới rộng như vậy bắt được
 file gold nhờ độ rộng. Resolver chặt hơn đã thu nhỏ neighbourhood đó khoảng một phần mười mà recall
 không đổi. Điều đó cho thấy độ rộng chưa bao giờ là thứ tạo ra kết quả. Quy tắc seed lấy tối đa 80
-định danh từ nội dung issue theo đúng tên. Trong một repo 2,500 file, một cái tên như `Model` khớp ở
+định danh từ nội dung issue theo đúng tên. Trong một repo 2.500 file, một cái tên như `Model` khớp ở
 hàng trăm chỗ. Thước đo này trung thực về điều đó, vì kích thước neighbourhood được in ngay cạnh nó.
 Một quy tắc seed chặt hơn là thứ tiếp theo cần xây. Con số sẽ giảm khi quy tắc đó được xây xong.
 
-## 7. Hướng phát triển tiếp
+## 7. Hướng phát triển
 
-Có hai hướng, chưa hướng nào được coi là đã xong.
+Có hai hướng, chưa hướng nào xong.
 
 Hướng thứ nhất là một kernel sinh token viết tay, đo bằng chính harness này. Kernel đó là phép nhân
 ma trận với vector trên các trọng số đã quantize của model coder. Nó được profile bằng Nsight và so
@@ -321,7 +321,7 @@ Hướng thứ hai là đưa các graph luồng điều khiển đã render quay
 tin, nơi không có compiler để dựa vào. Kết quả sẽ được công bố dù thế nào, kể cả khi không có tác
 động.
 
-## 8. Ba thứ tôi tìm ra khi đọc lại code của chính mình
+## 8. Ba phát hiện khi đọc lại code của chính mình
 
 Runtime đến tay tôi ở trạng thái chưa tinh chỉnh, nên mỗi điều khiển thành một lượt quét có con số ở
 cuối. Khi thước đo chất lượng chính hóa ra là 100 phần trăm do cách thiết kế, tôi ghi thẳng điều đó

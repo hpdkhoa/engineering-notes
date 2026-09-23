@@ -12,9 +12,9 @@
 
 ---
 
-## 0. Máy chạy
+## 0. Cấu hình máy đo
 
-Một GPU phổ thông. Các dòng ở mục 5 đã được đo vào tháng 8 năm 2026 bằng benchmark retrieval
+Một GPU phổ thông. Tôi đo các dòng ở mục 5 vào tháng 8 năm 2026 bằng benchmark retrieval
 riêng của HieuLuat, trên một NVIDIA RTX 4060 Ti 16 GB, với một bộ đánh giá cố định đã gán nhãn.
 Kết quả được ghi vào
 [`benchmarks/results/measured.json`](../benchmarks/results/measured.json), mỗi cấu hình một nhãn.
@@ -23,7 +23,7 @@ ngày đo, bộ đánh giá và GPU, không có gì hơn. Từ đó đến nay c
 này không giả vờ là đã chạy lại. Chỗ nào văn bản bên dưới đọc một con số từ bảng, thì lấy bảng làm
 chuẩn.
 
-## 1. Điểm xuất phát
+## 1. Hiện trạng ban đầu
 
 Luồng tìm kiếm có ba phần dùng GPU hoặc database nhiều: một embedder (bge-m3), một phép tìm kiếm
 cosine trên pgvector, và một reranker cross encoder.
@@ -32,11 +32,11 @@ Cả ba đều chạy được. Không phần nào được tinh chỉnh. Có ba
 
 1. **Tìm kiếm vector không có index.** Postgres tính khoảng cách tới từng dòng, rồi sắp xếp.
    Với vài nghìn chunk thì không sao. Khi corpus lớn dần, nó chậm đi.
-2. **Reranker bị tắt.** Thành phần đánh giá độ liên quan tốt nhất lại không được dùng.
+2. **Reranker đang tắt.** Thành phần chấm độ liên quan tốt nhất thì lại nằm im.
 3. **Embedder chạy ở độ chính xác đầy đủ.** Không có đường chạy FP16, nên nó dùng nhiều băng thông
    bộ nhớ hơn mức cần.
 
-## 2. Bước 1: thêm một vector index thật sự
+## 2. Bước 1: bổ sung vector index đúng nghĩa
 
 Đây là thay đổi rẻ nhất và mang lại lợi ích lớn nhất. Tôi thay phép quét toàn bộ bằng một index
 tìm láng giềng gần nhất xấp xỉ. pgvector có hai lựa chọn: IVFFlat, gom các vector thành các list,
@@ -89,10 +89,10 @@ Dùng một batch size cho cả hai công việc là lỗi thường gặp. Tôi
 lượng giữa FP32 và FP16, và một phép quét batch size. Phép quét cho thấy embedder bị giới hạn bởi
 băng thông bộ nhớ, đúng như kỳ vọng.
 
-## 5. Kết quả
+## 5. Kết quả đo
 
 <!--measured:hieuluat-->
-### Kết quả đo
+### Bảng số liệu
 
 *Dựng từ `benchmarks/results/measured.json`. Mọi con số dưới đây đến từ harness của chính dự án, trên máy được mô tả ở mục 0.*
 
@@ -128,7 +128,7 @@ băng thông bộ nhớ, đúng như kỳ vọng.
 
 <!--/measured-->
 
-### Các con số nói gì
+### Diễn giải số liệu
 
 | Thay đổi | Công sức | Tác động | Những gì tôi đã đo |
 |---|---|---|---|
@@ -142,7 +142,7 @@ Khi embedding corpus hàng loạt, FP16 nhanh hơn FP32 khoảng 2.9 lần. Cộ
 không lấy mẫu giá trị này, không phải vì nó bằng không. Nhận xét thứ nhất và thứ hai là nội dung
 của mục 6.
 
-## 6. Trần recall, và vì sao rerank không giúp được
+## 6. Trần recall, và vì sao rerank vô hiệu
 
 Một kết quả trong bảng đó trông như một thất bại. Nó đáng đọc kỹ, vì phần thú vị là nó thực sự quy
 lỗi cho thành phần nào.
@@ -175,7 +175,7 @@ thực sự nhìn thấy.
 - Nếu recall at 50 cao hơn nhiều, các ứng viên đã có ở đó và reranker không đẩy được chúng lên. Đó
   là vấn đề của reranker, và là vấn đề dễ hơn.
 
-Con số đó chưa được đo trước khi sản phẩm đổi chủ, nên nhận định trung thực vẫn là nhận định hẹp.
+Không ai đo con số đó trước khi sản phẩm đổi chủ, nên nhận định trung thực vẫn là nhận định hẹp.
 Index không phải nút thắt, và reranker chưa xứng đáng với 384 ms của nó. Đường trả lời mặc định
 không nên trả chi phí đó. Bỏ một thành phần tốn chừng đó mà không mang lại gì đo được là làm kỹ
 thuật tốt. Phép đo có thể đưa nó trở lại đã được nêu ở trên.
@@ -194,7 +194,7 @@ trong một request mất khoảng 385 ms khi bật reranker. Một kernel ở �
 không làm request nhanh lên. Nên tôi nói thẳng ngay từ đầu, đưa ra roofline dự đoán kết quả, rồi vẫn
 cứ đo.
 
-## 8. Điều tôi sẽ làm lại
+## 8. Những nguyên tắc tôi giữ lại
 
 Tôi chọn điểm vận hành của index theo cam kết an toàn chứ không theo mục tiêu latency, và tách phần
 việc embedding thành hai công việc nghẽn ở chỗ khác nhau. Không có gì thông minh ở đây. Cả hai đều

@@ -300,7 +300,7 @@ html[data-lang="en"] .lang-block[data-lang="en"],html[data-lang="vi"] .lang-bloc
     <h1 class="title">Tôi xây dựng hệ thống, đưa sản phẩm LLM ứng dụng vào sử dụng, và đo chúng trên GPU.</h1>
     <p class="lede">Đây là kiến trúc và <strong>kết quả đo</strong> của ba hệ thống tôi đang làm. gen-system sắp phát hành theo giấy phép Apache-2.0. HieuLuat chạy trên hồ sơ vụ việc thật của một văn phòng luật nên code của nó vẫn riêng tư, vì vậy writeup và các bảng số là phần tôi có thể đưa ra. Mỗi con số của gen-system đều dẫn về campaign, commit và manifest đã sinh ra nó.</p>
     <div class="cta-row">
-      <a class="btn primary" href="#writeups-vi">Đọc các writeup
+      <a class="btn primary" href="#writeups-vi">Đọc các bài phân tích
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
       </a>
       <a class="btn ghost" href="https://github.com/hpdkhoa/engineering-notes" id="repoLink-vi">
@@ -312,9 +312,9 @@ html[data-lang="en"] .lang-block[data-lang="en"],html[data-lang="vi"] .lang-bloc
 
   <!-- WRITEUPS -->
   <section class="sec" id="writeups-vi">
-    <p class="sec-head">Các writeup</p>
+    <p class="sec-head">Các bài phân tích</p>
     <h2 class="sec-title">Kiến trúc &amp; kết quả đo</h2>
-    <p class="sec-sub">Mỗi writeup là một trang web có định dạng, hỗ trợ đọc thành tiếng, có mục lục và giao diện tối/sáng. Bản Markdown có trên GitHub.</p>
+    <p class="sec-sub">Mỗi bài là một trang web có định dạng, hỗ trợ đọc thành tiếng, có mục lục và giao diện tối/sáng. Bản Markdown có trên GitHub.</p>
     <div class="cards">
 
       <a class="card" href="writeups/01-hieuluat-retrieval-optimization.vi.html">
@@ -330,7 +330,7 @@ html[data-lang="en"] .lang-block[data-lang="en"],html[data-lang="vi"] .lang-bloc
         <span class="num">Bài viết 02</span>
         <h3>Tinh chỉnh inference LLM cục bộ cho một công cụ xử lý code</h3>
         <div class="tags"><span class="tag">inference</span><span class="tag">quantization</span><span class="tag">GPU offload</span><span class="tag">streaming</span></div>
-        <p>Offload layer lên GPU, streaming, quantization được xem là một biến số và được đo, và hai model dùng chung một card 16 GB. Các lựa chọn này được đánh giá bằng một thước đo chất lượng <em>khách quan</em>. Mục 4 kể việc tôi phát hiện thước đo chất lượng của chính mình bị hỏng, và thứ đã thay thế nó.</p>
+        <p>Offload layer lên GPU, streaming, quantization coi như một biến số và đem đo, và hai model dùng chung một card 16 GB. Các lựa chọn này được đánh giá bằng một thước đo chất lượng <em>khách quan</em>. Mục 4 kể việc tôi phát hiện thước đo chất lượng của chính mình bị hỏng, và thứ đã thay thế nó.</p>
         <span class="go">Đọc bản web →</span>
         <div class="altlinks">hoặc: <a href="writeups/02-gen-system-inference-optimization.vi.md">markdown</a></div>
       </a>
@@ -351,7 +351,7 @@ html[data-lang="en"] .lang-block[data-lang="en"],html[data-lang="vi"] .lang-bloc
   <section class="sec">
     <p class="sec-head">Các hệ thống</p>
     <h2 class="sec-title">Các writeup viết về điều gì</h2>
-    <p class="sec-sub">Đây là các hệ thống thật, đã đưa vào sử dụng. gen-system đang được chuẩn bị để phát hành theo giấy phép Apache-2.0. HieuLuat và Beastwarden là riêng tư. Với hai hệ thống này, kiến trúc và kết quả đo được công khai.</p>
+    <p class="sec-sub">Đây là các hệ thống thật, đã đưa vào sử dụng. tôi đang chuẩn bị gen-system để phát hành theo giấy phép Apache-2.0. HieuLuat và Beastwarden là riêng tư. Với hai hệ thống này, kiến trúc và kết quả đo được công khai.</p>
     <div class="cards">
 
       <a class="card" href="projects/hieuluat/README.vi.md">
@@ -370,8 +370,8 @@ html[data-lang="en"] .lang-block[data-lang="en"],html[data-lang="vi"] .lang-bloc
 
       <a class="card" href="projects/beastwarden/README.vi.md">
         <h3>Beastwarden</h3>
-        <div class="tags"><span class="tag">TypeScript</span><span class="tag">Pixi</span><span class="tag">1,993 bài kiểm thử</span></div>
-        <p>Một <strong>game roguelite chiến thuật</strong> deterministic. Lõi của game là thuần và dùng seed, các luật được guard kiểm soát, và forecast phải khớp với kết quả xúc xắc. Vẫn là luận điểm đo chứ không giả định, ở ngôn ngữ thứ ba. Đây cũng là một nghiên cứu điển hình về <strong>cách định hướng phát triển có AI hỗ trợ</strong> dưới các luật do máy kiểm soát.</p>
+        <div class="tags"><span class="tag">TypeScript</span><span class="tag">Pixi</span><span class="tag">1.993 test</span></div>
+        <p>Một <strong>game roguelite chiến thuật</strong> deterministic. Lõi của game là thuần và dùng seed, các luật do guard kiểm tra, và forecast phải khớp với kết quả xúc xắc. Vẫn là luận điểm đo chứ không giả định, ở ngôn ngữ thứ ba. Đây cũng là một nghiên cứu điển hình về <strong>cách định hướng phát triển có AI hỗ trợ</strong> dưới các luật do máy kiểm soát.</p>
         <span class="go">Kiến trúc &amp; kỷ luật &rarr;</span>
       </a>
 
@@ -382,12 +382,12 @@ html[data-lang="en"] .lang-block[data-lang="en"],html[data-lang="vi"] .lang-bloc
   <section class="sec">
     <p class="sec-head">Bằng chứng</p>
     <h2 class="sec-title">Mỗi con số đến từ đâu</h2>
-    <p class="sec-sub">Các bảng trong writeup được tạo từ một file duy nhất do các harness ghi ra. Không có gì được gõ tay.</p>
+    <p class="sec-sub">Các bảng trong writeup sinh ra từ một file duy nhất do chính các harness ghi. Tôi không gõ tay con số nào.</p>
     <div class="cards">
       <a class="card" href="benchmarks/README.vi.md">
         <h3>Benchmark</h3>
         <p>Mỗi bảng đến từ đâu, cách đọc bảng, và nơi lưu manifest cùng attestation của campaign gen-system ngày 2026-09-09.</p>
-        <span class="go">Các con số được tạo ra thế nào &rarr;</span>
+        <span class="go">Các con số ra đời thế nào &rarr;</span>
         <div class="altlinks">hoặc: <a href="benchmarks/results/measured.json">measured.json</a> · <a href="benchmarks/ENVIRONMENT.vi.md">máy và các model</a></div>
       </a>
     </div>

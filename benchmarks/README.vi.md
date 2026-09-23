@@ -8,7 +8,7 @@ Mọi con số các writeup trích dẫn đều đến từ một lần chạy c
 `results/measured.json` chứa các bảng kết quả đo. Chính harness của các dự án ghi ra file này. `tools/fill_portfolio.py` sinh các bảng trong writeup từ file này.
 Vì vậy bảng trong writeup và JSON ở đây không thể lệch nhau.
 
-## Nguồn gốc của từng bảng
+## Xuất xứ từng bảng
 
 **gen-system.** `bench/summarise.py` trong [repo gen-system](https://github.com/hpdkhoa/gen-system)
 gộp các lần chạy benchmark thô trong `results/<date>/raw/` thành các dòng, rồi hợp nhất chúng vào đây. Mọi
@@ -28,7 +28,7 @@ cấu hình một nhãn, trên một bộ dữ liệu đánh giá cố định. 
 Vì vậy các dòng này có ngày và bộ dữ liệu đánh giá, nhưng không có commit công khai, không có cột `n`,
 và không có manifest. Tôi để nguyên như harness của sản phẩm đã báo cáo.
 
-## Môi trường
+## Môi trường đo
 
 [`ENVIRONMENT.md`](ENVIRONMENT.vi.md) ghi lại GPU, driver, phiên bản Ollama và Go,
 commit, và các mô hình có mặt khi campaign gen-system được đóng băng, kèm thời điểm ghi nhận.
