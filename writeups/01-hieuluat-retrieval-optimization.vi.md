@@ -7,7 +7,7 @@
 > **Bối cảnh:** HieuLuat là một hệ thống hỏi đáp pháp luật Việt Nam. Xem
 > [trang dự án](../projects/hieuluat/README.vi.md). Đây là một sản phẩm thương mại đang được chuyển
 > giao quyền sở hữu, nên code, corpus và prompt là riêng tư. **Nội dung bài:** cách tôi làm cho
-> > luồng tìm kiếm của nó nhanh hơn mà không làm nó kém tin cậy đi. Một câu trả lời sai đến nhanh
+> luồng tìm kiếm của nó nhanh hơn mà không làm nó kém tin cậy đi. Một câu trả lời sai đến nhanh
 > thì vẫn là câu mà luật sư sẽ nhắc lại với khách hàng. Các phép đo nằm bên dưới. Code thì không.
 
 ---
@@ -46,18 +46,18 @@ và HNSW, dựng một graph. Cả hai đều thay phép quét toàn bộ bằng
 sản phẩm, đó là một mất mát nhỏ về chất lượng. Trong một sản phẩm pháp luật thì không. HieuLuat
 cam kết sẽ nói "không có thông tin" khi không tìm được câu trả lời. Nếu index bỏ mất chunk chứa câu
 trả lời, hệ thống sẽ nói "không có thông tin" trong khi câu trả lời có tồn tại. Đó là một lỗi về
-tính đúng, không phải một chi tiết tinh chỉnh tốc độ.
+tính đúng.
 
-Vì vậy đây không phải một phép thay thế miễn phí. Đây là một đánh đổi giữa recall và latency, và
-thiết lập `probes` hoặc `ef_search` là núm vặn.
+Vì vậy phép thay thế này có cái giá của nó. Bạn đánh đổi recall lấy latency, và núm vặn là `probes`
+trên IVFFlat hoặc `ef_search` trên HNSW.
 
 **Những gì tôi đã đo.** Latency của truy vấn khi corpus lớn dần, cho quét toàn bộ, IVFFlat và HNSW.
 Sau đó là recall at k so với latency khi tôi vặn núm. Đường cong thứ hai mới là đường hữu ích. Nó
 cho thấy bao nhiêu latency đổi được bao nhiêu recall. Nhờ vậy điểm vận hành được chọn theo ngưỡng
 về tính đúng, thay vì đoán.
 
-Mục tiêu chưa bao giờ là dùng index nhanh nhất. Mục tiêu là tìm điểm mà recall vẫn đủ cao để giữ
-lời cam kết. Rồi lấy latency thấp nhất có được tại điểm đó.
+Tôi cần điểm mà recall vẫn đủ cao để giữ lời cam kết, rồi lấy latency thấp nhất có được tại điểm
+đó.
 
 ## 3. Bước 2: retrieval diện rộng, rồi rerank
 
@@ -78,7 +78,7 @@ trục: recall, chất lượng câu trả lời, và số mili giây tăng thê
 Chạy bge-m3 ở half precision giảm khoảng một nửa bộ nhớ cần dùng và băng thông sử dụng. Trên một
 GPU hiện đại, nó cũng tăng tốc forward pass. Với mục đích này, mất mát chất lượng là không đáng kể.
 
-Phần cần làm cho đúng là ở đây có hai công việc khác nhau, và chúng có nút thắt khác nhau:
+Ở đây có hai công việc khác nhau, và chúng có nút thắt khác nhau:
 
 - **Ingest hàng loạt**, khi embedding lại toàn bộ corpus, bị giới hạn bởi thông lượng. Batch lớn
   và FP16 giúp nhiều.
@@ -136,7 +136,7 @@ băng thông bộ nhớ, đúng như kỳ vọng.
 | Retrieval diện rộng, rồi rerank | Trung bình | Câu trả lời bám nguồn tốt hơn | Recall, chất lượng câu trả lời, latency tăng thêm |
 | Embedding FP16 | Thấp | Embedding nhanh hơn, ít VRAM hơn | Thông lượng FP32 so với FP16, quét batch size |
 
-Ba nhận xét. Index đã tinh chỉnh đạt recall bằng phép quét vét cạn, với khoảng một phần sáu latency
+Index đã tinh chỉnh đạt recall bằng phép quét vét cạn, với khoảng một phần sáu latency
 trung vị của phép quét đó. Reranker thêm 384 ms và không thay đổi chất lượng câu trả lời chút nào.
 Khi embedding corpus hàng loạt, FP16 nhanh hơn FP32 khoảng 2.9 lần. Cột VRAM ghi n/a vì harness
 không lấy mẫu giá trị này, không phải vì nó bằng không. Nhận xét thứ nhất và thứ hai là nội dung
@@ -144,7 +144,7 @@ của mục 6.
 
 ## 6. Trần recall, và vì sao rerank vô hiệu
 
-Một kết quả trong bảng đó trông như một thất bại. Nó đáng đọc kỹ, vì phần thú vị là nó thực sự quy
+Một kết quả trong bảng đó trông như một thất bại. Tôi mất một lúc mới tìm ra nó quy
 lỗi cho thành phần nào.
 
 Recall at 10 là 0.75 với phép quét toàn bộ. **Phép quét toàn bộ là vét cạn.** Nó so câu hỏi với
@@ -155,10 +155,9 @@ một kết quả về index. Đó là trần của những gì embedding model 
 Đọc theo mức trần đó, phần việc về index đã làm đúng những gì nó cần làm. HNSW và IVFFlat đã tinh
 chỉnh đều trả về 0.75, bằng phép quét vét cạn, trong khi cắt latency trung vị từ 6.4 ms xuống
 khoảng 1 ms. IVFFlat chưa tinh chỉnh ở mức 0.70. Đó là cái giá thật của việc để `probes` ở giá trị
-mặc định, và là lý do bước tinh chỉnh không phải tùy chọn. Vậy index mang lại mức giảm latency
-khoảng sáu lần mà không tốn recall. Nó không "đứng yên".
+mặc định, và là lý do bước tinh chỉnh không phải tùy chọn.
 
-**Reranker là một chuyện khác, và là một kết quả âm tính thật sự.** Lấy 50 ứng viên rồi chấm điểm
+**Reranker cho kết quả âm tính.** Lấy 50 ứng viên rồi chấm điểm
 lại chúng thêm 384 ms và không thay đổi chất lượng câu trả lời chút nào.
 
 Điều đó suy ra từ mức trần ở trên. Reranker sắp xếp lại các ứng viên được đưa cho nó. Nó không thể
@@ -176,9 +175,8 @@ thực sự nhìn thấy.
   là vấn đề của reranker, và là vấn đề dễ hơn.
 
 Không ai đo con số đó trước khi sản phẩm đổi chủ, nên nhận định trung thực vẫn là nhận định hẹp.
-Index không phải nút thắt, và reranker chưa xứng đáng với 384 ms của nó. Đường trả lời mặc định
-không nên trả chi phí đó. Bỏ một thành phần tốn chừng đó mà không mang lại gì đo được là làm kỹ
-thuật tốt. Phép đo có thể đưa nó trở lại đã được nêu ở trên.
+Index không phải nút thắt, và reranker chưa xứng đáng với 384 ms của nó. Vì vậy nó ra khỏi
+đường trả lời mặc định, và ở ngoài cho tới khi có người đo recall at 50.
 
 ## 7. Hướng phát triển
 
@@ -189,15 +187,15 @@ HieuLuat là riêng tư, phần việc đó giờ diễn ra trong gen-system. Đ
 cùng dạng chấm điểm cosine; kế hoạch nằm trong
 [writeup về inference](02-gen-system-inference-optimization.vi.md).
 
-Lưu ý này phải nói trước, vì nó là toàn bộ hình dạng của việc này. Đường chấm điểm chiếm dưới 1 ms
+Đường chấm điểm chiếm dưới 1 ms
 trong một request mất khoảng 385 ms khi bật reranker. Một kernel ở đó chứng minh năng lực. Nó sẽ
 không làm request nhanh lên. Nên tôi nói thẳng ngay từ đầu, đưa ra roofline dự đoán kết quả, rồi vẫn
 cứ đo.
 
 ## 8. Những nguyên tắc tôi giữ lại
 
-Tôi chọn điểm vận hành của index theo cam kết an toàn chứ không theo mục tiêu latency, và tách phần
-việc embedding thành hai công việc nghẽn ở chỗ khác nhau. Không có gì thông minh ở đây. Cả hai đều
+Nếu làm lại, tôi vẫn chọn điểm vận hành của index và tách phần việc embedding theo đúng cách đó.
+Không có gì thông minh ở đây. Cả hai đều
 là thứ người ta bỏ qua khi đang vội.
 
 Mục 6 mới là phần tôi còn nghĩ tới. Kết quả rerank ra âm tính, còn con số recall thì phẳng tới mức

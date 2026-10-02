@@ -278,9 +278,7 @@ html[data-theme="dark"] .ra-sent.speaking{background:#1d3a36;box-shadow:0 0 0 3p
 <p><a href="01-hieuluat-retrieval-optimization.html">English</a> · <strong>Tiếng Việt</strong></p>
 <h1 id="làm-cho-luồng-tìm-kiếm-pháp-luật-nhanh-mà-vẫn-đúng">Làm cho luồng tìm kiếm pháp luật nhanh mà vẫn đúng</h1>
 <h3 id="vector-index-rerank-và-embedding-fp16-cùng-các-đánh-đổi-đã-đo">Vector index, rerank và embedding FP16, cùng các đánh đổi đã đo</h3>
-<blockquote><p><strong>Bối cảnh:</strong> HieuLuat là một hệ thống hỏi đáp pháp luật Việt Nam. Xem <a href="../projects/hieuluat/README.vi.md">trang dự án</a>. Đây là một sản phẩm thương mại đang được chuyển giao quyền sở hữu, nên code, corpus và prompt là riêng tư. <strong>Nội dung bài:</strong> cách tôi làm cho</p>
-<blockquote><p>luồng tìm kiếm của nó nhanh hơn mà không làm nó kém tin cậy đi. Một câu trả lời sai đến nhanh</p></blockquote>
-<p>thì vẫn là câu mà luật sư sẽ nhắc lại với khách hàng. Các phép đo nằm bên dưới. Code thì không.</p></blockquote>
+<blockquote><p><strong>Bối cảnh:</strong> HieuLuat là một hệ thống hỏi đáp pháp luật Việt Nam. Xem <a href="../projects/hieuluat/README.vi.md">trang dự án</a>. Đây là một sản phẩm thương mại đang được chuyển giao quyền sở hữu, nên code, corpus và prompt là riêng tư. <strong>Nội dung bài:</strong> cách tôi làm cho luồng tìm kiếm của nó nhanh hơn mà không làm nó kém tin cậy đi. Một câu trả lời sai đến nhanh thì vẫn là câu mà luật sư sẽ nhắc lại với khách hàng. Các phép đo nằm bên dưới. Code thì không.</p></blockquote>
 <hr>
 <h2 id="0-cấu-hình-máy-đo">0. Cấu hình máy đo</h2>
 <p>Một GPU phổ thông. Tôi đo các dòng ở mục 5 vào tháng 8 năm 2026 bằng benchmark retrieval riêng của HieuLuat, trên một NVIDIA RTX 4060 Ti 16 GB, với một bộ đánh giá cố định đã gán nhãn. Kết quả được ghi vào <a href="../benchmarks/results/measured.json"><code>benchmarks/results/measured.json</code></a>, mỗi cấu hình một nhãn. Bản thân harness và commit của nó nằm trong repository riêng tư. Vì vậy các dòng này chỉ mang theo ngày đo, bộ đánh giá và GPU, không có gì hơn. Từ đó đến nay chúng chưa được chạy lại, và writeup này không giả vờ là đã chạy lại. Chỗ nào văn bản bên dưới đọc một con số từ bảng, thì lấy bảng làm chuẩn.</p>
@@ -290,10 +288,10 @@ html[data-theme="dark"] .ra-sent.speaking{background:#1d3a36;box-shadow:0 0 0 3p
 <ol><li><strong>Tìm kiếm vector không có index.</strong> Postgres tính khoảng cách tới từng dòng, rồi sắp xếp. Với vài nghìn chunk thì không sao. Khi corpus lớn dần, nó chậm đi.</li><li><strong>Reranker đang tắt.</strong> Thành phần chấm độ liên quan tốt nhất thì lại nằm im.</li><li><strong>Embedder chạy ở độ chính xác đầy đủ.</strong> Không có đường chạy FP16, nên nó dùng nhiều băng thông bộ nhớ hơn mức cần.</li></ol>
 <h2 id="2-bước-1-bổ-sung-vector-index-đúng-nghĩa">2. Bước 1: bổ sung vector index đúng nghĩa</h2>
 <p>Đây là thay đổi rẻ nhất và mang lại lợi ích lớn nhất. Tôi thay phép quét toàn bộ bằng một index tìm láng giềng gần nhất xấp xỉ. pgvector có hai lựa chọn: IVFFlat, gom các vector thành các list, và HNSW, dựng một graph. Cả hai đều thay phép quét toàn bộ bằng một phép tra cứu mở rộng được.</p>
-<p><strong>Vấn đề nằm ở chữ xấp xỉ.</strong> Các index này có thể bỏ sót láng giềng gần nhất thật sự. Trong đa số sản phẩm, đó là một mất mát nhỏ về chất lượng. Trong một sản phẩm pháp luật thì không. HieuLuat cam kết sẽ nói "không có thông tin" khi không tìm được câu trả lời. Nếu index bỏ mất chunk chứa câu trả lời, hệ thống sẽ nói "không có thông tin" trong khi câu trả lời có tồn tại. Đó là một lỗi về tính đúng, không phải một chi tiết tinh chỉnh tốc độ.</p>
-<p>Vì vậy đây không phải một phép thay thế miễn phí. Đây là một đánh đổi giữa recall và latency, và thiết lập <code>probes</code> hoặc <code>ef_search</code> là núm vặn.</p>
+<p><strong>Vấn đề nằm ở chữ xấp xỉ.</strong> Các index này có thể bỏ sót láng giềng gần nhất thật sự. Trong đa số sản phẩm, đó là một mất mát nhỏ về chất lượng. Trong một sản phẩm pháp luật thì không. HieuLuat cam kết sẽ nói "không có thông tin" khi không tìm được câu trả lời. Nếu index bỏ mất chunk chứa câu trả lời, hệ thống sẽ nói "không có thông tin" trong khi câu trả lời có tồn tại. Đó là một lỗi về tính đúng.</p>
+<p>Vì vậy phép thay thế này có cái giá của nó. Bạn đánh đổi recall lấy latency, và núm vặn là <code>probes</code> trên IVFFlat hoặc <code>ef_search</code> trên HNSW.</p>
 <p><strong>Những gì tôi đã đo.</strong> Latency của truy vấn khi corpus lớn dần, cho quét toàn bộ, IVFFlat và HNSW. Sau đó là recall at k so với latency khi tôi vặn núm. Đường cong thứ hai mới là đường hữu ích. Nó cho thấy bao nhiêu latency đổi được bao nhiêu recall. Nhờ vậy điểm vận hành được chọn theo ngưỡng về tính đúng, thay vì đoán.</p>
-<p>Mục tiêu chưa bao giờ là dùng index nhanh nhất. Mục tiêu là tìm điểm mà recall vẫn đủ cao để giữ lời cam kết. Rồi lấy latency thấp nhất có được tại điểm đó.</p>
+<p>Tôi cần điểm mà recall vẫn đủ cao để giữ lời cam kết, rồi lấy latency thấp nhất có được tại điểm đó.</p>
 <h2 id="3-bước-2-retrieval-diện-rộng-rồi-rerank">3. Bước 2: retrieval diện rộng, rồi rerank</h2>
 <p>Khi đã có index, retrieval trở nên đủ rẻ để lấy một tập ứng viên lớn hơn và chấm điểm lại. Cross encoder chấm điểm từng cặp câu hỏi và chunk, rồi giữ lại vài cặp tốt nhất.</p>
 <p>Đây là một mẫu hai giai đoạn phổ biến. Nó thường cải thiện mức độ câu trả lời bám vào nguồn. Với công việc pháp lý, đó là thước đo có ý nghĩa.</p>
@@ -301,7 +299,7 @@ html[data-theme="dark"] .ra-sent.speaking{background:#1d3a36;box-shadow:0 0 0 3p
 <p>Cái giá là latency. Lấy nhiều hơn rồi rerank thì tốn thời gian. Vì vậy kết quả cần báo cáo có ba trục: recall, chất lượng câu trả lời, và số mili giây tăng thêm.</p>
 <h2 id="4-bước-3-embedding-fp16">4. Bước 3: embedding FP16</h2>
 <p>Chạy bge-m3 ở half precision giảm khoảng một nửa bộ nhớ cần dùng và băng thông sử dụng. Trên một GPU hiện đại, nó cũng tăng tốc forward pass. Với mục đích này, mất mát chất lượng là không đáng kể.</p>
-<p>Phần cần làm cho đúng là ở đây có hai công việc khác nhau, và chúng có nút thắt khác nhau:</p>
+<p>Ở đây có hai công việc khác nhau, và chúng có nút thắt khác nhau:</p>
 <ul><li><strong>Ingest hàng loạt</strong>, khi embedding lại toàn bộ corpus, bị giới hạn bởi thông lượng. Batch lớn và FP16 giúp nhiều.</li><li><strong>Truy vấn online</strong>, khi embedding một câu hỏi, bị giới hạn bởi latency và chi phí cố định. Batch size gần như không ảnh hưởng. Giữ model luôn nạp sẵn quan trọng hơn.</li></ul>
 <p>Dùng một batch size cho cả hai công việc là lỗi thường gặp. Tôi đo chúng riêng: chênh lệch thông lượng giữa FP32 và FP16, và một phép quét batch size. Phép quét cho thấy embedder bị giới hạn bởi băng thông bộ nhớ, đúng như kỳ vọng.</p>
 <h2 id="5-kết-quả-đo">5. Kết quả đo</h2>
@@ -348,21 +346,21 @@ html[data-theme="dark"] .ra-sent.speaking{background:#1d3a36;box-shadow:0 0 0 3p
 <tr><td>Embedding FP16</td><td>Thấp</td><td>Embedding nhanh hơn, ít VRAM hơn</td><td>Thông lượng FP32 so với FP16, quét batch size</td></tr>
 </tbody>
 </table>
-<p>Ba nhận xét. Index đã tinh chỉnh đạt recall bằng phép quét vét cạn, với khoảng một phần sáu latency trung vị của phép quét đó. Reranker thêm 384 ms và không thay đổi chất lượng câu trả lời chút nào. Khi embedding corpus hàng loạt, FP16 nhanh hơn FP32 khoảng 2.9 lần. Cột VRAM ghi n/a vì harness không lấy mẫu giá trị này, không phải vì nó bằng không. Nhận xét thứ nhất và thứ hai là nội dung của mục 6.</p>
+<p>Index đã tinh chỉnh đạt recall bằng phép quét vét cạn, với khoảng một phần sáu latency trung vị của phép quét đó. Reranker thêm 384 ms và không thay đổi chất lượng câu trả lời chút nào. Khi embedding corpus hàng loạt, FP16 nhanh hơn FP32 khoảng 2.9 lần. Cột VRAM ghi n/a vì harness không lấy mẫu giá trị này, không phải vì nó bằng không. Nhận xét thứ nhất và thứ hai là nội dung của mục 6.</p>
 <h2 id="6-trần-recall-và-vì-sao-rerank-vô-hiệu">6. Trần recall, và vì sao rerank vô hiệu</h2>
-<p>Một kết quả trong bảng đó trông như một thất bại. Nó đáng đọc kỹ, vì phần thú vị là nó thực sự quy lỗi cho thành phần nào.</p>
+<p>Một kết quả trong bảng đó trông như một thất bại. Tôi mất một lúc mới tìm ra nó quy lỗi cho thành phần nào.</p>
 <p>Recall at 10 là 0.75 với phép quét toàn bộ. <strong>Phép quét toàn bộ là vét cạn.</strong> Nó so câu hỏi với từng dòng, nên trong đó không có phép xấp xỉ nào làm mất recall. Nghĩa là 0.75 hoàn toàn không phải một kết quả về index. Đó là trần của những gì embedding model này tìm được với k bằng 10 trên bộ đánh giá này. Khoảng một phần tư số chunk đúng không nằm trong top mười, với bất kỳ index nào.</p>
-<p>Đọc theo mức trần đó, phần việc về index đã làm đúng những gì nó cần làm. HNSW và IVFFlat đã tinh chỉnh đều trả về 0.75, bằng phép quét vét cạn, trong khi cắt latency trung vị từ 6.4 ms xuống khoảng 1 ms. IVFFlat chưa tinh chỉnh ở mức 0.70. Đó là cái giá thật của việc để <code>probes</code> ở giá trị mặc định, và là lý do bước tinh chỉnh không phải tùy chọn. Vậy index mang lại mức giảm latency khoảng sáu lần mà không tốn recall. Nó không "đứng yên".</p>
-<p><strong>Reranker là một chuyện khác, và là một kết quả âm tính thật sự.</strong> Lấy 50 ứng viên rồi chấm điểm lại chúng thêm 384 ms và không thay đổi chất lượng câu trả lời chút nào.</p>
+<p>Đọc theo mức trần đó, phần việc về index đã làm đúng những gì nó cần làm. HNSW và IVFFlat đã tinh chỉnh đều trả về 0.75, bằng phép quét vét cạn, trong khi cắt latency trung vị từ 6.4 ms xuống khoảng 1 ms. IVFFlat chưa tinh chỉnh ở mức 0.70. Đó là cái giá thật của việc để <code>probes</code> ở giá trị mặc định, và là lý do bước tinh chỉnh không phải tùy chọn.</p>
+<p><strong>Reranker cho kết quả âm tính.</strong> Lấy 50 ứng viên rồi chấm điểm lại chúng thêm 384 ms và không thay đổi chất lượng câu trả lời chút nào.</p>
 <p>Điều đó suy ra từ mức trần ở trên. Reranker sắp xếp lại các ứng viên được đưa cho nó. Nó không thể tìm ra một chunk mà retrieval chưa bao giờ trả về. Nếu chunk đúng không có trong tập ứng viên, chấm điểm lại bao nhiêu cũng không đưa nó trở lại.</p>
 <p><strong>Điều tôi chưa tách bạch.</strong> Một mức 0.75 phẳng trên mọi cấu hình cũng là hình dạng của một bộ đánh giá bị hỏng. Phép đo phân biệt được hai trường hợp là recall at 50, tức tập ứng viên mà reranker thực sự nhìn thấy.</p>
 <ul><li>Nếu recall at 50 cũng quanh 0.75, các lần bỏ sót là bỏ sót retrieval thật. Khi đó cách sửa nằm ở phía trước cả index lẫn reranker: chia chunk tốt hơn, tìm kiếm lai giữa keyword và vector, hoặc một embedding model tốt hơn cho văn bản pháp luật tiếng Việt.</li><li>Nếu recall at 50 cao hơn nhiều, các ứng viên đã có ở đó và reranker không đẩy được chúng lên. Đó là vấn đề của reranker, và là vấn đề dễ hơn.</li></ul>
-<p>Không ai đo con số đó trước khi sản phẩm đổi chủ, nên nhận định trung thực vẫn là nhận định hẹp. Index không phải nút thắt, và reranker chưa xứng đáng với 384 ms của nó. Đường trả lời mặc định không nên trả chi phí đó. Bỏ một thành phần tốn chừng đó mà không mang lại gì đo được là làm kỹ thuật tốt. Phép đo có thể đưa nó trở lại đã được nêu ở trên.</p>
+<p>Không ai đo con số đó trước khi sản phẩm đổi chủ, nên nhận định trung thực vẫn là nhận định hẹp. Index không phải nút thắt, và reranker chưa xứng đáng với 384 ms của nó. Vì vậy nó ra khỏi đường trả lời mặc định, và ở ngoài cho tới khi có người đo recall at 50.</p>
 <h2 id="7-hướng-phát-triển">7. Hướng phát triển</h2>
 <p>Hướng mở rộng sâu nhất là một CUDA kernel viết tay cho một phần của đường chấm điểm. Nó sẽ gộp bước chuẩn hóa và bước tích vô hướng trên tập ứng viên, và được profile bằng Nsight so với phiên bản NumPy và phiên bản pgvector. Đó là khác biệt giữa gọi một thư viện GPU và tự viết kernel. Vì code của HieuLuat là riêng tư, phần việc đó giờ diễn ra trong gen-system. Đường retrieval của gen-system có cùng dạng chấm điểm cosine; kế hoạch nằm trong <a href="02-gen-system-inference-optimization.vi.html">writeup về inference</a>.</p>
-<p>Lưu ý này phải nói trước, vì nó là toàn bộ hình dạng của việc này. Đường chấm điểm chiếm dưới 1 ms trong một request mất khoảng 385 ms khi bật reranker. Một kernel ở đó chứng minh năng lực. Nó sẽ không làm request nhanh lên. Nên tôi nói thẳng ngay từ đầu, đưa ra roofline dự đoán kết quả, rồi vẫn cứ đo.</p>
+<p>Đường chấm điểm chiếm dưới 1 ms trong một request mất khoảng 385 ms khi bật reranker. Một kernel ở đó chứng minh năng lực. Nó sẽ không làm request nhanh lên. Nên tôi nói thẳng ngay từ đầu, đưa ra roofline dự đoán kết quả, rồi vẫn cứ đo.</p>
 <h2 id="8-những-nguyên-tắc-tôi-giữ-lại">8. Những nguyên tắc tôi giữ lại</h2>
-<p>Tôi chọn điểm vận hành của index theo cam kết an toàn chứ không theo mục tiêu latency, và tách phần việc embedding thành hai công việc nghẽn ở chỗ khác nhau. Không có gì thông minh ở đây. Cả hai đều là thứ người ta bỏ qua khi đang vội.</p>
+<p>Nếu làm lại, tôi vẫn chọn điểm vận hành của index và tách phần việc embedding theo đúng cách đó. Không có gì thông minh ở đây. Cả hai đều là thứ người ta bỏ qua khi đang vội.</p>
 <p>Mục 6 mới là phần tôi còn nghĩ tới. Kết quả rerank ra âm tính, còn con số recall thì phẳng tới mức đáng ngượng. Tìm ra con số phẳng đó quy lỗi cho thành phần nào, rồi gọi tên đúng một phép đo phân định được, tốn thời gian hơn toàn bộ phần tinh chỉnh.</p>
 <p><em>Các phép đo được thực hiện trước và sau, với các bộ đánh giá cố định, trên máy ở mục 0. Phương pháp nằm trong <a href="03-reproducible-benchmarking.vi.html">benchmarking tái lập được</a>. Giá trị tuyệt đối phụ thuộc vào GPU. Hình dạng của mỗi đánh đổi thì vẫn đúng trên card khác.</em></p>
 </article>
@@ -561,7 +559,7 @@ document.addEventListener('DOMContentLoaded',function(){
 
   function speakCurrent(){
     if(idx>=sentences.length){ stop(); return; }
-    var u=new SpeechSynthesisUtterance(sentences[idx].text); u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN';
+    var u=new SpeechSynthesisUtterance(sentences[idx].text); u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN';
     u.rate=rate; var v=pickVoice(); if(v) u.voice=v;
     u.onend=function(){
       if(playing&&!paused){ idx++; highlight(idx); speakCurrent(); }

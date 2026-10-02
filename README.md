@@ -29,7 +29,8 @@ Everything here is written twice, English and Vietnamese. The Vietnamese files e
   GPU layer offload, streaming, quantization as a measured variable, and two models sharing one
   16 GB card.
 - [03, reproducible benchmarking and regression gates](writeups/03-reproducible-benchmarking.md).
-  The method under the other two: frozen baselines, committed task sets, repeatable runs.
+  The method under the other two: frozen baselines, regression gates, repeatable runs, and a
+  quality metric that can move.
 
 Each one has a section on something I got wrong. In 01 the reranker cost 384 ms and improved
 nothing. In 02 my quality metric could not move, so it could never fail. I keep writing those
@@ -90,7 +91,7 @@ generated, so edit the markdown and rerun the tool.
 Khoa Hoang. I spent a year at National Australia Bank, then two and a half years at FPT Software as
 a solution architect, moving legacy systems onto cloud native architectures.
 
-The target design was rarely the hard part. The hard part was that nobody could say what the old
+The hard part was that nobody could say what the old
 system actually did, and the people who knew had left years ago. An AI model has the same trouble
 with a codebase, except you find out when the output is wrong. I have built my own systems full
 time since November 2025. Both come back to that: write down what the machine is assuming, then

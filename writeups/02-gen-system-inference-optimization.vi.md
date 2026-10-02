@@ -31,8 +31,8 @@ bảng đó sinh ra từ
 
 ## 1. Hiện trạng ban đầu
 
-Mọi lệnh inference đi qua một client duy nhất tới một runtime Ollama cục bộ. Bức tranh nhất quán.
-Nó đúng, nó deterministic, và chưa ai tinh chỉnh nó.
+Mọi lệnh inference đi qua một client duy nhất tới một runtime Ollama cục bộ. Nó đúng và
+deterministic, nhưng chưa ai tinh chỉnh gì trong đó.
 
 - **Mỗi lệnh gọi đều chờ toàn bộ câu trả lời.** Client bị chặn cho tới khi sinh xong. Một lần sinh
   code dài phải chờ trọn thời gian trước khi token đầu tiên xuất hiện. Không bước nào phía sau có
@@ -45,7 +45,7 @@ Nó đúng, nó deterministic, và chưa ai tinh chỉnh nó.
 - **Hai model dùng chung 16 GB.** Đây là lý do hệ thống cần keep alive và một timeout dài. Một lần
   nạp lại model có thể rơi vào giữa một lần chạy, và không có gì đo nó tốn bao nhiêu.
 
-Tầng tính đúng đã vững. Tầng hiệu năng thì chưa ai đụng tới, và đó mới là phần việc thật.
+Các test determinism, cổng compile và bước verify đã có sẵn. Chưa ai đo thứ gì nằm bên dưới chúng.
 
 ## 2. Bước 1: mở các tham số điều khiển GPU
 
@@ -69,7 +69,7 @@ Bench driver quét `OLLAMA_NUM_GPU` và lấy mẫu VRAM đỉnh ở mỗi bư�
 Streaming được bật qua `OLLAMA_STREAM`. Bộ đọc tiêu thụ stream và ghép các mảnh lại thành một chuỗi.
 Chuỗi đó giống hệt chuỗi mà đường buffered cũ trả về.
 
-Điều này quan trọng hơn vẻ ngoài của nó. Mọi thứ phía sau nhận cùng một đầu vào trong cả hai trường
+Mọi thứ phía sau nhận cùng một đầu vào trong cả hai trường
 hợp: bước trích JSON, quy tắc thân hàm sinh ra phải trả về riêng lẻ, và bước kiểm tra determinism.
 Tầng truyền tải không được phép thay đổi ý nghĩa. Một test khẳng định chỉ có một đầu ra duy nhất qua
 năm response streaming giống hệt nhau.
@@ -85,13 +85,12 @@ một prompt, mỗi cấu hình ba lần chạy.
 Q5_K_M và Q8_0 cho vai trò coder, với planner giữ cố định. Mỗi lần chạy đo tốc độ, VRAM và chất
 lượng.
 
-Trục chất lượng là chỗ việc này trở nên thú vị. Đó cũng là chỗ phiên bản đầu của writeup này đã
-sai.
+Ở phiên bản đầu của writeup này, tôi đã làm sai trục chất lượng.
 
 **Thước đo dễ nghĩ tới nhất không dùng được.** Kế hoạch là báo cáo tỷ lệ compile thành công. Code
 sinh ra hoặc build được, hoặc không. Mọi lần chạy đều ra 100 phần trăm.
 
-Đó không phải vì model hoàn hảo. Đó là **do chính cách thiết kế**. Khi một operation do model viết
+Con số 100 phần trăm đó là **do chính cách thiết kế**. Khi một operation do model viết
 không compile được, công cụ gửi nó lại cho model kèm lỗi build. Nếu vẫn lỗi, công cụ thay thân hàm
 bằng một stub `not implemented` tường minh. Stub compile được. Service luôn build được.
 
@@ -110,15 +109,15 @@ mà production dùng:
 | `verify_findings` | Những gì công cụ hiểu code của chính dự án tìm thấy khi đọc lại backend sinh ra: lời gọi chưa resolve được, operation mồ côi, operation đọc nhưng lại ghi. |
 | `prompt_tokens` và `wall_s` | Chi phí cho mỗi lần chạy. |
 
-Harness vẫn báo tỷ lệ compile thành công. Nó không còn là con số chính. Lý do nó vô dụng giờ được
-ghi ra thay vì bị giấu đi.
+Harness vẫn báo tỷ lệ compile thành công. Nó không còn là con số chính. Tôi đã ghi ra lý do nó
+vô dụng.
 
 Bộ task gồm năm ý tưởng ứng dụng cố định. Chúng được đóng băng và commit trước lần chạy đầu tiên,
 nên không thể chỉnh chúng cho khớp với kết quả.
 
 ## 5. Bước 4: hai model, một card
 
-Hai model tranh nhau 16 GB là một bài toán thiết kế thật, có nhiều hơn một lời giải tốt. Ba chiến
+Hai model phải dùng chung 16 GB. Ba chiến
 lược chạy trên cùng bộ task đã đóng băng:
 
 | Chiến lược | Nó là gì | Nó tốn gì |
@@ -127,7 +126,7 @@ lược chạy trên cùng bộ task đã đóng băng:
 | B. Cả hai cùng nằm trong bộ nhớ | Keep alive không bao giờ hết hạn, nên cả hai model lẽ ra đều được giữ nóng. | Khoảng trống VRAM, và tốc độ khi tranh chấp tài nguyên. Việc cả hai có vừa hay không tự nó là một kết quả, và mục 6 đưa ra câu trả lời. |
 | C. Một model dùng chung | Model coder cũng lập kế hoạch, nên không bao giờ phải đổi model. | Chất lượng lập kế hoạch, thể hiện qua stub rate, số vòng sửa và các entity thừa. |
 
-Có một điều cần làm rõ ở mọi nơi mô tả việc này. **Không có scheduler.** "Lập lịch tuần tự với keep
+**Không có scheduler.** "Lập lịch tuần tự với keep
 alive" nghĩa là keep alive có sẵn của Ollama, hai vai trò model, và phép đo chi phí của cách làm đó.
 Không có dòng code lập lịch nào được viết. Nói khác đi sẽ không đứng vững khi ai đó đọc mã nguồn.
 
@@ -233,8 +232,7 @@ Mọi bảng ở trên đến từ một campaign, chạy ngày 2026-09-09 ở m
 quả. Manifest và attestation nằm cạnh các file dữ liệu thô trong repo gen-system. Ba campaign trước
 đó dẫn tới nó. Campaign đầu tiên chạy với working tree chưa sạch. Campaign thứ hai và thứ ba thực ra
 là một lần chạy vắt qua nửa đêm và bị tách thành hai thư mục. Đó là cách một bug về ngày trong các
-driver được phát hiện. Mỗi campaign đó tìm ra một điều mà các bảng giờ đã phản ánh. Có chín điều
-đáng đọc ra từ các bảng.
+driver được phát hiện. Mỗi campaign đó tìm ra một điều mà các bảng giờ đã phản ánh.
 
 **Thước đo chất lượng đã dịch chuyển.** Stub rate khác nhau ở mỗi mức quantization. Đó chính là mục
 đích của việc thay tỷ lệ compile thành công, vốn luôn là 100 phần trăm do cách thiết kế. Cổng 2 của
@@ -256,7 +254,7 @@ một kết quả.
 
 **Tốc độ và chất lượng đi theo hai hướng ngược nhau.** Q4_K_M nhanh hơn Q8_0 khoảng ba lần tính theo
 tokens per second và dùng ít hơn khoảng 4 GB VRAM. Nó cũng gần như không tạo ra được gì compile được.
-Với pipeline này, trên card này, mức quant nhanh hơn không phải là mức rẻ hơn.
+Vì vậy tốc độ không đổi lại được gì.
 
 **Chiến lược B từng không đo được gì, và giờ harness bắt được lỗi đó.** Trong campaign đầu tiên,
 driver đặt `OLLAMA_KEEP_ALIVE=-1`. Lớp gửi request gửi giá trị đó dưới dạng chuỗi "-1". Ollama từ
@@ -270,7 +268,7 @@ mọi dòng phía trên.
 hệt nhau giữa A, B và C. Bản ghi `ollama ps` ở cuối lần chạy B cho thấy một model nằm trong bộ nhớ,
 không phải hai. Planner nặng 9.3 GB trên đĩa và coder nặng 9.0 GB. Mỗi model cần KV cache và runtime
 đi kèm, nên cặp này không vừa cùng lúc trong 16 GB. "Cả hai cùng nằm trong bộ nhớ" suy biến thành
-đúng những gì A làm. Việc cả hai có vừa hay không tự nó là một kết quả, và câu trả lời là không.
+đúng những gì A làm.
 
 **Sampling đã ghim cho ra hai đầu ra, không phải một.** Temperature 0, seed 42 và top_p 1 được đặt
 trên mọi request. Với cặp model production, mọi lần chạy của mọi campaign đều rơi vào đúng một trong
@@ -280,8 +278,7 @@ hai. Ở campaign kế tiếp, phân bổ đảo ngược: A nhận đầu ra th
 nhất. Một lần chạy rơi vào đầu ra nào phụ thuộc vào trạng thái server, không phụ thuộc vào chiến
 lược. Với ba operation mỗi lần chạy, một lần đảo làm stub rate thay đổi một phần ba. Đó là lý do mọi
 dòng đều ghi n và khoảng giá trị. Đó cũng là lý do không nên đọc cột stub rate trong bảng chiến lược
-như tác động của chiến lược. Việc ghim determinism trên một server cục bộ là một ưu tiên mạnh, không
-phải một phép chứng minh.
+như tác động của chiến lược.
 
 **Một thước đo thứ hai cũng là 100 phần trăm do cách thiết kế.** Trước campaign này, bước verify tính
 một lời gọi là nội bộ khi có bất kỳ symbol nào mang tên trần của nó. Sau đó nó resolve lời gọi theo
@@ -323,13 +320,7 @@ tin, nơi không có compiler để dựa vào. Kết quả sẽ được công 
 
 ## 8. Ba phát hiện khi đọc lại code của chính mình
 
-Runtime đến tay tôi ở trạng thái chưa tinh chỉnh, nên mỗi điều khiển thành một lượt quét có con số ở
-cuối. Khi thước đo chất lượng chính hóa ra là 100 phần trăm do cách thiết kế, tôi ghi thẳng điều đó
-vào bảng và xây một thước đo có thể dịch chuyển.
-
-Thước đo hỏng không phải là thứ duy nhất lượt làm việc này lôi ra.
-
-**Hai bug determinism, tìm ra khi đọc lại code của chính tôi.** Không bug nào đến từ một báo cáo lỗi.
+**Hai bug determinism, tìm ra khi đọc lại code của chính tôi.**
 Determinism là tuyên bố chịu lực của hệ thống này: temperature 0, seed cố định, đầu ra giống hệt
 nhau. Bước resolve symbol đã phá vỡ nó. Nó lấy kết quả khớp đầu tiên khi duyệt một map trong Go, và
 Go xáo ngẫu nhiên thứ tự đó. Hai symbol export có cùng tên ngắn có thể resolve khác nhau giữa các
@@ -354,9 +345,7 @@ Cả hai con số đến từ cùng một lối tắt: một lời gọi đượ
 chứa. Khi thay bằng cách đi theo lời gọi qua các import của hàm gọi, con số 100 thành 92.6 và 96.1
 trên hai repo công khai, và hàng trăm findings thành 0. Mục 6 có cả hai con số.
 
-Cả ba có chung một cơ chế bên dưới: một phép so sánh chỉ có thể trả về đúng một kết quả. Một thước
-đo kẹt ở 100 phần trăm. Một bộ test xanh trên đúng đường code tôi tình cờ test. Sáu test đỏ mà tôi
-đã sẵn sàng đổ cho nền tảng. Một resolver không thể trượt.
+Cả ba có chung một cơ chế bên dưới: một phép so sánh chỉ có thể trả về đúng một kết quả.
 
 Chạy hệ thống rồi nhìn nó hoạt động thì không bắt được thứ nào trong đó. Tôi tìm ra cả ba khi đọc
 lại code đã pass test, và hỏi mỗi con số sẽ trông thế nào nếu nó đang nói dối tôi.

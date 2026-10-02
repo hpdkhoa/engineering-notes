@@ -14,7 +14,7 @@
 
 ## 1. The three rules
 
-Three rules, and I have broken all three at least once.
+I have broken all three at least once.
 
 1. **Measure before and after, every time.** Every change is reported against a recorded baseline.
    No baseline, no claim.
@@ -25,7 +25,7 @@ Three rules, and I have broken all three at least once.
 ## 2. Frozen baselines
 
 A baseline is a recorded measurement of the system before a change, tagged with a version and taken
-under fixed conditions. It lives in a file, not in my head.
+under fixed conditions. It lives in a file.
 
 Every optimization in both projects is reported against one, so "this change improved throughput" is
 a sentence someone else can check.
@@ -49,7 +49,7 @@ quietly drops recall is rejected rather than shipped.
 Where the work allows it, runs are made deterministic. gen-system generates at temperature 0 with a
 fixed seed, and a suite checks that the same prompt gives one unique output across repeated runs.
 
-The payoff is that a difference between two runs reflects the change you made, not random
+A difference between two runs then reflects the change you made, not random
 variation. Where a component is genuinely random, the honest answer is repeated runs and a reported
 range, not a single number.
 
@@ -61,11 +61,11 @@ a range. A difference of one run in three is not reported as a finding.
 
 ## 5. Choosing a quality metric that can actually move
 
-Both projects measure quality directly rather than through a proxy. That is the useful part. But
-choosing the metric is harder than it looks, and gen-system got it wrong the first time.
+Both projects measure quality directly rather than through a proxy. gen-system got the
+choice of metric wrong the first time.
 
 The plan was to report compile pass rate. Does the generated code build? It came back at 100
-percent on every run. Not because the model was perfect, but because the engine replaces a failing
+percent on every run. The engine replaces a failing
 operation with a stub that compiles. The metric could not go down, so it measured nothing.
 
 The replacement counts what actually varies: how much generated logic survived the compile gate
@@ -74,8 +74,8 @@ rather than falling back to a stub, and how many repair rounds that took. Detail
 
 This matters most for quantization work, where the whole risk is silent quality loss. Most
 inference writeups can only show a perplexity curve and hope it tracks usefulness. A metric that is
-objective but stuck is worse than a proxy, because it looks like evidence. So the lesson is not
-simply to pick an objective metric. It is to check that the metric can actually move.
+objective but stuck is worse than a proxy, because it looks like evidence. So check that the
+metric can actually move.
 
 It happened a second time, in the other direction. The verify pass that rereads generated code
 scored internal resolution at 100 percent on every Python repository it saw. It counted a call as
@@ -105,16 +105,14 @@ embedding model rather than a result about the index, and names the one measurem
 
 ## 7. What the commit order proves, and what it does not
 
-The baseline comes first, and the task set gets committed before the first run so it cannot be
-shaped around the results. Quality sits behind a gate, and runs stay repeatable where the work
-allows it. That is the whole of it, and it is mostly bookkeeping.
+The task set gets committed before the first run so it cannot be shaped around the results.
 
-One honest note on that. The public gen-system history starts on the day the repository was
+The public gen-system history starts on the day the repository was
 prepared for release, so a reader cannot see the weeks before it. What a reader can check is the
 order inside that history: the commit that adds the task set comes before the commit that adds the
 results directory. The frozen date is also written inside the task file. Each campaign ends with an attestation and a manifest listing every raw file with its hash, so a
-number in a writeup traces back to a file rather than to my memory of a run. HieuLuat's rows cannot offer
-that trail, because the harness is private, and the tables say so instead of implying otherwise.
+number in a writeup traces back to a file. HieuLuat's rows cannot offer
+that trail, because the harness is private, and the tables say so.
 
 Section 5 took the longest to learn. I had a metric for months before I noticed it could only return
 one value.

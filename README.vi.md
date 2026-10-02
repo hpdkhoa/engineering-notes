@@ -29,8 +29,8 @@ Mọi thứ ở đây đều viết hai lần, tiếng Anh và tiếng Việt. F
   Offload layer lên GPU, streaming, coi quantization là một biến có đo, và hai model dùng chung một
   card 16 GB.
 - [03, benchmark lặp lại được và cổng chặn hồi quy](writeups/03-reproducible-benchmarking.vi.md).
-  Phương pháp nằm dưới hai writeup kia: baseline đóng băng, task set commit trước, chạy lặp lại
-  được.
+  Phương pháp nằm dưới hai writeup kia: baseline đóng băng, cổng chặn hồi quy, chạy lặp lại được,
+  và một chỉ số chất lượng có thể xê dịch.
 
 Mỗi bài đều có một mục về chỗ tôi làm sai. Ở 01, reranker tốn 384 ms mà không cải thiện gì. Ở 02,
 chỉ số chất lượng của tôi không thể xê dịch, nên nó không bao giờ báo hỏng. Tôi cứ ghi lại, nếu
@@ -90,7 +90,7 @@ ra, nên hãy sửa markdown rồi chạy lại công cụ.
 Khoa Hoang. Tôi làm một năm ở National Australia Bank, rồi hai năm rưỡi ở FPT Software với vai trò
 solution architect, chuyển các hệ thống cũ sang kiến trúc cloud native.
 
-Thiết kế đích hiếm khi là phần khó. Phần khó là không ai nói được hệ thống cũ thực sự làm gì, còn
+Phần khó là không ai nói được hệ thống cũ thực sự làm gì, còn
 những người từng biết thì đã nghỉ từ lâu. Một mô hình AI cũng vướng đúng chuyện đó với codebase, chỉ
 khác là bạn phát hiện ra khi đầu ra đã sai. Từ tháng 11 năm 2025 tôi toàn thời gian xây hệ thống của
 mình. Cả hai đều quay về chuyện đó: viết ra thứ mà máy đang giả định, rồi chạy một phép kiểm tra có

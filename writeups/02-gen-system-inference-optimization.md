@@ -31,8 +31,8 @@ date it was measured at, and is rendered from
 
 ## 1. Where it started
 
-All inference went through one client to a local Ollama runtime. The picture was consistent. It was
-correct, it was deterministic, and it was completely untuned.
+All inference went through one client to a local Ollama runtime. It was correct and
+deterministic, and nothing in it had been tuned.
 
 - **Every call waited for the whole answer.** The client blocked until generation finished. A long
   code generation paid the full wait before the first token appeared, and nothing downstream could
@@ -90,7 +90,7 @@ I got the quality axis wrong in the first version of this writeup.
 **The obvious metric does not work.** I planned to report compile pass rate, since generated code
 either builds or it does not. Every run came back at 100 percent.
 
-That is not because the model is perfect. It is **by construction**. When a model written operation
+The 100 percent is **by construction**. When a model written operation
 fails to compile, the engine sends it back to the model with the build error. If it still fails,
 the engine replaces the body with an explicit `not implemented` stub. The stub compiles. The
 service always builds.
@@ -110,14 +110,14 @@ the same code path production uses:
 | `prompt_tokens` and `wall_s` | Cost per run. |
 
 Compile pass rate is still reported. It is no longer the headline, and the reason it is useless is
-now written down instead of hidden.
+now written down.
 
 The task set is five fixed application ideas. They were frozen and committed before the first run,
 so they cannot be tuned to fit the results.
 
 ## 5. Move 4: two models, one card
 
-Two models competing for 16 GB is a real design problem with more than one good answer. Three
+Two models have to share 16 GB. Three
 strategies run against the same frozen task set:
 
 | Strategy | What it is | What it costs |
@@ -126,7 +126,7 @@ strategies run against the same frozen task set:
 | B. Both resident | Keep alive never expires, so both models should stay warm. | VRAM headroom, and speed under contention. Whether both even fit is itself a result, and section 6 gives the answer. |
 | C. One shared model | The coder model plans as well, so nothing ever swaps. | Planning quality, visible as stub rate, repair counts, and extra entities. |
 
-One clarification, because this gets misread. **There is no scheduler.** "Sequential scheduling with
+**There is no scheduler.** "Sequential scheduling with
 keep alive" means Ollama's own keep alive, two model roles, and a measurement of what that costs. I
 wrote no scheduling code, and the source shows it.
 
@@ -253,7 +253,7 @@ four campaigns to see that column move twice. It is reported so nobody reads a 0
 
 **Speed and quality moved in opposite directions.** Q4_K_M was about three times faster than Q8_0
 in tokens per second and used about 4 GB less VRAM. It also produced almost nothing that
-compiled. On this card the faster quant stubbed nearly everything it wrote, so the speed bought nothing.
+compiled. So the speed bought nothing.
 
 **Strategy B once measured nothing, and the harness now catches that.** In the first campaign
 the driver set `OLLAMA_KEEP_ALIVE=-1`, the request door sent it as the string "-1", Ollama
@@ -267,7 +267,7 @@ measured. The aggregator drops such runs and counts them in `runs_not_measured`.
 are identical across A, B and C. The `ollama ps` capture at the end of the B run shows one
 resident model, not two. The planner is 9.3 GB on disk and the coder 9.0 GB, and each needs its
 KV cache and runtime beside it, so the pair does not fit in 16 GB together. "Both resident"
-degrades to what A does. Whether both fit was itself a result, and the answer is no.
+degrades to what A does.
 
 **Pinned sampling gives two outputs, not one.** Temperature 0, seed 42, and top_p 1 were set on
 every request. On the production pair, every run of every campaign landed on one of exactly two
@@ -276,7 +276,7 @@ the first output three times and B the second. In the next campaign the assignme
 the second three times and B the first. Which output a run lands on depends on server state, not
 on the strategy. With three operations per run, one flip moves the stub rate by a third. That is
 why every row carries n and a range, and why the stub rate column in the strategies table should
-not be read as a strategy effect. The pin is a strong preference. The server can still land somewhere else.
+not be read as a strategy effect.
 
 **A second metric that was 100 percent by construction.** Until this campaign the verify pass
 counted a call as internal when any symbol carried its bare name. It then resolved the call by
@@ -319,13 +319,7 @@ there is no compiler to lean on. The result gets published either way, including
 
 ## 8. Three things I found by rereading my own code
 
-The runtime arrived untuned, so every control turned into a sweep with a number at the end of it.
-When the headline quality metric turned out to be 100 percent by construction, I said so in the
-tables and built one that can move.
-
-The broken metric was not the only thing this pass turned up.
-
-**Two determinism bugs, found by reading my own code.** Neither came from a bug report. Determinism
+**Two determinism bugs, found by reading my own code.** Determinism
 is the load bearing claim of this system: temperature 0, fixed seed, identical output. Symbol
 resolution broke it. It took the first match while walking a Go map, and Go randomizes that order.
 Two exported symbols sharing a short name could resolve differently between runs, and the call
@@ -351,9 +345,7 @@ by its bare name against every symbol the index held. Following a call through t
 imports instead turned the 100 into 92.6 and 96.1 on two public repositories, and turned the
 hundreds of findings into zero. Section 6 has both numbers.
 
-All three have the same mechanic underneath: a comparison that could only come back one way. A
-metric stuck at 100 percent. A test suite green on the path I happened to test. Six red tests I was
-ready to blame on the platform. A resolver that could not miss.
+All three have the same mechanic underneath: a comparison that could only come back one way.
 
 Running the thing and watching it work catches none of that. I found all three by rereading code
 that had already passed its tests, and asking what each number would look like if it were lying to
