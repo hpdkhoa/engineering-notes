@@ -81,7 +81,7 @@ def repo_stats(path, label):
 
 # ----------------------------------------------------------------------------- measured tables
 
-def render_table(section, title):
+def render_table(section, title, with_task_set=True):
     cols = section.get("_columns", [])
     rows = section.get("rows", [])
     if not rows:
@@ -91,24 +91,27 @@ def render_table(section, title):
     def cell(x):
         return "n/a" if x is None else str(x)
     body = "\n".join("| " + " | ".join(cell(x) for x in r) + " |" for r in rows)
-    # WP4: every table carries its provenance (date, commit, task set) so a
-    # reader can tie the numbers to a run. Written by bench/summarise.py.
+    # A short caption under each table: when it was measured, and on what. The commit,
+    # the task file and the hashes stay in measured.json for anyone who wants them.
     prov = section.get("_provenance") or {}
     prov_line = ""
     if prov:
-        commit = str(prov.get("gen_system_commit", ""))[:12]
-        bits = [b for b in (prov.get("date"), f"commit `{commit}`" if commit else "",
-                            prov.get("task_set")) if b]
-        prov_line = f"\n*Measured {' · '.join(bits)}.*\n"
+        ts = str(prov.get("task_set", ""))
+        bits = [str(prov["date"])] if prov.get("date") else []
+        frozen = re.search(r"frozen (\d{4}-\d{2}-\d{2})", ts)
+        if "SWE-bench" in ts:
+            bits.append("on SWE-bench Verified")
+        elif frozen and with_task_set:
+            bits.append("task set frozen " + frozen.group(1))
+        elif ts and "/" not in ts and "sha256" not in ts:
+            bits.append(ts)
+        if bits:
+            prov_line = f"\n*Measured {', '.join(bits)}.*\n"
     return f"\n**{title}**\n\n{header}\n{sep}\n{body}\n{prov_line}"
 
 MEASURED_HEAD = {
-    "en": ("### Measured results",
-           "*Rendered from `benchmarks/results/measured.json`. Every number below "
-           "comes from the project's own harness on the machine described in section 0.*"),
-    "vi": ("### K\u1ebft qu\u1ea3 \u0111o",
-           "*D\u1ef1ng t\u1eeb `benchmarks/results/measured.json`. M\u1ecdi con s\u1ed1 d\u01b0\u1edbi \u0111\u00e2y "
-           "\u0111\u1ebfn t\u1eeb harness c\u1ee7a ch\u00ednh d\u1ef1 \u00e1n, tr\u00ean m\u00e1y \u0111\u01b0\u1ee3c m\u00f4 t\u1ea3 \u1edf m\u1ee5c 0.*"),
+    "en": ("### Measured results", ""),
+    "vi": ("### K\u1ebft qu\u1ea3 \u0111o", ""),
 }
 
 def vi_twin(path):
@@ -127,7 +130,7 @@ def inject_measured(md_path, marker, blocks, lang="en"):
         return False
     head, caption = MEASURED_HEAD[lang]
     # the tables themselves stay as rendered from the json, so both languages show the same data
-    payload = "\n" + head + "\n\n" + caption + "\n" + "".join(blocks) + "\n"
+    payload = "\n" + head + "\n" + (("\n" + caption + "\n") if caption else "") + "".join(blocks) + "\n"
     new = pat.sub(lambda m: m.group(1) + payload + m.group(3), text)
     if new != text:
         md_path.write_text(new, encoding="utf-8")
@@ -152,6 +155,9 @@ def main():
     w01 = ROOT / "writeups/01-hieuluat-retrieval-optimization.md"
     w02 = ROOT / "writeups/02-gen-system-inference-optimization.md"
     md_targets = md_targets + [t for t in (vi_twin(f) for f in md_targets) if t]
+    # The project pages left the portfolio (2026-10-08), and with them the line and test counts.
+    # Keep only the targets that still exist, so the stat step has nowhere to write.
+    md_targets = [f for f in md_targets if f.exists()]
 
     # ---------- check mode ----------
     if args.check:
@@ -241,7 +247,7 @@ def main():
               render_table(gs.get("streaming", {}), "Streaming: time-to-first-token"),
               render_table(gs.get("quantization_sweep", {}), "Quantization sweep: speed vs VRAM vs generation quality"),
               render_table(gs.get("two_model_strategies", {}), "Two-model serving strategies"),
-              render_table(gs.get("understand_public_repos", {}), "Understand benchmark: public repos at pinned commits"),
+              render_table(gs.get("understand_public_repos", {}), "Understand benchmark: public repos at pinned commits", with_task_set=False),
               render_table(gs.get("swebench_verified_localization", {}), "SWE-bench Verified: localization recall (not a solve rate)"),
               render_table(gs.get("swebench_verified_localization_by_repo", {}), "SWE-bench Verified: localization recall by repository"),
               render_table(gs.get("swebench_verified_repos", {}), "SWE-bench Verified: can the parsers read the repositories")]

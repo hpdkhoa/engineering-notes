@@ -5,9 +5,8 @@
 ### GPU offload, streaming, quantization, và hai model dùng chung một card phổ thông
 
 > **Bối cảnh:** gen-system ghi ra từng giả định của model AI về code, để người đọc nhìn thấy và kiểm
-> tra được. Nó neo model vào một graph dựng từ AST, và kiểm chứng đầu ra từ bên ngoài. Xem
-> [trang dự án](../projects/gen-system/README.vi.md). Tôi đang chuẩn bị mã nguồn để phát hành theo
-> Apache-2.0. **Nội dung bài này:** tinh chỉnh tầng inference của nó. Phép kiểm tra chất lượng là
+> tra được. Nó neo model vào một graph dựng từ AST, và kiểm chứng đầu ra từ bên ngoài. Mã nguồn
+> mở theo Apache-2.0 tại [github.com/hpdkhoa/gen-system](https://github.com/hpdkhoa/gen-system). **Nội dung bài này:** tinh chỉnh tầng inference của nó. Phép kiểm tra chất lượng là
 > khách quan: code sinh ra hoặc build được và qua test của nó, hoặc không. Mục 4 giải thích vì sao
 > phiên bản dễ nghĩ tới nhất của phép kiểm tra đó vô dụng, và cái gì đã thay thế nó.
 
@@ -24,10 +23,7 @@ code. Nghiên cứu quantization dùng `deepseek-coder-v2:16b-lite-instruct` ở
 Decoding là deterministic: temperature 0, seed 42, top_p 1. Có một test kiểm tra điều đó, và mục 6
 chỉ ra chỗ việc ghim tham số không còn giữ được.
 
-Harness ghi lại chính xác GPU, driver, các phiên bản runtime, commit và danh sách model vào
-[ENVIRONMENT.md](../benchmarks/ENVIRONMENT.vi.md). Mỗi bảng ở mục 6 ghi kèm commit và ngày đo. Các
-bảng đó sinh ra từ
-[`benchmarks/results/measured.json`](../benchmarks/results/measured.json). Các bảng là nguồn của mọi con số. Khi một bảng đổi, tôi viết lại phần chữ bên dưới nó.
+[ENVIRONMENT.md](../benchmarks/ENVIRONMENT.vi.md) liệt kê driver, các phiên bản phần mềm và các model.
 
 ## 1. Hiện trạng ban đầu
 
@@ -133,9 +129,7 @@ Không có dòng code lập lịch nào được viết. Nói khác đi sẽ kh�
 ## 6. Kết quả đo
 
 <!--measured:gen-->
-### Bảng số liệu
-
-*Dựng từ `benchmarks/results/measured.json`. Mọi con số dưới đây đến từ harness của chính dự án, trên máy được mô tả ở mục 0.*
+### Kết quả đo
 
 **GPU-layer offload: tokens/sec vs VRAM**
 
@@ -146,7 +140,7 @@ Không có dòng code lập lịch nào được viết. Nói khác đi sẽ kh�
 | 40 | 14.3 | 8.0 | 3 | n/a | n/a |
 | default | 30.8 | 9.4 | 3 | n/a | n/a |
 
-*Measured 2026-09-09 · commit `cfb0bff21748` · bench/tasks.json (frozen 2026-08-27).*
+*Measured 2026-09-09, task set frozen 2026-08-27.*
 
 **Streaming: time-to-first-token**
 
@@ -155,7 +149,7 @@ Không có dòng code lập lịch nào được viết. Nói khác đi sẽ kh�
 | stream off (buffered) | 1883.7 | 1.88 | 3 | 1876.4 | 1897.5 |
 | stream on (NDJSON) | 127.4 | 1.88 | 3 | 126.7 | 128.0 |
 
-*Measured 2026-09-09 · commit `cfb0bff21748` · bench/tasks.json (frozen 2026-08-27).*
+*Measured 2026-09-09, task set frozen 2026-08-27.*
 
 **Quantization sweep: speed vs VRAM vs generation quality**
 
@@ -166,7 +160,7 @@ Không có dòng code lập lịch nào được viết. Nói khác đi sẽ kh�
 | Q8_0 | 41.3 | 15.3 | 24.0 | 76.7 | 40.0 | 3.0 | 4.7 | 3 | 41.0 | 41.5 | 0 |
 | production | 30.7 | 9.6 | 3.0 | 44.4 | 2.7 | 0.0 | 5.0 | 3 | 30.7 | 30.7 | 0 |
 
-*Measured 2026-09-09 · commit `cfb0bff21748` · bench/tasks.json (frozen 2026-08-27).*
+*Measured 2026-09-09, task set frozen 2026-08-27.*
 
 **Two-model serving strategies**
 
@@ -176,7 +170,7 @@ Không có dòng code lập lịch nào được viết. Nói khác đi sẽ kh�
 | B-both-resident | 1.96 | 30.7 | 3.0 | 66.7 | 0.0 | 5.0 | 3 | 0 |
 | C-single-shared | 1.97 | 30.7 | 3.0 | 0.0 | 0.0 | 5.0 | 3 | 0 |
 
-*Measured 2026-09-09 · commit `cfb0bff21748` · bench/tasks.json (frozen 2026-08-27).*
+*Measured 2026-09-09, task set frozen 2026-08-27.*
 
 **Understand benchmark: public repos at pinned commits**
 
@@ -187,7 +181,7 @@ Không có dòng code lập lịch nào được viết. Nói khác đi sẽ kh�
 | gorilla-mux | 17 | 0 | 100 | 274 | 158 | 0 |
 | spf13-cobra | 36 | 0 | 100 | 984 | 403 | 0 |
 
-*Measured 2026-09-09 · commit `cfb0bff21748` · bench/tasks.json (frozen 2026-08-27).*
+*Measured 2026-09-09.*
 
 **SWE-bench Verified: localization recall (not a solve rate)**
 
@@ -197,7 +191,7 @@ Không có dòng code lập lịch nào được viết. Nói khác đi sẽ kh�
 | 1 | 0.615 | 63.3 | 262.5 | 177.5 | 60 |
 | 2 | 0.674 | 70.0 | 464.8 | 421.5 | 60 |
 
-*Measured 2026-09-09 · commit `cfb0bff21748` · SWE-bench Verified, princeton-nlp, frozen sha256 fcef3a49f31e.*
+*Measured 2026-09-09, on SWE-bench Verified.*
 
 **SWE-bench Verified: localization recall by repository**
 
@@ -206,7 +200,7 @@ Không có dòng code lập lịch nào được viết. Nói khác đi sẽ kh�
 | astropy/astropy | 2 | 0.716 | 77.3 | 100.0 | 22 |
 | django/django | 2 | 0.649 | 65.8 | 92.1 | 38 |
 
-*Measured 2026-09-09 · commit `cfb0bff21748` · SWE-bench Verified, princeton-nlp, frozen sha256 fcef3a49f31e.*
+*Measured 2026-09-09, on SWE-bench Verified.*
 
 **SWE-bench Verified: can the parsers read the repositories**
 
@@ -215,7 +209,7 @@ Không có dòng code lập lịch nào được viết. Nói khác đi sẽ kh�
 | astropy/astropy | 786 | 0 | 92.6 | 22851 |
 | django/django | 2572 | 0 | 96.1 | 50596 |
 
-*Measured 2026-09-09 · commit `cfb0bff21748` · SWE-bench Verified, princeton-nlp, frozen sha256 fcef3a49f31e.*
+*Measured 2026-09-09, on SWE-bench Verified.*
 
 <!--/measured-->
 
@@ -228,16 +222,14 @@ Không có dòng code lập lịch nào được viết. Nói khác đi sẽ kh�
 | Quantization | Tốc độ và VRAM đánh đổi với chất lượng | Tốc độ, VRAM, stub rate, số vòng sửa, test pass |
 | Chiến lược hai model | Phục vụ mà không phải nạp lại model | Chi phí nạp lại, tốc độ, stub rate qua ba chiến lược |
 
-Mọi bảng ở trên đến từ một campaign, chạy ngày 2026-09-09 ở một commit sạch, trong một thư mục kết
-quả. Manifest và attestation nằm cạnh các file dữ liệu thô trong repo gen-system. Ba campaign trước
-đó dẫn tới nó. Campaign đầu tiên chạy với working tree chưa sạch. Campaign thứ hai và thứ ba thực ra
-là một lần chạy vắt qua nửa đêm và bị tách thành hai thư mục. Đó là cách một bug về ngày trong các
-driver được phát hiện. Mỗi campaign đó tìm ra một điều mà các bảng giờ đã phản ánh.
+Mọi bảng ở trên đến từ một campaign ngày 2026-09-09. Ba campaign trước đó dẫn tới nó, và mỗi
+campaign tìm ra một vấn đề mà các bảng giờ đã phản ánh. Campaign đầu chạy trên code chưa commit.
+Campaign thứ hai và thứ ba thực ra là một lần chạy vắt qua nửa đêm và bị tách thành hai thư mục.
+Việc tách đó làm lộ ra một bug về ngày trong các driver.
 
 **Thước đo chất lượng đã dịch chuyển.** Stub rate khác nhau ở mỗi mức quantization. Đó chính là mục
-đích của việc thay tỷ lệ compile thành công, vốn luôn là 100 phần trăm do cách thiết kế. Cổng 2 của
-kế hoạch yêu cầu ít nhất một thước đo khác nhau giữa các mức quant. Thước đo này có khác nhau. Nó đã
-khác nhau trong mọi campaign, ở mọi commit.
+đích của việc thay tỷ lệ compile thành công, vốn luôn là 100 phần trăm do cách thiết kế. Tôi cần ít
+nhất một thước đo chất lượng thay đổi theo mức quant. Stub rate có thay đổi, trong mọi campaign tới nay.
 
 **Model nghiên cứu viết được rất ít code compile được.** DeepSeek Coder V2 Lite ở Q4_K_M đề xuất
 khoảng 25 operation mỗi lần chạy. Gần như operation nào cũng lùi về stub sau hai vòng sửa. Q8_0 làm
@@ -249,8 +241,8 @@ người đọc thấy điều đó trước khi so sánh stub rate.
 **Vòng sửa ở cấp task có chạy, nhưng hiếm.** Trong phần lớn các lần chạy, `heal_attempts` là 0 và
 `go_test_pass` là 5 trên 5. Cả hai đều do cách thiết kế: stub compile được và qua test. Trong một lần
 chạy Q8_0, backend sinh ra build được, test của chính nó fail, và vòng sửa cấp task chạy chín lần.
-Phải qua bốn campaign mới thấy cột đó dịch chuyển hai lần. Tôi vẫn ghi lại để không ai đọc số 0 như
-một kết quả.
+Phải qua bốn campaign mới thấy cột đó dịch chuyển hai lần. Số 0 ở đó chỉ có nghĩa là test đã qua,
+mà stub thì luôn qua test.
 
 **Tốc độ và chất lượng đi theo hai hướng ngược nhau.** Q4_K_M nhanh hơn Q8_0 khoảng ba lần tính theo
 tokens per second và dùng ít hơn khoảng 4 GB VRAM. Nó cũng gần như không tạo ra được gì compile được.
@@ -350,6 +342,5 @@ Cả ba có chung một cơ chế bên dưới: một phép so sánh chỉ có t
 Chạy hệ thống rồi nhìn nó hoạt động thì không bắt được thứ nào trong đó. Tôi tìm ra cả ba khi đọc
 lại code đã pass test, và hỏi mỗi con số sẽ trông thế nào nếu nó đang nói dối tôi.
 
-*Mọi số đo thời gian là phép đo GPU cục bộ chạy native, lấy qua harness của chính dự án, trên cỗ máy
-mô tả ở mục 0. Phương pháp nằm trong [benchmark tái lập được](03-reproducible-benchmarking.vi.md).
+*Phương pháp nằm trong [benchmark tái lập được](03-reproducible-benchmarking.vi.md).
 Tốc độ tuyệt đối phụ thuộc vào GPU. Hình dạng của mỗi đánh đổi thì vẫn đúng trên card khác.*

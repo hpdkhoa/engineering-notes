@@ -262,7 +262,7 @@ html[data-theme="dark"] .ra-sent.speaking{background:#1d3a36;box-shadow:0 0 0 3p
       <div class="gs-label">Bài viết</div>
       <a href="01-hieuluat-retrieval-optimization.vi.html">1 · Đường tìm kiếm pháp luật</a><a href="02-gen-system-inference-optimization.vi.html" class="current">2 · Inference LLM cục bộ</a><a href="03-reproducible-benchmarking.vi.html">3 · Phương pháp benchmark</a>
       <div class="gs-label" style="margin-top:14px;">Portfolio</div>
-      <a href="../index.html">Trang chủ</a><a href="../benchmarks/README.vi.md">Benchmark và bằng chứng</a><a href="../projects/gen-system/README.vi.md">gen-system</a><a href="../projects/hieuluat/README.vi.md">HieuLuat</a>
+      <a href="../index.html">Trang chủ</a><a href="../benchmarks/README.vi.md">Benchmark và bằng chứng</a><a href="https://github.com/hpdkhoa/gen-system">gen-system</a>
       <div class="gs-label" style="margin-top:14px;">Ngôn ngữ</div>
       <a href="02-gen-system-inference-optimization.html" hreflang="en">English</a>
     </div>
@@ -278,13 +278,13 @@ html[data-theme="dark"] .ra-sent.speaking{background:#1d3a36;box-shadow:0 0 0 3p
 <p><a href="02-gen-system-inference-optimization.html">English</a> · <strong>Tiếng Việt</strong></p>
 <h1 id="tinh-chỉnh-inference-llm-cục-bộ-cho-một-công-cụ-xử-lý-code">Tinh chỉnh inference LLM cục bộ cho một công cụ xử lý code</h1>
 <h3 id="gpu-offload-streaming-quantization-và-hai-model-dùng-chung-một-card-phổ-thông">GPU offload, streaming, quantization, và hai model dùng chung một card phổ thông</h3>
-<blockquote><p><strong>Bối cảnh:</strong> gen-system ghi ra từng giả định của model AI về code, để người đọc nhìn thấy và kiểm tra được. Nó neo model vào một graph dựng từ AST, và kiểm chứng đầu ra từ bên ngoài. Xem <a href="../projects/gen-system/README.vi.md">trang dự án</a>. Tôi đang chuẩn bị mã nguồn để phát hành theo Apache-2.0. <strong>Nội dung bài này:</strong> tinh chỉnh tầng inference của nó. Phép kiểm tra chất lượng là khách quan: code sinh ra hoặc build được và qua test của nó, hoặc không. Mục 4 giải thích vì sao phiên bản dễ nghĩ tới nhất của phép kiểm tra đó vô dụng, và cái gì đã thay thế nó.</p></blockquote>
+<blockquote><p><strong>Bối cảnh:</strong> gen-system ghi ra từng giả định của model AI về code, để người đọc nhìn thấy và kiểm tra được. Nó neo model vào một graph dựng từ AST, và kiểm chứng đầu ra từ bên ngoài. Mã nguồn mở theo Apache-2.0 tại <a href="https://github.com/hpdkhoa/gen-system">github.com/hpdkhoa/gen-system</a>. <strong>Nội dung bài này:</strong> tinh chỉnh tầng inference của nó. Phép kiểm tra chất lượng là khách quan: code sinh ra hoặc build được và qua test của nó, hoặc không. Mục 4 giải thích vì sao phiên bản dễ nghĩ tới nhất của phép kiểm tra đó vô dụng, và cái gì đã thay thế nó.</p></blockquote>
 <hr>
 <h2 id="0-cấu-hình-máy-đo">0. Cấu hình máy đo</h2>
 <p>Một GPU phổ thông, chính là card trong máy bàn của tôi. Một NVIDIA RTX 4060 Ti 16 GB, chạy Ollama, với một model planner và một model coder dùng chung card.</p>
 <p>Trong production, <code>qwen3:14b</code> đảm nhận việc lập kế hoạch và <code>qwen2.5-coder:14b</code> đảm nhận việc viết code. Nghiên cứu quantization dùng <code>deepseek-coder-v2:16b-lite-instruct</code> ở Q4_K_M, Q5_K_M và Q8_0.</p>
 <p>Decoding là deterministic: temperature 0, seed 42, top_p 1. Có một test kiểm tra điều đó, và mục 6 chỉ ra chỗ việc ghim tham số không còn giữ được.</p>
-<p>Harness ghi lại chính xác GPU, driver, các phiên bản runtime, commit và danh sách model vào <a href="../benchmarks/ENVIRONMENT.vi.md">ENVIRONMENT.md</a>. Mỗi bảng ở mục 6 ghi kèm commit và ngày đo. Các bảng đó sinh ra từ <a href="../benchmarks/results/measured.json"><code>benchmarks/results/measured.json</code></a>. Các bảng là nguồn của mọi con số. Khi một bảng đổi, tôi viết lại phần chữ bên dưới nó.</p>
+<p><a href="../benchmarks/ENVIRONMENT.vi.md">ENVIRONMENT.md</a> liệt kê driver, các phiên bản phần mềm và các model.</p>
 <h2 id="1-hiện-trạng-ban-đầu">1. Hiện trạng ban đầu</h2>
 <p>Mọi lệnh inference đi qua một client duy nhất tới một runtime Ollama cục bộ. Nó đúng và deterministic, nhưng chưa ai tinh chỉnh gì trong đó.</p>
 <ul><li><strong>Mỗi lệnh gọi đều chờ toàn bộ câu trả lời.</strong> Client bị chặn cho tới khi sinh xong. Một lần sinh code dài phải chờ trọn thời gian trước khi token đầu tiên xuất hiện. Không bước nào phía sau có thể bắt đầu sớm.</li><li><strong>Không có điều khiển GPU nào.</strong> Tùy chọn của request đặt temperature, seed và top_p. Không có gì quy định cách GPU chạy model. Không có layer offload, không có kích thước context, không có kích thước batch. Runtime chạy theo giá trị mặc định.</li><li><strong>Quantization bị cố định.</strong> Tag của model mang một mức quant. Đó là một lựa chọn, chưa bao giờ là một phép đo.</li><li><strong>Hai model dùng chung 16 GB.</strong> Đây là lý do hệ thống cần keep alive và một timeout dài. Một lần nạp lại model có thể rơi vào giữa một lần chạy, và không có gì đo nó tốn bao nhiêu.</li></ul>
@@ -339,8 +339,7 @@ html[data-theme="dark"] .ra-sent.speaking{background:#1d3a36;box-shadow:0 0 0 3p
 <p><strong>Không có scheduler.</strong> "Lập lịch tuần tự với keep alive" nghĩa là keep alive có sẵn của Ollama, hai vai trò model, và phép đo chi phí của cách làm đó. Không có dòng code lập lịch nào được viết. Nói khác đi sẽ không đứng vững khi ai đó đọc mã nguồn.</p>
 <h2 id="6-kết-quả-đo">6. Kết quả đo</h2>
 <!--measured:gen-->
-<h3 id="bảng-số-liệu">Bảng số liệu</h3>
-<p><em>Dựng từ <code>benchmarks/results/measured.json</code>. Mọi con số dưới đây đến từ harness của chính dự án, trên máy được mô tả ở mục 0.</em></p>
+<h3 id="kết-quả-đo">Kết quả đo</h3>
 <p><strong>GPU-layer offload: tokens/sec vs VRAM</strong></p>
 <table>
 <thead><tr><th>gpu layers</th><th>tokens per sec</th><th>vram gb</th><th>n</th><th>tok s min</th><th>tok s max</th></tr></thead>
@@ -351,7 +350,7 @@ html[data-theme="dark"] .ra-sent.speaking{background:#1d3a36;box-shadow:0 0 0 3p
 <tr><td>default</td><td>30.8</td><td>9.4</td><td>3</td><td>n/a</td><td>n/a</td></tr>
 </tbody>
 </table>
-<p><em>Measured 2026-09-09 · commit <code>cfb0bff21748</code> · bench/tasks.json (frozen 2026-08-27).</em></p>
+<p><em>Measured 2026-09-09, task set frozen 2026-08-27.</em></p>
 <p><strong>Streaming: time-to-first-token</strong></p>
 <table>
 <thead><tr><th>config</th><th>ttft ms</th><th>total latency s</th><th>n</th><th>ttft min</th><th>ttft max</th></tr></thead>
@@ -360,7 +359,7 @@ html[data-theme="dark"] .ra-sent.speaking{background:#1d3a36;box-shadow:0 0 0 3p
 <tr><td>stream on (NDJSON)</td><td>127.4</td><td>1.88</td><td>3</td><td>126.7</td><td>128.0</td></tr>
 </tbody>
 </table>
-<p><em>Measured 2026-09-09 · commit <code>cfb0bff21748</code> · bench/tasks.json (frozen 2026-08-27).</em></p>
+<p><em>Measured 2026-09-09, task set frozen 2026-08-27.</em></p>
 <p><strong>Quantization sweep: speed vs VRAM vs generation quality</strong></p>
 <table>
 <thead><tr><th>quant</th><th>tokens per sec</th><th>vram gb</th><th>ops total</th><th>stub rate pct</th><th>op repair attempts</th><th>heal attempts</th><th>go test pass</th><th>n</th><th>tok s min</th><th>tok s max</th><th>runs not measured</th></tr></thead>
@@ -371,7 +370,7 @@ html[data-theme="dark"] .ra-sent.speaking{background:#1d3a36;box-shadow:0 0 0 3p
 <tr><td>production</td><td>30.7</td><td>9.6</td><td>3.0</td><td>44.4</td><td>2.7</td><td>0.0</td><td>5.0</td><td>3</td><td>30.7</td><td>30.7</td><td>0</td></tr>
 </tbody>
 </table>
-<p><em>Measured 2026-09-09 · commit <code>cfb0bff21748</code> · bench/tasks.json (frozen 2026-08-27).</em></p>
+<p><em>Measured 2026-09-09, task set frozen 2026-08-27.</em></p>
 <p><strong>Two-model serving strategies</strong></p>
 <table>
 <thead><tr><th>strategy</th><th>reload cost s</th><th>tokens per sec</th><th>ops total</th><th>stub rate pct</th><th>heal attempts</th><th>go test pass</th><th>n</th><th>runs not measured</th></tr></thead>
@@ -381,7 +380,7 @@ html[data-theme="dark"] .ra-sent.speaking{background:#1d3a36;box-shadow:0 0 0 3p
 <tr><td>C-single-shared</td><td>1.97</td><td>30.7</td><td>3.0</td><td>0.0</td><td>0.0</td><td>5.0</td><td>3</td><td>0</td></tr>
 </tbody>
 </table>
-<p><em>Measured 2026-09-09 · commit <code>cfb0bff21748</code> · bench/tasks.json (frozen 2026-08-27).</em></p>
+<p><em>Measured 2026-09-09, task set frozen 2026-08-27.</em></p>
 <p><strong>Understand benchmark: public repos at pinned commits</strong></p>
 <table>
 <thead><tr><th>repo</th><th>files</th><th>parse errors</th><th>internal recall pct</th><th>call edges internal</th><th>cfgs total</th><th>cfgs with issue</th></tr></thead>
@@ -392,7 +391,7 @@ html[data-theme="dark"] .ra-sent.speaking{background:#1d3a36;box-shadow:0 0 0 3p
 <tr><td>spf13-cobra</td><td>36</td><td>0</td><td>100</td><td>984</td><td>403</td><td>0</td></tr>
 </tbody>
 </table>
-<p><em>Measured 2026-09-09 · commit <code>cfb0bff21748</code> · bench/tasks.json (frozen 2026-08-27).</em></p>
+<p><em>Measured 2026-09-09.</em></p>
 <p><strong>SWE-bench Verified: localization recall (not a solve rate)</strong></p>
 <table>
 <thead><tr><th>hops</th><th>file recall mean</th><th>hit rate pct</th><th>mean neighbourhood files</th><th>median neighbourhood files</th><th>n tasks</th></tr></thead>
@@ -402,7 +401,7 @@ html[data-theme="dark"] .ra-sent.speaking{background:#1d3a36;box-shadow:0 0 0 3p
 <tr><td>2</td><td>0.674</td><td>70.0</td><td>464.8</td><td>421.5</td><td>60</td></tr>
 </tbody>
 </table>
-<p><em>Measured 2026-09-09 · commit <code>cfb0bff21748</code> · SWE-bench Verified, princeton-nlp, frozen sha256 fcef3a49f31e.</em></p>
+<p><em>Measured 2026-09-09, on SWE-bench Verified.</em></p>
 <p><strong>SWE-bench Verified: localization recall by repository</strong></p>
 <table>
 <thead><tr><th>repo</th><th>hops</th><th>file recall mean</th><th>hit rate pct</th><th>seeds matched pct</th><th>n tasks</th></tr></thead>
@@ -411,7 +410,7 @@ html[data-theme="dark"] .ra-sent.speaking{background:#1d3a36;box-shadow:0 0 0 3p
 <tr><td>django/django</td><td>2</td><td>0.649</td><td>65.8</td><td>92.1</td><td>38</td></tr>
 </tbody>
 </table>
-<p><em>Measured 2026-09-09 · commit <code>cfb0bff21748</code> · SWE-bench Verified, princeton-nlp, frozen sha256 fcef3a49f31e.</em></p>
+<p><em>Measured 2026-09-09, on SWE-bench Verified.</em></p>
 <p><strong>SWE-bench Verified: can the parsers read the repositories</strong></p>
 <table>
 <thead><tr><th>repo</th><th>files parsed</th><th>parse errors</th><th>internal recall pct</th><th>call edges internal</th></tr></thead>
@@ -420,7 +419,7 @@ html[data-theme="dark"] .ra-sent.speaking{background:#1d3a36;box-shadow:0 0 0 3p
 <tr><td>django/django</td><td>2572</td><td>0</td><td>96.1</td><td>50596</td></tr>
 </tbody>
 </table>
-<p><em>Measured 2026-09-09 · commit <code>cfb0bff21748</code> · SWE-bench Verified, princeton-nlp, frozen sha256 fcef3a49f31e.</em></p>
+<p><em>Measured 2026-09-09, on SWE-bench Verified.</em></p>
 <!--/measured-->
 <h3 id="diễn-giải-số-liệu">Diễn giải số liệu</h3>
 <table>
@@ -432,10 +431,10 @@ html[data-theme="dark"] .ra-sent.speaking{background:#1d3a36;box-shadow:0 0 0 3p
 <tr><td>Chiến lược hai model</td><td>Phục vụ mà không phải nạp lại model</td><td>Chi phí nạp lại, tốc độ, stub rate qua ba chiến lược</td></tr>
 </tbody>
 </table>
-<p>Mọi bảng ở trên đến từ một campaign, chạy ngày 2026-09-09 ở một commit sạch, trong một thư mục kết quả. Manifest và attestation nằm cạnh các file dữ liệu thô trong repo gen-system. Ba campaign trước đó dẫn tới nó. Campaign đầu tiên chạy với working tree chưa sạch. Campaign thứ hai và thứ ba thực ra là một lần chạy vắt qua nửa đêm và bị tách thành hai thư mục. Đó là cách một bug về ngày trong các driver được phát hiện. Mỗi campaign đó tìm ra một điều mà các bảng giờ đã phản ánh.</p>
-<p><strong>Thước đo chất lượng đã dịch chuyển.</strong> Stub rate khác nhau ở mỗi mức quantization. Đó chính là mục đích của việc thay tỷ lệ compile thành công, vốn luôn là 100 phần trăm do cách thiết kế. Cổng 2 của kế hoạch yêu cầu ít nhất một thước đo khác nhau giữa các mức quant. Thước đo này có khác nhau. Nó đã khác nhau trong mọi campaign, ở mọi commit.</p>
+<p>Mọi bảng ở trên đến từ một campaign ngày 2026-09-09. Ba campaign trước đó dẫn tới nó, và mỗi campaign tìm ra một vấn đề mà các bảng giờ đã phản ánh. Campaign đầu chạy trên code chưa commit. Campaign thứ hai và thứ ba thực ra là một lần chạy vắt qua nửa đêm và bị tách thành hai thư mục. Việc tách đó làm lộ ra một bug về ngày trong các driver.</p>
+<p><strong>Thước đo chất lượng đã dịch chuyển.</strong> Stub rate khác nhau ở mỗi mức quantization. Đó chính là mục đích của việc thay tỷ lệ compile thành công, vốn luôn là 100 phần trăm do cách thiết kế. Tôi cần ít nhất một thước đo chất lượng thay đổi theo mức quant. Stub rate có thay đổi, trong mọi campaign tới nay.</p>
 <p><strong>Model nghiên cứu viết được rất ít code compile được.</strong> DeepSeek Coder V2 Lite ở Q4_K_M đề xuất khoảng 25 operation mỗi lần chạy. Gần như operation nào cũng lùi về stub sau hai vòng sửa. Q8_0 làm tốt hơn, nhưng vẫn phải dùng stub cho phần lớn những gì nó viết. Model coder của production đề xuất ít operation hơn nhiều mỗi lần chạy, và khoảng một nửa trong số đó được giữ lại. Các dòng không cùng cơ sở so sánh: một dòng dựa trên khoảng 25 operation, dòng kia dựa trên 3. Cột <code>ops_total</code> có mặt để người đọc thấy điều đó trước khi so sánh stub rate.</p>
-<p><strong>Vòng sửa ở cấp task có chạy, nhưng hiếm.</strong> Trong phần lớn các lần chạy, <code>heal_attempts</code> là 0 và <code>go_test_pass</code> là 5 trên 5. Cả hai đều do cách thiết kế: stub compile được và qua test. Trong một lần chạy Q8_0, backend sinh ra build được, test của chính nó fail, và vòng sửa cấp task chạy chín lần. Phải qua bốn campaign mới thấy cột đó dịch chuyển hai lần. Tôi vẫn ghi lại để không ai đọc số 0 như một kết quả.</p>
+<p><strong>Vòng sửa ở cấp task có chạy, nhưng hiếm.</strong> Trong phần lớn các lần chạy, <code>heal_attempts</code> là 0 và <code>go_test_pass</code> là 5 trên 5. Cả hai đều do cách thiết kế: stub compile được và qua test. Trong một lần chạy Q8_0, backend sinh ra build được, test của chính nó fail, và vòng sửa cấp task chạy chín lần. Phải qua bốn campaign mới thấy cột đó dịch chuyển hai lần. Số 0 ở đó chỉ có nghĩa là test đã qua, mà stub thì luôn qua test.</p>
 <p><strong>Tốc độ và chất lượng đi theo hai hướng ngược nhau.</strong> Q4_K_M nhanh hơn Q8_0 khoảng ba lần tính theo tokens per second và dùng ít hơn khoảng 4 GB VRAM. Nó cũng gần như không tạo ra được gì compile được. Vì vậy tốc độ không đổi lại được gì.</p>
 <p><strong>Chiến lược B từng không đo được gì, và giờ harness bắt được lỗi đó.</strong> Trong campaign đầu tiên, driver đặt <code>OLLAMA_KEEP_ALIVE=-1</code>. Lớp gửi request gửi giá trị đó dưới dạng chuỗi "-1". Ollama từ chối mọi request, và schema dự phòng offline vẫn build xanh. Lần tổng hợp đầu tiên cho thấy B có stub rate 0 phần trăm, dòng tốt nhất trong bảng. Sau đó có ba bản sửa. Lớp gửi request gửi một số nguyên trần dưới dạng số. Pipeline đánh dấu một ý tưởng không có request model nào hoàn tất là chưa được đo. Bộ tổng hợp loại bỏ những lần chạy đó và đếm chúng trong <code>runs_not_measured</code>. Cột đó bằng 0 ở mọi dòng phía trên.</p>
 <p><strong>Ba chiến lược là cùng một chiến lược trên card này.</strong> Chi phí nạp lại và tokens per second giống hệt nhau giữa A, B và C. Bản ghi <code>ollama ps</code> ở cuối lần chạy B cho thấy một model nằm trong bộ nhớ, không phải hai. Planner nặng 9.3 GB trên đĩa và coder nặng 9.0 GB. Mỗi model cần KV cache và runtime đi kèm, nên cặp này không vừa cùng lúc trong 16 GB. "Cả hai cùng nằm trong bộ nhớ" suy biến thành đúng những gì A làm.</p>
@@ -453,7 +452,7 @@ html[data-theme="dark"] .ra-sent.speaking{background:#1d3a36;box-shadow:0 0 0 3p
 <p><strong>Một resolver không thể trượt.</strong> Bước verify đọc lại code sinh ra đã báo 100 phần trăm resolve nội bộ trên mọi repo Python. Cùng lúc đó, nó báo hàng trăm lời gọi chưa resolve trên mọi backend sinh ra. Cả hai con số đến từ cùng một lối tắt: một lời gọi được so khớp theo tên trần với mọi symbol mà index chứa. Khi thay bằng cách đi theo lời gọi qua các import của hàm gọi, con số 100 thành 92.6 và 96.1 trên hai repo công khai, và hàng trăm findings thành 0. Mục 6 có cả hai con số.</p>
 <p>Cả ba có chung một cơ chế bên dưới: một phép so sánh chỉ có thể trả về đúng một kết quả.</p>
 <p>Chạy hệ thống rồi nhìn nó hoạt động thì không bắt được thứ nào trong đó. Tôi tìm ra cả ba khi đọc lại code đã pass test, và hỏi mỗi con số sẽ trông thế nào nếu nó đang nói dối tôi.</p>
-<p><em>Mọi số đo thời gian là phép đo GPU cục bộ chạy native, lấy qua harness của chính dự án, trên cỗ máy mô tả ở mục 0. Phương pháp nằm trong <a href="03-reproducible-benchmarking.vi.html">benchmark tái lập được</a>. Tốc độ tuyệt đối phụ thuộc vào GPU. Hình dạng của mỗi đánh đổi thì vẫn đúng trên card khác.</em></p>
+<p><em>Phương pháp nằm trong <a href="03-reproducible-benchmarking.vi.html">benchmark tái lập được</a>. Tốc độ tuyệt đối phụ thuộc vào GPU. Hình dạng của mỗi đánh đổi thì vẫn đúng trên card khác.</em></p>
 </article>
   </main>
 </div>
@@ -650,7 +649,7 @@ document.addEventListener('DOMContentLoaded',function(){
 
   function speakCurrent(){
     if(idx>=sentences.length){ stop(); return; }
-    var u=new SpeechSynthesisUtterance(sentences[idx].text); u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN';
+    var u=new SpeechSynthesisUtterance(sentences[idx].text); u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN';
     u.rate=rate; var v=pickVoice(); if(v) u.voice=v;
     u.onend=function(){
       if(playing&&!paused){ idx++; highlight(idx); speakCurrent(); }

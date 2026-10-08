@@ -5,9 +5,9 @@
 ### Phương pháp bảo chứng cho mọi con số trong repo này
 
 > **Bối cảnh:** cả hai dự án ở đây đều được tinh chỉnh dựa trên các phép đo cố định, lặp lại được.
-> Dự án thứ nhất là gen-system, có harness và kết quả nằm trong [repository của nó](../projects/gen-system/README.vi.md).
-> Dự án thứ hai là HieuLuat, có harness không công khai nhưng các dòng số liệu tuân theo cùng quy
-> tắc. **Nội dung bài:** ba quy tắc; thế nào là một baseline đóng băng và một gate; cách làm cho các
+> Dự án thứ nhất là gen-system, có harness và kết quả nằm trong [repository của nó](https://github.com/hpdkhoa/gen-system).
+> Dự án thứ hai là HieuLuat, đã ngừng phát triển sau khi công ty được mua lại; harness của nó vẫn
+> không công khai nhưng các dòng số liệu tuân theo cùng quy tắc. **Nội dung bài:** ba quy tắc; thế nào là một baseline đóng băng và một gate; cách làm cho các
 > lần chạy lặp lại được và những chỗ chúng không lặp lại được; và hai lần một thước đo chất lượng
 > hóa ra không đo được gì. Mỗi bài học trong hai bài học đó đã lấy của tôi trọn một campaign.
 
@@ -100,10 +100,9 @@ Mục đó cũng chỉ ra một phép đo có thể phân định vấn đề: r
   được đo trên các eval set cố định theo phương pháp này. Mục 6 trong đó là một ví dụ cụ thể về cách
   đọc đúng một con số đứng yên.
 - [Writeup về inference](02-gen-system-inference-optimization.vi.md): tốc độ, VRAM, tỷ lệ stub và số
-  vòng sửa lỗi đều chạy qua harness benchmark so với các baseline đóng băng. Nguồn gốc của mọi bảng
-  được in ngay bên dưới bảng đó.
-- [Thư mục benchmarks](../benchmarks/README.vi.md): chính các bảng kết quả đo, môi trường nơi chúng
-  được đo, và nơi lưu manifest và attestation của campaign gen-system.
+  vòng sửa lỗi đều chạy qua harness benchmark so với các baseline đóng băng.
+- [Thư mục benchmarks](../benchmarks/README.vi.md): chính các bảng kết quả đo, và môi trường nơi
+  chúng được đo.
 
 ## 7. Giá trị chứng minh của thứ tự commit
 
@@ -111,10 +110,10 @@ Tôi commit bộ tác vụ trước lần chạy đầu tiên để không thể
 
 Lịch sử công khai của gen-system bắt đầu từ ngày
 tôi chuẩn bị repository để phát hành, nên người đọc không thấy những tuần trước đó. Điều người
-đọc có thể kiểm tra là thứ tự bên trong lịch sử đó: commit thêm bộ tác vụ đứng trước commit thêm thư
-mục kết quả. Ngày đóng băng cũng được ghi trong file tác vụ. Mỗi campaign kết thúc bằng một attestation và một manifest liệt kê mọi file dữ liệu thô kèm hash,
-nên một con số trong writeup truy được về file. Các dòng số liệu của HieuLuat không có
-được dấu vết đó, vì harness không công khai. Các bảng nói rõ điều đó.
+đọc có thể kiểm tra là thứ tự bên trong lịch sử đó: commit thêm bộ tác vụ đứng trước commit thêm
+thư mục kết quả. Ngày đóng băng cũng được ghi trong file tác vụ. Mỗi campaign còn giữ các file thô
+kèm danh sách hash, nên người đọc dựng lại được mọi bảng. Bench của HieuLuat là riêng tư, nên các
+dòng của nó không có dấu vết như vậy.
 
 Mục 5 là phần mất nhiều thời gian nhất. Tôi giữ một thước đo suốt mấy tháng mới nhận ra nó chỉ trả
 về đúng một giá trị.

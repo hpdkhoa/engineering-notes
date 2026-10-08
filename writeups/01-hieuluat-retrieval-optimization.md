@@ -4,9 +4,9 @@
 
 ### Vector indexing, reranking, and FP16 embeddings, with the trade offs measured
 
-> **Context:** HieuLuat is a Vietnamese legal question answering system. See the
-> [project page](../projects/hieuluat/README.md). It is a commercial product whose ownership is
-> changing hands, so the code, the corpus and the prompts are private. **What this covers:** how I
+> **Context:** HieuLuat was a Vietnamese legal question answering system. It is deprecated after
+> the company's acquisition, and its code, corpus and prompts stay private. This writeup stays as a
+> record of the method. **What this covers:** how I
 > made its search path fast without making it less trustworthy. A wrong answer that arrives
 > quickly is still an answer a lawyer repeats to a client. The measurements are below. The code is
 > not.
@@ -15,13 +15,9 @@
 
 ## 0. The machine
 
-One consumer GPU. The rows in section 5 were measured in August 2026 by HieuLuat's own retrieval
-bench on an NVIDIA RTX 4060 Ti with 16 GB, against a fixed, labeled evaluation set, and written into
-[`benchmarks/results/measured.json`](../benchmarks/results/measured.json) one label per
-configuration. The harness itself and its commit are in the private repository, so these rows
-carry the date, the evaluation set and the GPU, and nothing more. They have not been re-run since. Where the text quotes a number, the table above it is the source:
-the harness writes `measured.json`, `tools/fill_portfolio.py` renders the tables, and I fix the text
-when a table moves.
+One consumer GPU, an NVIDIA RTX 4060 Ti with 16 GB. HieuLuat's own retrieval bench measured the
+rows in section 5 in August 2026. It used a fixed, labeled evaluation set. The bench code is
+private, and I have not rerun it since.
 
 ## 1. Where it started
 
@@ -93,8 +89,6 @@ bandwidth, which is what you would expect.
 
 <!--measured:hieuluat-->
 ### Measured results
-
-*Rendered from `benchmarks/results/measured.json`. Every number below comes from the project's own harness on the machine described in section 0.*
 
 **Vector index: recall vs latency**
 
@@ -198,5 +192,4 @@ Section 6 is the part I still think about. The reranking result came out negativ
 number sat flat enough to be embarrassing. Working out which component the flat number blames, and
 naming the one measurement that would settle it, took longer than all the tuning did.
 
-*Measurements were taken before and after against fixed evaluation sets, on the machine in
-section 0. The method is in [reproducible benchmarking](03-reproducible-benchmarking.md). Absolute values depend on the GPU. The shape of each trade off should hold on another card.*
+*The method is in [reproducible benchmarking](03-reproducible-benchmarking.md). Absolute values depend on the GPU. The shape of each trade off should hold on another card.*

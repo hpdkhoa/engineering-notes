@@ -151,7 +151,7 @@ html[data-lang="en"] .lang-block[data-lang="en"],html[data-lang="vi"] .lang-bloc
     </div>
     <div class="kicker">Khoa Hoang · systems, applied LLMs, GPU and inference</div>
     <h1 class="title">I build systems, ship applied LLM products, and measure what they do on the GPU.</h1>
-    <p class="lede">Architecture and <strong>measured results</strong> for three systems I work on. gen-system is getting its Apache-2.0 release. HieuLuat runs on a law firm's real case files and its code stays private, so the writeup and the tables are what I can show. Every gen-system number links back to the campaign, the commit and the manifest it came from.</p>
+    <p class="lede">Architecture and <strong>measured results</strong> for the systems I build. gen-system and poselab-mcp are open source. HieuLuat is deprecated after the company's acquisition; its writeup stays as a record of the method.</p>
     <div class="cta-row">
       <a class="btn primary" href="#writeups">Read the writeups
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
@@ -174,7 +174,7 @@ html[data-lang="en"] .lang-block[data-lang="en"],html[data-lang="vi"] .lang-bloc
         <span class="num">Writeup 01</span>
         <h3>Making a legal search path fast and still correct</h3>
         <div class="tags"><span class="tag">RAG</span><span class="tag">pgvector</span><span class="tag">FP16 embeddings</span><span class="tag">reranking</span></div>
-        <p>Vector indexing, retrieve then rerank, and FP16 embeddings, with the recall, latency and quality trade offs measured on a fixed evaluation set. Includes a negative result: the reranker cost 384 ms and improved nothing, and section 6 works out which component that blames.</p>
+        <p>Vector indexing, retrieve then rerank, and FP16 embeddings, with the recall, latency and quality trade offs measured on a fixed evaluation set. Includes a negative result: the reranker cost 384 ms and improved nothing, and section 6 works out which component that blames. HieuLuat is deprecated after the company's acquisition.</p>
         <span class="go">Read the web version →</span>
         <div class="altlinks">also: <a href="writeups/01-hieuluat-retrieval-optimization.md">markdown</a></div>
       </a>
@@ -204,29 +204,32 @@ html[data-lang="en"] .lang-block[data-lang="en"],html[data-lang="vi"] .lang-bloc
   <section class="sec">
     <p class="sec-head">The systems</p>
     <h2 class="sec-title">What the writeups are about</h2>
-    <p class="sec-sub">Three systems that run. gen-system is getting its Apache-2.0 release. HieuLuat and Beastwarden stay private, so for those the architecture and the measured results are the public part.</p>
+    <p class="sec-sub">Two are open source. Beastwarden is in development. HieuLuat is deprecated after the company's acquisition.</p>
     <div class="cards">
 
-      <a class="card" href="projects/hieuluat/README.md">
-        <h3>HieuLuat</h3>
-        <div class="tags"><span class="tag">Python</span><span class="tag">pgvector</span><span class="tag">bge-m3 (GPU)</span></div>
-        <p>A Vietnamese <strong>legal question answering</strong> system built around grounding guarantees: it answers only from retrieved statute, cites its sources, and refuses when the corpus is silent. A commercial product with private code.</p>
-        <span class="go">Architecture &amp; design →</span>
-      </a>
-
-      <a class="card" href="projects/gen-system/README.md">
+      <div class="card">
         <h3>gen-system</h3>
-        <div class="tags"><span class="tag">Go</span><span class="tag">Ollama</span><span class="tag">benchmark gated</span></div>
+        <div class="tags"><span class="tag">Go</span><span class="tag">Ollama</span><span class="tag">Apache-2.0</span></div>
         <p>An AI model is a black box. gen-system <strong>writes down what the model assumes about your code</strong>, checks every assumption against a deterministic graph built from the AST, and verifies the output from outside. Six languages, COBOL and CA Gen included.</p>
-        <span class="go">Architecture &amp; design →</span>
-      </a>
+      </div>
 
-      <a class="card" href="projects/beastwarden/README.md">
+      <div class="card">
+        <h3>poselab-mcp</h3>
+        <div class="tags"><span class="tag">Python</span><span class="tag">MCP</span><span class="tag">Blender</span><span class="tag">MIT</span></div>
+        <p>An MCP server that gives a model <strong>measured spatial answers</strong> for posing first-person arms and a rifle in Blender. With measured answers, agents passed 15 of 15 posing tasks; with pictures alone, 11 of 15.</p>
+      </div>
+
+      <div class="card">
         <h3>Beastwarden</h3>
-        <div class="tags"><span class="tag">TypeScript</span><span class="tag">Pixi</span><span class="tag">1,993 tests</span></div>
-        <p>A deterministic <strong>tactics roguelite</strong> with a pure seeded core, guard enforced rules, and a forecast that must equal the dice. The same measured, not assumed thesis, in a third language. Also a case study in <strong>directing AI-assisted development</strong> under machine-enforced rules.</p>
-        <span class="go">Architecture &amp; discipline &rarr;</span>
-      </a>
+        <div class="tags"><span class="tag">TypeScript</span><span class="tag">Pixi</span><span class="tag">Vitest</span></div>
+        <p>A deterministic <strong>tactics roguelite</strong> with a pure seeded core, guard enforced rules, and a forecast that must equal the dice. Also a case study in <strong>directing AI-assisted development</strong> under machine-enforced rules.</p>
+      </div>
+
+      <div class="card">
+        <h3>HieuLuat <span class="tag">deprecated</span></h3>
+        <div class="tags"><span class="tag">Python</span><span class="tag">pgvector</span><span class="tag">bge-m3 (GPU)</span></div>
+        <p>A Vietnamese <strong>legal question answering</strong> system that answered only from retrieved statute, cited its sources, and refused when the corpus was silent. Deprecated after the company's acquisition; the code stays private.</p>
+      </div>
 
     </div>
   </section>
@@ -235,11 +238,11 @@ html[data-lang="en"] .lang-block[data-lang="en"],html[data-lang="vi"] .lang-bloc
   <section class="sec">
     <p class="sec-head">The evidence</p>
     <h2 class="sec-title">Where every number comes from</h2>
-    <p class="sec-sub">The tables in the writeups are rendered from one file that the harnesses write. Nothing is typed by hand.</p>
+    <p class="sec-sub">The tables in the writeups come from one results file, next to a record of the machine and models behind them.</p>
     <div class="cards">
       <a class="card" href="benchmarks/README.md">
         <h3>Benchmarks</h3>
-        <p>Where each table comes from, how to read it, and where the manifest and attestation for the 2026-09-09 gen-system campaign live.</p>
+        <p>How to read each table, and the machine and models behind the gen-system numbers.</p>
         <span class="go">How the numbers were made &rarr;</span>
         <div class="altlinks">also: <a href="benchmarks/results/measured.json">measured.json</a> · <a href="benchmarks/ENVIRONMENT.md">the machine and models</a></div>
       </a>
@@ -272,7 +275,7 @@ html[data-lang="en"] .lang-block[data-lang="en"],html[data-lang="vi"] .lang-bloc
   <footer>
     <strong>Khoa Hoang</strong> · <a href="mailto:hpdkhoa2311@gmail.com">hpdkhoa2311@gmail.com</a> · <a href="https://github.com/hpdkhoa">github.com/hpdkhoa</a>
     <br><br>
-    <strong>What is public.</strong> The writeups, architecture, benchmark tables and snippets here are yours to read and quote with attribution, under the <a href="LICENSE">license in the repo</a>. gen-system is licensed separately under Apache-2.0 in <a href="https://github.com/hpdkhoa/gen-system">its own repository</a>, which opens with the release. The HieuLuat implementation is proprietary and not included.
+    <strong>What is public.</strong> The writeups, architecture, benchmark tables and snippets here are yours to read and quote with attribution, under the <a href="LICENSE">license in the repo</a>. gen-system (Apache-2.0) and poselab-mcp (MIT) carry their own licenses in their own repositories. The HieuLuat implementation is proprietary and not included.
     <br><br>
     <a href="https://github.com/hpdkhoa/engineering-notes">This repository on GitHub</a> ·
     <a href="README.md">README</a> ·
@@ -298,7 +301,7 @@ html[data-lang="en"] .lang-block[data-lang="en"],html[data-lang="vi"] .lang-bloc
     </div>
     <div class="kicker">Khoa Hoang · hệ thống, LLM ứng dụng, GPU và inference</div>
     <h1 class="title">Tôi xây dựng hệ thống, đưa sản phẩm LLM ứng dụng vào sử dụng, và đo chúng trên GPU.</h1>
-    <p class="lede">Đây là kiến trúc và <strong>kết quả đo</strong> của ba hệ thống tôi đang làm. gen-system sắp phát hành theo giấy phép Apache-2.0. HieuLuat chạy trên hồ sơ vụ việc thật của một văn phòng luật nên code của nó vẫn riêng tư, vì vậy writeup và các bảng số là phần tôi có thể đưa ra. Mỗi con số của gen-system đều dẫn về campaign, commit và manifest đã sinh ra nó.</p>
+    <p class="lede">Đây là kiến trúc và <strong>kết quả đo</strong> của các hệ thống tôi xây. gen-system và poselab-mcp là mã nguồn mở. HieuLuat đã ngừng phát triển sau khi công ty được mua lại; bài viết về nó được giữ lại để ghi nhận phương pháp.</p>
     <div class="cta-row">
       <a class="btn primary" href="#writeups-vi">Đọc các bài phân tích
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
@@ -321,7 +324,7 @@ html[data-lang="en"] .lang-block[data-lang="en"],html[data-lang="vi"] .lang-bloc
         <span class="num">Bài viết 01</span>
         <h3>Làm cho luồng tìm kiếm pháp luật nhanh mà vẫn đúng</h3>
         <div class="tags"><span class="tag">RAG</span><span class="tag">pgvector</span><span class="tag">FP16 embeddings</span><span class="tag">rerank</span></div>
-        <p>Vector index, retrieval rồi rerank, và embedding FP16. Các đánh đổi giữa recall, latency và chất lượng đã đo trên một eval set cố định. Bài có một kết quả âm tính: reranker tốn 384 ms mà không cải thiện được gì. Mục 6 xác định lỗi đó thuộc về thành phần nào.</p>
+        <p>Vector index, retrieval rồi rerank, và embedding FP16. Các đánh đổi giữa recall, latency và chất lượng đã đo trên một eval set cố định. Bài có một kết quả âm tính: reranker tốn 384 ms mà không cải thiện được gì. Mục 6 xác định lỗi đó thuộc về thành phần nào. HieuLuat đã ngừng phát triển sau khi công ty được mua lại.</p>
         <span class="go">Đọc bản web →</span>
         <div class="altlinks">hoặc: <a href="writeups/01-hieuluat-retrieval-optimization.vi.md">markdown</a></div>
       </a>
@@ -351,29 +354,32 @@ html[data-lang="en"] .lang-block[data-lang="en"],html[data-lang="vi"] .lang-bloc
   <section class="sec">
     <p class="sec-head">Các hệ thống</p>
     <h2 class="sec-title">Các writeup viết về điều gì</h2>
-    <p class="sec-sub">Đây là các hệ thống thật, đã đưa vào sử dụng. tôi đang chuẩn bị gen-system để phát hành theo giấy phép Apache-2.0. HieuLuat và Beastwarden là riêng tư. Với hai hệ thống này, kiến trúc và kết quả đo được công khai.</p>
+    <p class="sec-sub">Hai dự án là mã nguồn mở. Beastwarden đang phát triển. HieuLuat đã ngừng phát triển sau khi công ty được mua lại.</p>
     <div class="cards">
 
-      <a class="card" href="projects/hieuluat/README.vi.md">
-        <h3>HieuLuat</h3>
-        <div class="tags"><span class="tag">Python</span><span class="tag">pgvector</span><span class="tag">bge-m3 (GPU)</span></div>
-        <p>Một hệ thống <strong>hỏi đáp pháp luật</strong> tiếng Việt, xây dựng quanh các bảo đảm bám nguồn. Hệ thống chỉ trả lời từ văn bản luật lấy được qua retrieval, có trích dẫn nguồn, và từ chối trả lời khi corpus không có thông tin. Đây là sản phẩm thương mại có code không công khai.</p>
-        <span class="go">Kiến trúc &amp; thiết kế →</span>
-      </a>
-
-      <a class="card" href="projects/gen-system/README.vi.md">
+      <div class="card">
         <h3>gen-system</h3>
-        <div class="tags"><span class="tag">Go</span><span class="tag">Ollama</span><span class="tag">chặn bằng benchmark</span></div>
+        <div class="tags"><span class="tag">Go</span><span class="tag">Ollama</span><span class="tag">Apache-2.0</span></div>
         <p>Một model AI là một hộp đen. gen-system <strong>ghi lại từng giả định của model về code của bạn</strong>, đối chiếu từng giả định với một graph deterministic dựng từ AST, và kiểm chứng đầu ra từ bên ngoài. Sáu ngôn ngữ, gồm cả COBOL và CA Gen.</p>
-        <span class="go">Kiến trúc &amp; thiết kế →</span>
-      </a>
+      </div>
 
-      <a class="card" href="projects/beastwarden/README.vi.md">
+      <div class="card">
+        <h3>poselab-mcp</h3>
+        <div class="tags"><span class="tag">Python</span><span class="tag">MCP</span><span class="tag">Blender</span><span class="tag">MIT</span></div>
+        <p>Một MCP server trả cho model <strong>các câu trả lời không gian có đo đạc</strong> khi tạo dáng tay góc nhìn thứ nhất cầm súng trường trong Blender. Có câu trả lời đo đạc, agent đạt 15 trên 15 bài; chỉ có hình ảnh, 11 trên 15.</p>
+      </div>
+
+      <div class="card">
         <h3>Beastwarden</h3>
-        <div class="tags"><span class="tag">TypeScript</span><span class="tag">Pixi</span><span class="tag">1.993 test</span></div>
-        <p>Một <strong>game roguelite chiến thuật</strong> deterministic. Lõi của game là thuần và dùng seed, các luật do guard kiểm tra, và forecast phải khớp với kết quả xúc xắc. Vẫn là luận điểm đo chứ không giả định, ở ngôn ngữ thứ ba. Đây cũng là một nghiên cứu điển hình về <strong>cách định hướng phát triển có AI hỗ trợ</strong> dưới các luật do máy kiểm soát.</p>
-        <span class="go">Kiến trúc &amp; kỷ luật &rarr;</span>
-      </a>
+        <div class="tags"><span class="tag">TypeScript</span><span class="tag">Pixi</span><span class="tag">Vitest</span></div>
+        <p>Một <strong>game roguelite chiến thuật</strong> deterministic. Lõi của game là thuần và dùng seed, các luật do guard kiểm tra, và forecast phải khớp với kết quả xúc xắc. Đây cũng là một nghiên cứu điển hình về <strong>cách định hướng phát triển có AI hỗ trợ</strong> dưới các luật do máy kiểm soát.</p>
+      </div>
+
+      <div class="card">
+        <h3>HieuLuat <span class="tag">ngừng phát triển</span></h3>
+        <div class="tags"><span class="tag">Python</span><span class="tag">pgvector</span><span class="tag">bge-m3 (GPU)</span></div>
+        <p>Một hệ thống <strong>hỏi đáp pháp luật</strong> tiếng Việt, chỉ trả lời từ văn bản luật lấy được qua retrieval, có trích dẫn nguồn, và từ chối khi corpus không có thông tin. Đã ngừng phát triển sau khi công ty được mua lại; code vẫn riêng tư.</p>
+      </div>
 
     </div>
   </section>
@@ -382,11 +388,11 @@ html[data-lang="en"] .lang-block[data-lang="en"],html[data-lang="vi"] .lang-bloc
   <section class="sec">
     <p class="sec-head">Bằng chứng</p>
     <h2 class="sec-title">Mỗi con số đến từ đâu</h2>
-    <p class="sec-sub">Các bảng trong writeup sinh ra từ một file duy nhất do chính các harness ghi. Tôi không gõ tay con số nào.</p>
+    <p class="sec-sub">Các bảng trong writeup lấy từ một file kết quả, kèm bản ghi máy và các model đã tạo ra chúng.</p>
     <div class="cards">
       <a class="card" href="benchmarks/README.vi.md">
         <h3>Benchmark</h3>
-        <p>Mỗi bảng đến từ đâu, cách đọc bảng, và nơi lưu manifest cùng attestation của campaign gen-system ngày 2026-09-09.</p>
+        <p>Cách đọc từng bảng, và máy cùng các model đứng sau các con số của gen-system.</p>
         <span class="go">Các con số ra đời thế nào &rarr;</span>
         <div class="altlinks">hoặc: <a href="benchmarks/results/measured.json">measured.json</a> · <a href="benchmarks/ENVIRONMENT.vi.md">máy và các model</a></div>
       </a>
@@ -419,7 +425,7 @@ html[data-lang="en"] .lang-block[data-lang="en"],html[data-lang="vi"] .lang-bloc
   <footer>
     <strong>Khoa Hoang</strong> · <a href="mailto:hpdkhoa2311@gmail.com">hpdkhoa2311@gmail.com</a> · <a href="https://github.com/hpdkhoa">github.com/hpdkhoa</a>
     <br><br>
-    <strong>Những gì được công khai.</strong> Các writeup, kiến trúc, bảng benchmark và snippet ở đây ở đây để bạn đọc và trích dẫn kèm ghi nguồn, theo <a href="LICENSE">giấy phép trong repo</a>. gen-system được cấp phép riêng theo Apache-2.0 trong <a href="https://github.com/hpdkhoa/gen-system">repo riêng của nó</a>. Repo đó được mở khi phát hành. Phần triển khai của HieuLuat là độc quyền và không có ở đây.
+    <strong>Những gì được công khai.</strong> Các writeup, kiến trúc, bảng benchmark và snippet ở đây để bạn đọc và trích dẫn kèm ghi nguồn, theo <a href="LICENSE">giấy phép trong repo</a>. gen-system (Apache-2.0) và poselab-mcp (MIT) có giấy phép riêng trong repo của chúng. Phần triển khai của HieuLuat là độc quyền và không có ở đây.
     <br><br>
     <a href="https://github.com/hpdkhoa/engineering-notes">Repo này trên GitHub</a> ·
     <a href="README.vi.md">README</a> ·

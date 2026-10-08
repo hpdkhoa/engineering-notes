@@ -178,9 +178,11 @@ def build_twin(md_path, html_path, lang, base, index):
         links += f'<a href="{target}"{klass}>{i} \u00b7 {label}</a>'
     nav.append('      ' + links)
     nav.append('      <div class="gs-label" style="margin-top:14px;">%s</div>' % L['portfolio'])
+    # the project pages left the portfolio; gen-system links to its own repository, and
+    # HieuLuat (deprecated) has no page any more
     nav.append('      <a href="../index.html">%s</a><a href="../benchmarks/README%s.md">%s</a>'
-               '<a href="../projects/gen-system/README%s.md">gen-system</a><a href="../projects/hieuluat/README%s.md">HieuLuat</a>'
-               % (L['home'], sfx, L['bench'], sfx, sfx))
+               '<a href="https://github.com/hpdkhoa/gen-system">gen-system</a>'
+               % (L['home'], sfx, L['bench']))
     other = base + ('.html' if lang == 'vi' else '.vi.html')
     if (html_path.parent / (base + '.vi.md')).exists():
         nav.append('      <div class="gs-label" style="margin-top:14px;">%s</div>' % L['switch_label'])

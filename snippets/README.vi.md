@@ -23,6 +23,6 @@ python3 toy_retrieval.py
 python3 roofline_demo.py
 ```
 
-> > Đây là ví dụ để giảng giải. Hệ thống thật thì lớn hơn và lộn xộn hơn nhiều. Phần triển khai của
-> HieuLuat thuộc sở hữu độc quyền, còn gen-system thì sắp phát hành theo Apache-2.0. Chạy thử hai
-> file này, các khẳng định trong writeup sẽ không còn là lời nói suông.
+> Đây là ví dụ để giảng giải. Hệ thống thật thì lớn hơn và lộn xộn hơn nhiều. Phần triển khai của
+> HieuLuat thuộc sở hữu độc quyền, còn gen-system là mã nguồn mở theo Apache-2.0. Hãy chạy hai
+> file này để thấy từng ý tưởng hoạt động ở quy mô nhỏ.

@@ -2,36 +2,29 @@
 
 # Benchmark
 
-Mọi con số các writeup trích dẫn đều đến từ một lần chạy có ghi lại. Thư mục này giữ những con số
-đó.
+Thư mục này giữ các bảng số đo mà các writeup trích dẫn.
 
-`results/measured.json` chứa các bảng kết quả đo. Chính harness của các dự án ghi ra file này. `tools/fill_portfolio.py` sinh các bảng trong writeup từ file này.
-Vì vậy bảng trong writeup và JSON ở đây không thể lệch nhau.
+`results/measured.json` chứa các bảng. Harness benchmark của từng dự án ghi các dòng của dự án đó.
 
 ## Xuất xứ từng bảng
 
 **gen-system.** `bench/summarise.py` trong [repo gen-system](https://github.com/hpdkhoa/gen-system)
 gộp các lần chạy benchmark thô trong `results/<date>/raw/` thành các dòng, rồi hợp nhất chúng vào đây. Mọi
-bảng gen-system trong repo này đến từ một campaign, chạy ngày 2026-09-09 tại commit
-`cfb0bff2` trên working tree sạch. Mỗi bảng có một khối `_provenance` ghi ngày, commit,
-bộ tác vụ đã đóng băng và GPU. Các dòng có `n`. Ở những chỗ harness đã đo, dòng có thêm giá trị min và max.
+bảng gen-system ở đây đến từ một campaign ngày 2026-09-09, chạy trên working tree sạch. Mỗi bảng
+ghi ngày đo, bộ tác vụ và GPU. Các dòng có `n`. Ở những chỗ harness đã đo, dòng có thêm giá trị min và max.
 Ô ghi n/a nghĩa là harness không đo giá trị đó. Nó không phải số 0 đã làm tròn.
 
-Thư mục kết quả của campaign trong repo gen-system còn có hai file để người khác tự dựng lại các dòng số:
-
-- `ATTESTATION.md` ghi những gì đã chạy, trên commit và máy nào, những lần chạy nào bị loại và ghi là
-  không đo cùng lý do, và những gì đã không chạy.
-- `MANIFEST.sha256` liệt kê mọi file thô kèm hash của nó.
+Repo gen-system giữ các file thô của campaign đó, một ghi chú về những gì đã chạy và những gì bị loại,
+cùng hash của từng file. Với chúng, ai cũng dựng lại được các dòng số.
 
 **HieuLuat.** Bench retrieval của HieuLuat đã ghi các dòng index, rerank và embedding vào tháng 8 năm 2026, mỗi
-cấu hình một nhãn, trên một bộ dữ liệu đánh giá cố định. Harness đó nằm trong repo HieuLuat riêng tư.
-Vì vậy các dòng này có ngày và bộ dữ liệu đánh giá, nhưng không có commit công khai, không có cột `n`,
-và không có manifest. Tôi để nguyên như harness của sản phẩm đã báo cáo.
+cấu hình một nhãn, trên một bộ dữ liệu đánh giá cố định. Harness đó là riêng tư, nên các dòng này chỉ ghi ngày
+và bộ dữ liệu đánh giá. Chúng không có số lần chạy và không có khoảng giá trị.
 
 ## Môi trường đo
 
 [`ENVIRONMENT.md`](ENVIRONMENT.vi.md) ghi lại GPU, driver, phiên bản Ollama và Go,
-commit, và các mô hình có mặt khi campaign gen-system được đóng băng, kèm thời điểm ghi nhận.
+và các model trên máy đã chạy campaign gen-system.
 
 ## Cách đọc bảng
 

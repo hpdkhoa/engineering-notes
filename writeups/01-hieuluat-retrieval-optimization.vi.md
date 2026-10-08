@@ -4,9 +4,9 @@
 
 ### Vector index, rerank và embedding FP16, cùng các đánh đổi đã đo
 
-> **Bối cảnh:** HieuLuat là một hệ thống hỏi đáp pháp luật Việt Nam. Xem
-> [trang dự án](../projects/hieuluat/README.vi.md). Đây là một sản phẩm thương mại đang được chuyển
-> giao quyền sở hữu, nên code, corpus và prompt là riêng tư. **Nội dung bài:** cách tôi làm cho
+> **Bối cảnh:** HieuLuat từng là một hệ thống hỏi đáp pháp luật Việt Nam. Hệ thống đã ngừng phát
+> triển sau khi công ty được mua lại, còn code, corpus và prompt vẫn riêng tư. Bài viết được giữ lại
+> để ghi nhận phương pháp. **Nội dung bài:** cách tôi làm cho
 > luồng tìm kiếm của nó nhanh hơn mà không làm nó kém tin cậy đi. Một câu trả lời sai đến nhanh
 > thì vẫn là câu mà luật sư sẽ nhắc lại với khách hàng. Các phép đo nằm bên dưới. Code thì không.
 
@@ -14,14 +14,9 @@
 
 ## 0. Cấu hình máy đo
 
-Một GPU phổ thông. Tôi đo các dòng ở mục 5 vào tháng 8 năm 2026 bằng benchmark retrieval
-riêng của HieuLuat, trên một NVIDIA RTX 4060 Ti 16 GB, với một bộ đánh giá cố định đã gán nhãn.
-Kết quả được ghi vào
-[`benchmarks/results/measured.json`](../benchmarks/results/measured.json), mỗi cấu hình một nhãn.
-Bản thân harness và commit của nó nằm trong repository riêng tư. Vì vậy các dòng này chỉ mang theo
-ngày đo, bộ đánh giá và GPU, không có gì hơn. Từ đó đến nay chúng chưa được chạy lại, và writeup
-này không giả vờ là đã chạy lại. Chỗ nào văn bản bên dưới đọc một con số từ bảng, thì lấy bảng làm
-chuẩn.
+Một GPU phổ thông, NVIDIA RTX 4060 Ti 16 GB. Tôi đo các dòng ở mục 5 vào tháng 8 năm 2026 bằng
+bench retrieval riêng của HieuLuat, với một bộ đánh giá cố định đã gán nhãn. Code của bench là
+riêng tư, và từ đó tôi chưa chạy lại.
 
 ## 1. Hiện trạng ban đầu
 
@@ -92,9 +87,7 @@ băng thông bộ nhớ, đúng như kỳ vọng.
 ## 5. Kết quả đo
 
 <!--measured:hieuluat-->
-### Bảng số liệu
-
-*Dựng từ `benchmarks/results/measured.json`. Mọi con số dưới đây đến từ harness của chính dự án, trên máy được mô tả ở mục 0.*
+### Kết quả đo
 
 **Vector index: recall vs latency**
 
@@ -202,5 +195,4 @@ Mục 6 mới là phần tôi còn nghĩ tới. Kết quả rerank ra âm tính,
 đáng ngượng. Tìm ra con số phẳng đó quy lỗi cho thành phần nào, rồi gọi tên đúng một phép đo phân
 định được, tốn thời gian hơn toàn bộ phần tinh chỉnh.
 
-*Các phép đo được thực hiện trước và sau, với các bộ đánh giá cố định, trên máy ở mục 0. Phương
-pháp nằm trong [benchmarking tái lập được](03-reproducible-benchmarking.vi.md). Giá trị tuyệt đối phụ thuộc vào GPU. Hình dạng của mỗi đánh đổi thì vẫn đúng trên card khác.*
+*Phương pháp nằm trong [benchmarking tái lập được](03-reproducible-benchmarking.vi.md). Giá trị tuyệt đối phụ thuộc vào GPU. Hình dạng của mỗi đánh đổi thì vẫn đúng trên card khác.*

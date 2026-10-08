@@ -2,9 +2,7 @@
 
 # Measured environment
 
-*Captured by gen-system's `bench/freeze-env.sh` on 2026-09-09 at 16:52 UTC, on the machine every
-gen-system table in this repository was measured on. The same values are in `results/2026-09-09/env.json`
-in the gen-system repository, beside the raw files, the manifest and the attestation.*
+*The machine and software that measured every gen-system table, recorded on 2026-09-09.*
 
 | What | Value |
 |---|---|
@@ -31,8 +29,5 @@ The models the campaign used, as `ollama list` reported them. Sizes are the file
 
 ## HieuLuat
 
-The HieuLuat rows in `results/measured.json` were measured in August 2026 by that product's own
-retrieval bench, against a fixed evaluation set, on the same RTX 4060 Ti with 16 GB, as their
-provenance blocks record. The harness, its driver and library versions, and the commit are in the
-private HieuLuat repository, so this page does not reproduce them. The rows carry the date, the
-evaluation set and the GPU only.
+HieuLuat's own retrieval bench measured its rows in August 2026, on the same RTX 4060 Ti, against
+a fixed evaluation set. That bench is private, so this page lists no versions for it.

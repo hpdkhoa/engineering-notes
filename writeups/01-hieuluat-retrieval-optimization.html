@@ -262,7 +262,7 @@ html[data-theme="dark"] .ra-sent.speaking{background:#1d3a36;box-shadow:0 0 0 3p
       <div class="gs-label">Portfolio writeups</div>
       <a href="01-hieuluat-retrieval-optimization.html" class="current">1 · Legal search path</a><a href="02-gen-system-inference-optimization.html">2 · Local LLM inference</a><a href="03-reproducible-benchmarking.html">3 · Benchmarking method</a>
       <div class="gs-label" style="margin-top:14px;">Portfolio</div>
-      <a href="../index.html">Home</a><a href="../benchmarks/README.md">Benchmarks and evidence</a><a href="../projects/gen-system/README.md">gen-system</a><a href="../projects/hieuluat/README.md">HieuLuat</a>
+      <a href="../index.html">Home</a><a href="../benchmarks/README.md">Benchmarks and evidence</a><a href="https://github.com/hpdkhoa/gen-system">gen-system</a>
       <div class="gs-label" style="margin-top:14px;">Language</div>
       <a href="01-hieuluat-retrieval-optimization.vi.html" hreflang="vi">Tiếng Việt</a>
     </div>
@@ -278,10 +278,10 @@ html[data-theme="dark"] .ra-sent.speaking{background:#1d3a36;box-shadow:0 0 0 3p
 <p><strong>English</strong> · <a href="01-hieuluat-retrieval-optimization.vi.html">Tiếng Việt</a></p>
 <h1 id="making-a-legal-search-path-fast-and-still-correct">Making a legal search path fast and still correct</h1>
 <h3 id="vector-indexing-reranking-and-fp16-embeddings-with-the-trade-offs-measured">Vector indexing, reranking, and FP16 embeddings, with the trade offs measured</h3>
-<blockquote><p><strong>Context:</strong> HieuLuat is a Vietnamese legal question answering system. See the <a href="../projects/hieuluat/README.md">project page</a>. It is a commercial product whose ownership is changing hands, so the code, the corpus and the prompts are private. <strong>What this covers:</strong> how I made its search path fast without making it less trustworthy. A wrong answer that arrives quickly is still an answer a lawyer repeats to a client. The measurements are below. The code is not.</p></blockquote>
+<blockquote><p><strong>Context:</strong> HieuLuat was a Vietnamese legal question answering system. It is deprecated after the company's acquisition, and its code, corpus and prompts stay private. This writeup stays as a record of the method. <strong>What this covers:</strong> how I made its search path fast without making it less trustworthy. A wrong answer that arrives quickly is still an answer a lawyer repeats to a client. The measurements are below. The code is not.</p></blockquote>
 <hr>
 <h2 id="0-the-machine">0. The machine</h2>
-<p>One consumer GPU. The rows in section 5 were measured in August 2026 by HieuLuat's own retrieval bench on an NVIDIA RTX 4060 Ti with 16 GB, against a fixed, labeled evaluation set, and written into <a href="../benchmarks/results/measured.json"><code>benchmarks/results/measured.json</code></a> one label per configuration. The harness itself and its commit are in the private repository, so these rows carry the date, the evaluation set and the GPU, and nothing more. They have not been re-run since. Where the text quotes a number, the table above it is the source: the harness writes <code>measured.json</code>, <code>tools/fill_portfolio.py</code> renders the tables, and I fix the text when a table moves.</p>
+<p>One consumer GPU, an NVIDIA RTX 4060 Ti with 16 GB. HieuLuat's own retrieval bench measured the rows in section 5 in August 2026. It used a fixed, labeled evaluation set. The bench code is private, and I have not rerun it since.</p>
 <h2 id="1-where-it-started">1. Where it started</h2>
 <p>The search path had three parts that used the GPU or the database heavily: an embedder (bge-m3), a pgvector cosine search, and a cross encoder reranker.</p>
 <p>All three worked. Nobody had tuned any of them.</p>
@@ -305,7 +305,6 @@ html[data-theme="dark"] .ra-sent.speaking{background:#1d3a36;box-shadow:0 0 0 3p
 <h2 id="5-results">5. Results</h2>
 <!--measured:hieuluat-->
 <h3 id="measured-results">Measured results</h3>
-<p><em>Rendered from <code>benchmarks/results/measured.json</code>. Every number below comes from the project's own harness on the machine described in section 0.</em></p>
 <p><strong>Vector index: recall vs latency</strong></p>
 <table>
 <thead><tr><th>index</th><th>recall at 10</th><th>p50 latency ms</th><th>p95 latency ms</th></tr></thead>
@@ -362,7 +361,7 @@ html[data-theme="dark"] .ra-sent.speaking{background:#1d3a36;box-shadow:0 0 0 3p
 <h2 id="8-what-i-would-do-again">8. What I would do again</h2>
 <p>I would choose the index operating point and split the embedding work the same way again. Neither is clever. Both are what you skip when you are in a hurry.</p>
 <p>Section 6 is the part I still think about. The reranking result came out negative and the recall number sat flat enough to be embarrassing. Working out which component the flat number blames, and naming the one measurement that would settle it, took longer than all the tuning did.</p>
-<p><em>Measurements were taken before and after against fixed evaluation sets, on the machine in section 0. The method is in <a href="03-reproducible-benchmarking.html">reproducible benchmarking</a>. Absolute values depend on the GPU. The shape of each trade off should hold on another card.</em></p>
+<p><em>The method is in <a href="03-reproducible-benchmarking.html">reproducible benchmarking</a>. Absolute values depend on the GPU. The shape of each trade off should hold on another card.</em></p>
 </article>
   </main>
 </div>

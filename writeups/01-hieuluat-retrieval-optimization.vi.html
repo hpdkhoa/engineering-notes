@@ -262,7 +262,7 @@ html[data-theme="dark"] .ra-sent.speaking{background:#1d3a36;box-shadow:0 0 0 3p
       <div class="gs-label">Bài viết</div>
       <a href="01-hieuluat-retrieval-optimization.vi.html" class="current">1 · Đường tìm kiếm pháp luật</a><a href="02-gen-system-inference-optimization.vi.html">2 · Inference LLM cục bộ</a><a href="03-reproducible-benchmarking.vi.html">3 · Phương pháp benchmark</a>
       <div class="gs-label" style="margin-top:14px;">Portfolio</div>
-      <a href="../index.html">Trang chủ</a><a href="../benchmarks/README.vi.md">Benchmark và bằng chứng</a><a href="../projects/gen-system/README.vi.md">gen-system</a><a href="../projects/hieuluat/README.vi.md">HieuLuat</a>
+      <a href="../index.html">Trang chủ</a><a href="../benchmarks/README.vi.md">Benchmark và bằng chứng</a><a href="https://github.com/hpdkhoa/gen-system">gen-system</a>
       <div class="gs-label" style="margin-top:14px;">Ngôn ngữ</div>
       <a href="01-hieuluat-retrieval-optimization.html" hreflang="en">English</a>
     </div>
@@ -278,10 +278,10 @@ html[data-theme="dark"] .ra-sent.speaking{background:#1d3a36;box-shadow:0 0 0 3p
 <p><a href="01-hieuluat-retrieval-optimization.html">English</a> · <strong>Tiếng Việt</strong></p>
 <h1 id="làm-cho-luồng-tìm-kiếm-pháp-luật-nhanh-mà-vẫn-đúng">Làm cho luồng tìm kiếm pháp luật nhanh mà vẫn đúng</h1>
 <h3 id="vector-index-rerank-và-embedding-fp16-cùng-các-đánh-đổi-đã-đo">Vector index, rerank và embedding FP16, cùng các đánh đổi đã đo</h3>
-<blockquote><p><strong>Bối cảnh:</strong> HieuLuat là một hệ thống hỏi đáp pháp luật Việt Nam. Xem <a href="../projects/hieuluat/README.vi.md">trang dự án</a>. Đây là một sản phẩm thương mại đang được chuyển giao quyền sở hữu, nên code, corpus và prompt là riêng tư. <strong>Nội dung bài:</strong> cách tôi làm cho luồng tìm kiếm của nó nhanh hơn mà không làm nó kém tin cậy đi. Một câu trả lời sai đến nhanh thì vẫn là câu mà luật sư sẽ nhắc lại với khách hàng. Các phép đo nằm bên dưới. Code thì không.</p></blockquote>
+<blockquote><p><strong>Bối cảnh:</strong> HieuLuat từng là một hệ thống hỏi đáp pháp luật Việt Nam. Hệ thống đã ngừng phát triển sau khi công ty được mua lại, còn code, corpus và prompt vẫn riêng tư. Bài viết được giữ lại để ghi nhận phương pháp. <strong>Nội dung bài:</strong> cách tôi làm cho luồng tìm kiếm của nó nhanh hơn mà không làm nó kém tin cậy đi. Một câu trả lời sai đến nhanh thì vẫn là câu mà luật sư sẽ nhắc lại với khách hàng. Các phép đo nằm bên dưới. Code thì không.</p></blockquote>
 <hr>
 <h2 id="0-cấu-hình-máy-đo">0. Cấu hình máy đo</h2>
-<p>Một GPU phổ thông. Tôi đo các dòng ở mục 5 vào tháng 8 năm 2026 bằng benchmark retrieval riêng của HieuLuat, trên một NVIDIA RTX 4060 Ti 16 GB, với một bộ đánh giá cố định đã gán nhãn. Kết quả được ghi vào <a href="../benchmarks/results/measured.json"><code>benchmarks/results/measured.json</code></a>, mỗi cấu hình một nhãn. Bản thân harness và commit của nó nằm trong repository riêng tư. Vì vậy các dòng này chỉ mang theo ngày đo, bộ đánh giá và GPU, không có gì hơn. Từ đó đến nay chúng chưa được chạy lại, và writeup này không giả vờ là đã chạy lại. Chỗ nào văn bản bên dưới đọc một con số từ bảng, thì lấy bảng làm chuẩn.</p>
+<p>Một GPU phổ thông, NVIDIA RTX 4060 Ti 16 GB. Tôi đo các dòng ở mục 5 vào tháng 8 năm 2026 bằng bench retrieval riêng của HieuLuat, với một bộ đánh giá cố định đã gán nhãn. Code của bench là riêng tư, và từ đó tôi chưa chạy lại.</p>
 <h2 id="1-hiện-trạng-ban-đầu">1. Hiện trạng ban đầu</h2>
 <p>Luồng tìm kiếm có ba phần dùng GPU hoặc database nhiều: một embedder (bge-m3), một phép tìm kiếm cosine trên pgvector, và một reranker cross encoder.</p>
 <p>Cả ba đều chạy được. Không phần nào được tinh chỉnh. Có ba vấn đề nổi bật:</p>
@@ -304,8 +304,7 @@ html[data-theme="dark"] .ra-sent.speaking{background:#1d3a36;box-shadow:0 0 0 3p
 <p>Dùng một batch size cho cả hai công việc là lỗi thường gặp. Tôi đo chúng riêng: chênh lệch thông lượng giữa FP32 và FP16, và một phép quét batch size. Phép quét cho thấy embedder bị giới hạn bởi băng thông bộ nhớ, đúng như kỳ vọng.</p>
 <h2 id="5-kết-quả-đo">5. Kết quả đo</h2>
 <!--measured:hieuluat-->
-<h3 id="bảng-số-liệu">Bảng số liệu</h3>
-<p><em>Dựng từ <code>benchmarks/results/measured.json</code>. Mọi con số dưới đây đến từ harness của chính dự án, trên máy được mô tả ở mục 0.</em></p>
+<h3 id="kết-quả-đo">Kết quả đo</h3>
 <p><strong>Vector index: recall vs latency</strong></p>
 <table>
 <thead><tr><th>index</th><th>recall at 10</th><th>p50 latency ms</th><th>p95 latency ms</th></tr></thead>
@@ -362,7 +361,7 @@ html[data-theme="dark"] .ra-sent.speaking{background:#1d3a36;box-shadow:0 0 0 3p
 <h2 id="8-những-nguyên-tắc-tôi-giữ-lại">8. Những nguyên tắc tôi giữ lại</h2>
 <p>Nếu làm lại, tôi vẫn chọn điểm vận hành của index và tách phần việc embedding theo đúng cách đó. Không có gì thông minh ở đây. Cả hai đều là thứ người ta bỏ qua khi đang vội.</p>
 <p>Mục 6 mới là phần tôi còn nghĩ tới. Kết quả rerank ra âm tính, còn con số recall thì phẳng tới mức đáng ngượng. Tìm ra con số phẳng đó quy lỗi cho thành phần nào, rồi gọi tên đúng một phép đo phân định được, tốn thời gian hơn toàn bộ phần tinh chỉnh.</p>
-<p><em>Các phép đo được thực hiện trước và sau, với các bộ đánh giá cố định, trên máy ở mục 0. Phương pháp nằm trong <a href="03-reproducible-benchmarking.vi.html">benchmarking tái lập được</a>. Giá trị tuyệt đối phụ thuộc vào GPU. Hình dạng của mỗi đánh đổi thì vẫn đúng trên card khác.</em></p>
+<p><em>Phương pháp nằm trong <a href="03-reproducible-benchmarking.vi.html">benchmarking tái lập được</a>. Giá trị tuyệt đối phụ thuộc vào GPU. Hình dạng của mỗi đánh đổi thì vẫn đúng trên card khác.</em></p>
 </article>
   </main>
 </div>
@@ -559,7 +558,7 @@ document.addEventListener('DOMContentLoaded',function(){
 
   function speakCurrent(){
     if(idx>=sentences.length){ stop(); return; }
-    var u=new SpeechSynthesisUtterance(sentences[idx].text); u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN';
+    var u=new SpeechSynthesisUtterance(sentences[idx].text); u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN';
     u.rate=rate; var v=pickVoice(); if(v) u.voice=v;
     u.onend=function(){
       if(playing&&!paused){ idx++; highlight(idx); speakCurrent(); }

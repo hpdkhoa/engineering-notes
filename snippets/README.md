@@ -23,6 +23,6 @@ python3 toy_retrieval.py
 python3 roofline_demo.py
 ```
 
-> > These are teaching examples. The real systems are larger and messier. HieuLuat's implementation
-> is proprietary, and gen-system's is being prepared for release under Apache-2.0. Run these two
-> and the claims in the writeups stop being claims.
+> These are teaching examples. The real systems are larger and messier. HieuLuat's implementation
+> is proprietary, and gen-system's is open source under Apache-2.0. Run them to
+> watch each idea work at small scale.

@@ -1,56 +1,72 @@
-**English** · [Tiếng Việt](README.vi.md)
+# Khoa Hoang: engineering portfolio
 
-# gen-system, HieuLuat, Beastwarden
+I build local AI systems that write down what the model assumes and check its output with
+something that shares none of its assumptions. This repository holds the writeups, the benchmark
+tables and two small snippets. Every page is in English and Vietnamese; the Vietnamese files end
+in `.vi`.
 
-Three systems I work on. This is what I can publish about each.
+## Projects
 
-gen-system has [its own repository](https://github.com/hpdkhoa/gen-system) with the code, the tests
-and the benchmark drivers. The other two I cannot open. HieuLuat runs on a law firm's real case
-files and the company is being sold, so its source, prompts and legal corpus stay where they are,
-and Beastwarden is half built. For those two this repository has the design docs and the tables,
-and that is all it has.
-
-Everything here is written twice, English and Vietnamese. The Vietnamese files end in `.vi`.
-
-## The three systems
-
-| System | What it does | Stack | Pages |
+| Project | What it does | Stack | Status |
 |---|---|---|---|
-| gen-system | Reads a codebase into a deterministic graph built from the AST, states what the model assumes about each routine, and checks the generated code from outside | Go, local models through Ollama, graph RAG | [projects/gen-system/README.md](projects/gen-system/README.md) |
-| HieuLuat | Vietnamese legal question answering. It cites the law it used, or it answers that it does not know | Python, pgvector, bge-m3 embeddings on GPU, cross encoder rerank | [projects/hieuluat/README.md](projects/hieuluat/README.md) |
-| Beastwarden | A tactics roguelite with a seeded deterministic core and about 2,000 tests. Also my notes on directing AI assisted development | TypeScript, Vite, Pixi, Vitest | [projects/beastwarden/README.md](projects/beastwarden/README.md) |
+| gen-system | Reads a codebase into a deterministic graph built from the AST, lists what the model assumes about each routine, and checks the generated code from outside | Go, local models through Ollama, graph RAG | Open source, Apache-2.0 |
+| poselab-mcp | An MCP server that gives a model measured spatial answers for posing first-person arms and a rifle in Blender: how deep parts clip, how squarely a surface faces the eye, and a solver for rifle moves | Python, MCP, headless Blender | Open source, MIT, version 0.2.2 |
+| Beastwarden | A tactics roguelite with a seeded, deterministic simulation core. It is also where I direct AI assisted development under rules a machine checks | TypeScript, Vite, Pixi, Vitest | In development, private |
+| HieuLuat | Vietnamese legal question answering that cites the law it used, or says it does not know | Python, pgvector, bge-m3 embeddings, cross encoder rerank | Deprecated after the company's acquisition |
+
+### Links
+
+- gen-system:
+- poselab-mcp:
+- Beastwarden:
+
+## gen-system in numbers
+
+Measured on one RTX 4060 Ti with 16 GB, in the campaign of 2026-09-09.
+
+- **100% of internal calls resolved, 0 parse errors**, on four public repositories: 405 files,
+  268 of them COBOL.
+- **First token in 127 ms** with streaming, against 1,884 ms with a buffered call. Fifteen times
+  sooner.
+- **30.8 tokens per second** with Ollama's default GPU offload, against 7.9 with 20 layers on the
+  GPU. Almost four times faster.
+- **About 2 seconds** to swap between the two models on one 16 GB card, with keep alive.
+- **0.674 file recall** on 60 SWE-bench Verified tasks at two graph hops. It measures how well
+  gen-system finds the files a fix touches. It writes no fix.
+- **Test coverage: 55% of all statements**, measured with `go test -cover` on 2026-10-08. The
+  core runs higher: control flow graphs 93%, beliefs 85%, symbol index 76%, parsers 72%.
+
+## poselab-mcp in numbers
+
+Five posing tasks, three trials each, graded by Pose Lab's own measurements:
+
+- **15 of 15 passed** with measured answers, against 11 of 15 with pictures alone.
+- **Half the tool calls** (17.3 against 34.8 per task) and **a third of the time** (45 s against
+  153 s).
 
 ## Writeups
 
 - [01, making a legal search path fast and still correct](writeups/01-hieuluat-retrieval-optimization.md).
-  Vector indexing, retrieve then rerank, FP16 embeddings, and how much of the request each stage
-  actually costs.
+  Vector indexing, retrieve then rerank, FP16 embeddings, and how much of a request each stage
+  costs. HieuLuat is deprecated after the company's acquisition; the writeup stays as a record of
+  the method.
 - [02, tuning local LLM inference for a code engine](writeups/02-gen-system-inference-optimization.md).
   GPU layer offload, streaming, quantization as a measured variable, and two models sharing one
   16 GB card.
 - [03, reproducible benchmarking and regression gates](writeups/03-reproducible-benchmarking.md).
-  The method under the other two: frozen baselines, regression gates, repeatable runs, and a
-  quality metric that can move.
+  Frozen baselines, regression gates, repeatable runs, and a quality metric that can move.
 
-Each one has a section on something I got wrong. In 01 the reranker cost 384 ms and improved
-nothing. In 02 my quality metric could not move, so it could never fail. I keep writing those
-down, otherwise I walk into them again a year later.
+Each writeup has a section on something I got wrong. In 01 the reranker cost 384 ms and improved
+nothing. In 02 my quality metric could not move, so it could never fail.
 
-The writeups are markdown. There is an HTML version of each one too, linked from
-[index.html](index.html), if you would rather read it that way.
+The writeups are also on the [landing page](index.html) as HTML.
 
-## Where the numbers come from
+## Benchmarks
 
-- [benchmarks/results/measured.json](benchmarks/results/measured.json) holds every table. The
-  harnesses write that file. I do not type a number into a writeup by hand.
-- [benchmarks/ENVIRONMENT.md](benchmarks/ENVIRONMENT.md) records the machine behind the gen-system
-  tables: an RTX 4060 Ti with 16 GB, driver 595.71.05, Ollama 0.24.0, Go 1.25.0, and the commit the
-  campaign froze at.
-- The 2026-09-09 campaign keeps its raw files, `MANIFEST.sha256` and `ATTESTATION.md` in the
-  gen-system repository, beside the code that produced them.
-- gen-system rows carry the date, the commit, the frozen task set, `n` and a range. HieuLuat rows
-  carry the date, the evaluation set and the GPU, because that harness is private.
-- [benchmarks/README.md](benchmarks/README.md) explains how to read a table.
+The tables behind the writeups are in
+[benchmarks/results/measured.json](benchmarks/results/measured.json), and
+[benchmarks/README.md](benchmarks/README.md) explains how to read them. The machine behind the
+gen-system tables is in [benchmarks/ENVIRONMENT.md](benchmarks/ENVIRONMENT.md).
 
 ## Snippets
 
@@ -61,46 +77,30 @@ python snippets/toy_retrieval.py
 python snippets/roofline_demo.py
 ```
 
-`toy_retrieval.py` runs the retrieve then rerank pattern over random vectors, and shows why an
-approximate index needs its recall measured. `roofline_demo.py` is naive against blocked matrix
-multiply in plain Python, so the memory wall shows up without a GPU in the room. No production
-code in either. See [snippets/README.md](snippets/README.md).
+`toy_retrieval.py` runs retrieve then rerank over random vectors, and shows why an approximate
+index needs its recall measured. `roofline_demo.py` compares naive and blocked matrix multiply in
+plain Python, so the memory wall shows up without a GPU. See [snippets/README.md](snippets/README.md).
 
-## Regenerating the repo
+## Next
 
-`tools/fill_portfolio.py` runs on my own machine, where the private repositories live. It collects
-repository statistics from git, captures the environment with `nvidia-smi` and `ollama list`, and
-injects the tables from `measured.json` between the `<!--measured:...-->` markers. It never copies
-source into this repository.
-
-`tools/regen_writeup_html.py` rebuilds the HTML twin of each writeup, English and Vietnamese. Run
-it after `fill_portfolio.py`, or the twins go out of date with the markdown. The HTML files are
-generated, so edit the markdown and rerun the tool.
-
-## Status
-
-- gen-system: preparing the Apache-2.0 release.
-- HieuLuat: commercial, and its ownership is changing hands. The implementation stays private.
-- Beastwarden: in development.
-- Next: a hand written CUDA kernel inside gen-system, profiled with Nsight before and after, with a
-  roofline analysis. The path it targets is under 1 ms of a 385 ms request, so it demonstrates the
-  capability rather than speeding the request up.
+A hand written CUDA kernel inside gen-system, profiled with Nsight before and after, with a
+roofline analysis. The path it targets takes under 1 ms of a 385 ms request, so the goal is the
+skill, and the request will stay about as fast.
 
 ## About me
 
 Khoa Hoang. I spent a year at National Australia Bank, then two and a half years at FPT Software as
 a solution architect, moving legacy systems onto cloud native architectures.
 
-The hard part was that nobody could say what the old
-system actually did, and the people who knew had left years ago. An AI model has the same trouble
-with a codebase, except you find out when the output is wrong. I have built my own systems full
-time since November 2025. Both come back to that: write down what the machine is assuming, then
-run a check that can fail.
+There, nobody could say what the old system did, and the people who knew had left years ago. An AI
+model has the same trouble with a codebase, and you find out when the output is wrong. Since
+November 2025 I have built my own systems full time. Each one writes down what the model assumes,
+then runs a check that can fail.
 
 [hpdkhoa2311@gmail.com](mailto:hpdkhoa2311@gmail.com) · [github.com/hpdkhoa](https://github.com/hpdkhoa)
 
 ## License
 
-See [LICENSE](LICENSE). The writeups, architecture docs, benchmark tables and snippets are here to
-read and quote with attribution. gen-system is licensed separately under Apache-2.0 in its own
-repository. HieuLuat's implementation is proprietary and is not included here.
+See [LICENSE](LICENSE). You can read and quote the writeups, tables and snippets with attribution.
+gen-system (Apache-2.0) and poselab-mcp (MIT) carry their own licenses in their own repositories.
+HieuLuat's implementation is proprietary and is not included.

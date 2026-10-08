@@ -12,9 +12,5 @@ có liên kết tới các bản HTML.
 | Tinh chỉnh inference LLM cục bộ cho một công cụ xử lý code | [.md](02-gen-system-inference-optimization.vi.md) | [.html](02-gen-system-inference-optimization.vi.html) |
 | Benchmark tái lập được và regression gate | [.md](03-reproducible-benchmarking.vi.md) | [.html](03-reproducible-benchmarking.vi.html) |
 
-Mọi bảng trong các bài đều sinh ra từ [`benchmarks/results/measured.json`](../benchmarks/results/measured.json).
-Các dòng gen-system ghi ngày, commit, bộ tác vụ đã đóng băng, `n` và khoảng giá trị. Manifest và
-attestation của campaign nằm trong repo gen-system. Các dòng HieuLuat ghi
-ngày, bộ dữ liệu đánh giá và GPU, vì harness của chúng là riêng tư. Thông tin môi trường nằm trong
-[`benchmarks/ENVIRONMENT.md`](../benchmarks/ENVIRONMENT.vi.md). Các trang HTML mở được trên máy bằng
-trình duyệt. Chỉ có font là tải từ CDN.
+Các con số đến từ [thư mục benchmarks](../benchmarks/README.vi.md). Thư mục đó cũng mô tả máy đo.
+Các trang HTML mở được trong mọi trình duyệt.

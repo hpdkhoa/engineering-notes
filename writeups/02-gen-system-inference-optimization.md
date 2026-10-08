@@ -5,9 +5,8 @@
 ### GPU offload, streaming, quantization, and two models sharing one consumer card
 
 > **Context:** gen-system makes an AI model's beliefs about code visible and checkable. It grounds
-> the model in a graph built from the AST, and verifies the output from outside. See the
-> [project page](../projects/gen-system/README.md). The source is being prepared for release under
-> Apache-2.0. **What this covers:** tuning its inference layer. The quality test is objective: the
+> the model in a graph built from the AST, and verifies the output from outside. The source is
+> open under Apache-2.0 at [github.com/hpdkhoa/gen-system](https://github.com/hpdkhoa/gen-system). **What this covers:** tuning its inference layer. The quality test is objective: the
 > generated code either builds and passes its tests, or it does not. Section 4 explains why the
 > obvious version of that test is useless, and what replaced it.
 
@@ -24,10 +23,7 @@ quantization study uses `deepseek-coder-v2:16b-lite-instruct` at Q4_K_M, Q5_K_M,
 Decoding is deterministic: temperature 0, seed 42, top_p 1. A test checks that, and section 6 shows
 where the pin stops holding.
 
-The exact GPU, driver, runtime versions, commit and model list are captured by the harness into
-[ENVIRONMENT.md](../benchmarks/ENVIRONMENT.md). Every table in section 6 carries the commit and
-date it was measured at, and is rendered from
-[`benchmarks/results/measured.json`](../benchmarks/results/measured.json). The tables are the source of every number. When a table moves, I rewrite the text under it.
+[ENVIRONMENT.md](../benchmarks/ENVIRONMENT.md) lists the driver, the software versions and the models.
 
 ## 1. Where it started
 
@@ -135,8 +131,6 @@ wrote no scheduling code, and the source shows it.
 <!--measured:gen-->
 ### Measured results
 
-*Rendered from `benchmarks/results/measured.json`. Every number below comes from the project's own harness on the machine described in section 0.*
-
 **GPU-layer offload: tokens/sec vs VRAM**
 
 | gpu layers | tokens per sec | vram gb | n | tok s min | tok s max |
@@ -146,7 +140,7 @@ wrote no scheduling code, and the source shows it.
 | 40 | 14.3 | 8.0 | 3 | n/a | n/a |
 | default | 30.8 | 9.4 | 3 | n/a | n/a |
 
-*Measured 2026-09-09 · commit `cfb0bff21748` · bench/tasks.json (frozen 2026-08-27).*
+*Measured 2026-09-09, task set frozen 2026-08-27.*
 
 **Streaming: time-to-first-token**
 
@@ -155,7 +149,7 @@ wrote no scheduling code, and the source shows it.
 | stream off (buffered) | 1883.7 | 1.88 | 3 | 1876.4 | 1897.5 |
 | stream on (NDJSON) | 127.4 | 1.88 | 3 | 126.7 | 128.0 |
 
-*Measured 2026-09-09 · commit `cfb0bff21748` · bench/tasks.json (frozen 2026-08-27).*
+*Measured 2026-09-09, task set frozen 2026-08-27.*
 
 **Quantization sweep: speed vs VRAM vs generation quality**
 
@@ -166,7 +160,7 @@ wrote no scheduling code, and the source shows it.
 | Q8_0 | 41.3 | 15.3 | 24.0 | 76.7 | 40.0 | 3.0 | 4.7 | 3 | 41.0 | 41.5 | 0 |
 | production | 30.7 | 9.6 | 3.0 | 44.4 | 2.7 | 0.0 | 5.0 | 3 | 30.7 | 30.7 | 0 |
 
-*Measured 2026-09-09 · commit `cfb0bff21748` · bench/tasks.json (frozen 2026-08-27).*
+*Measured 2026-09-09, task set frozen 2026-08-27.*
 
 **Two-model serving strategies**
 
@@ -176,7 +170,7 @@ wrote no scheduling code, and the source shows it.
 | B-both-resident | 1.96 | 30.7 | 3.0 | 66.7 | 0.0 | 5.0 | 3 | 0 |
 | C-single-shared | 1.97 | 30.7 | 3.0 | 0.0 | 0.0 | 5.0 | 3 | 0 |
 
-*Measured 2026-09-09 · commit `cfb0bff21748` · bench/tasks.json (frozen 2026-08-27).*
+*Measured 2026-09-09, task set frozen 2026-08-27.*
 
 **Understand benchmark: public repos at pinned commits**
 
@@ -187,7 +181,7 @@ wrote no scheduling code, and the source shows it.
 | gorilla-mux | 17 | 0 | 100 | 274 | 158 | 0 |
 | spf13-cobra | 36 | 0 | 100 | 984 | 403 | 0 |
 
-*Measured 2026-09-09 · commit `cfb0bff21748` · bench/tasks.json (frozen 2026-08-27).*
+*Measured 2026-09-09.*
 
 **SWE-bench Verified: localization recall (not a solve rate)**
 
@@ -197,7 +191,7 @@ wrote no scheduling code, and the source shows it.
 | 1 | 0.615 | 63.3 | 262.5 | 177.5 | 60 |
 | 2 | 0.674 | 70.0 | 464.8 | 421.5 | 60 |
 
-*Measured 2026-09-09 · commit `cfb0bff21748` · SWE-bench Verified, princeton-nlp, frozen sha256 fcef3a49f31e.*
+*Measured 2026-09-09, on SWE-bench Verified.*
 
 **SWE-bench Verified: localization recall by repository**
 
@@ -206,7 +200,7 @@ wrote no scheduling code, and the source shows it.
 | astropy/astropy | 2 | 0.716 | 77.3 | 100.0 | 22 |
 | django/django | 2 | 0.649 | 65.8 | 92.1 | 38 |
 
-*Measured 2026-09-09 · commit `cfb0bff21748` · SWE-bench Verified, princeton-nlp, frozen sha256 fcef3a49f31e.*
+*Measured 2026-09-09, on SWE-bench Verified.*
 
 **SWE-bench Verified: can the parsers read the repositories**
 
@@ -215,7 +209,7 @@ wrote no scheduling code, and the source shows it.
 | astropy/astropy | 786 | 0 | 92.6 | 22851 |
 | django/django | 2572 | 0 | 96.1 | 50596 |
 
-*Measured 2026-09-09 · commit `cfb0bff21748` · SWE-bench Verified, princeton-nlp, frozen sha256 fcef3a49f31e.*
+*Measured 2026-09-09, on SWE-bench Verified.*
 
 <!--/measured-->
 
@@ -228,16 +222,14 @@ wrote no scheduling code, and the source shows it.
 | Quantization | Speed and VRAM against quality | Speed, VRAM, stub rate, repair counts, test pass |
 | Two model strategies | Serving without reloads | Reload cost, speed, stub rate across three strategies |
 
-Every table above comes from one campaign, run on 2026-09-09 at one clean commit, in one results
-directory. The manifest and the attestation sit beside the raw files in the gen-system
-repository. Three earlier campaigns led to it. The first ran with a dirty tree. The second and
-third were one run that crossed midnight and split into two directories, which is how a date bug
-in the drivers was found. Each of those found something the tables now reflect.
+All these tables come from one campaign on 2026-09-09. Three earlier campaigns led to it, and each
+found a problem the tables now reflect. The first ran on uncommitted code. The second and third were
+one run that crossed midnight and split into two folders. That split exposed a date bug in the
+drivers.
 
 **The quality metric moved.** Stub rate is different for every quantization. That was the
-whole point of replacing compile pass, which was 100 percent by construction. Gate 2 of the plan
-asked for at least one metric that differs across quants. It does, and it has done so in every
-campaign at every commit.
+whole point of replacing compile pass, which was 100 percent by construction. I wanted at least
+one quality metric that changes with the quant. Stub rate does, in every campaign so far.
 
 **The study model wrote very little code that compiled.** DeepSeek Coder V2 Lite at Q4_K_M
 proposed about 25 operations per run and almost every one fell back to a stub after two repair
@@ -249,7 +241,8 @@ there so the reader can see that before comparing stub rates.
 **The task level repair loop does fire, rarely.** In most runs `heal_attempts` is 0 and
 `go_test_pass` is 5 of 5, both by construction: stubs compile and pass. In one Q8_0 run the
 generated backend built, its own tests failed, and the task level loop ran nine times. It took
-four campaigns to see that column move twice. It is reported so nobody reads a 0 as a result.
+four campaigns to see that column move twice. A 0 there only means the tests passed, and stubs
+always pass.
 
 **Speed and quality moved in opposite directions.** Q4_K_M was about three times faster than Q8_0
 in tokens per second and used about 4 GB less VRAM. It also produced almost nothing that
@@ -351,6 +344,5 @@ Running the thing and watching it work catches none of that. I found all three b
 that had already passed its tests, and asking what each number would look like if it were lying to
 me.
 
-*All timings are native local GPU measurements taken through the project's own harness, on the
-machine described in section 0. The method is in [reproducible benchmarking](03-reproducible-benchmarking.md).
+*The method is in [reproducible benchmarking](03-reproducible-benchmarking.md).
 Absolute speed depends on the GPU. The shape of each trade off should hold on another card.*

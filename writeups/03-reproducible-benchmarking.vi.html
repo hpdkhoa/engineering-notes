@@ -262,7 +262,7 @@ html[data-theme="dark"] .ra-sent.speaking{background:#1d3a36;box-shadow:0 0 0 3p
       <div class="gs-label">Bài viết</div>
       <a href="01-hieuluat-retrieval-optimization.vi.html">1 · Đường tìm kiếm pháp luật</a><a href="02-gen-system-inference-optimization.vi.html">2 · Inference LLM cục bộ</a><a href="03-reproducible-benchmarking.vi.html" class="current">3 · Phương pháp benchmark</a>
       <div class="gs-label" style="margin-top:14px;">Portfolio</div>
-      <a href="../index.html">Trang chủ</a><a href="../benchmarks/README.vi.md">Benchmark và bằng chứng</a><a href="../projects/gen-system/README.vi.md">gen-system</a><a href="../projects/hieuluat/README.vi.md">HieuLuat</a>
+      <a href="../index.html">Trang chủ</a><a href="../benchmarks/README.vi.md">Benchmark và bằng chứng</a><a href="https://github.com/hpdkhoa/gen-system">gen-system</a>
       <div class="gs-label" style="margin-top:14px;">Ngôn ngữ</div>
       <a href="03-reproducible-benchmarking.html" hreflang="en">English</a>
     </div>
@@ -278,7 +278,7 @@ html[data-theme="dark"] .ra-sent.speaking{background:#1d3a36;box-shadow:0 0 0 3p
 <p><a href="03-reproducible-benchmarking.html">English</a> · <strong>Tiếng Việt</strong></p>
 <h1 id="benchmark-tái-lập-được-và-regression-gate">Benchmark tái lập được và regression gate</h1>
 <h3 id="phương-pháp-bảo-chứng-cho-mọi-con-số-trong-repo-này">Phương pháp bảo chứng cho mọi con số trong repo này</h3>
-<blockquote><p><strong>Bối cảnh:</strong> cả hai dự án ở đây đều được tinh chỉnh dựa trên các phép đo cố định, lặp lại được. Dự án thứ nhất là gen-system, có harness và kết quả nằm trong <a href="../projects/gen-system/README.vi.md">repository của nó</a>. Dự án thứ hai là HieuLuat, có harness không công khai nhưng các dòng số liệu tuân theo cùng quy tắc. <strong>Nội dung bài:</strong> ba quy tắc; thế nào là một baseline đóng băng và một gate; cách làm cho các lần chạy lặp lại được và những chỗ chúng không lặp lại được; và hai lần một thước đo chất lượng hóa ra không đo được gì. Mỗi bài học trong hai bài học đó đã lấy của tôi trọn một campaign.</p></blockquote>
+<blockquote><p><strong>Bối cảnh:</strong> cả hai dự án ở đây đều được tinh chỉnh dựa trên các phép đo cố định, lặp lại được. Dự án thứ nhất là gen-system, có harness và kết quả nằm trong <a href="https://github.com/hpdkhoa/gen-system">repository của nó</a>. Dự án thứ hai là HieuLuat, đã ngừng phát triển sau khi công ty được mua lại; harness của nó vẫn không công khai nhưng các dòng số liệu tuân theo cùng quy tắc. <strong>Nội dung bài:</strong> ba quy tắc; thế nào là một baseline đóng băng và một gate; cách làm cho các lần chạy lặp lại được và những chỗ chúng không lặp lại được; và hai lần một thước đo chất lượng hóa ra không đo được gì. Mỗi bài học trong hai bài học đó đã lấy của tôi trọn một campaign.</p></blockquote>
 <hr>
 <h2 id="1-ba-nguyên-tắc">1. Ba nguyên tắc</h2>
 <p>Tôi đã phá cả ba ít nhất một lần.</p>
@@ -302,10 +302,10 @@ html[data-theme="dark"] .ra-sent.speaking{background:#1d3a36;box-shadow:0 0 0 3p
 <p>Chuyện này xảy ra lần thứ hai, theo chiều ngược lại. Bước verify đọc lại code đã sinh và chấm tỷ lệ phân giải nội bộ đạt 100 phần trăm trên mọi repository Python mà nó gặp. Nó tính một lời gọi là nội bộ khi có bất kỳ symbol nào mang tên trần của lời gọi đó. Sau đó nó phân giải lời gọi theo chính tên trần đó, nên nó không thể trượt. Khi resolver được sửa để lần theo lời gọi qua các import của nơi gọi, con số 100 đó trở thành 92.6 và 96.1 trên hai repository công khai. Một con số giảm xuống khi công cụ trở nên chặt chẽ hơn là một con số đo được điều gì đó. Bài kiểm thử cố định cho lỗi này nạp cùng một repository khi có và khi không gắn thư viện chuẩn, và yêu cầu recall nội bộ phải bằng nhau.</p>
 <p>HieuLuat gặp cùng dạng vấn đề từ phía bên kia: một giá trị recall đứng yên ở 0.75 với mọi index và mọi thiết lập reranker. Mục 6 của <a href="01-hieuluat-retrieval-optimization.vi.html">writeup về tìm kiếm pháp luật</a> đọc con số đứng yên đó là giới hạn trần của embedding model, chứ không phải một kết quả về index. Mục đó cũng chỉ ra một phép đo có thể phân định vấn đề: recall tại 50.</p>
 <h2 id="6-phạm-vi-áp-dụng">6. Phạm vi áp dụng</h2>
-<ul><li><a href="01-hieuluat-retrieval-optimization.vi.html">Writeup về luồng tìm kiếm pháp luật</a>: recall và latency được đo trên các eval set cố định theo phương pháp này. Mục 6 trong đó là một ví dụ cụ thể về cách đọc đúng một con số đứng yên.</li><li><a href="02-gen-system-inference-optimization.vi.html">Writeup về inference</a>: tốc độ, VRAM, tỷ lệ stub và số vòng sửa lỗi đều chạy qua harness benchmark so với các baseline đóng băng. Nguồn gốc của mọi bảng được in ngay bên dưới bảng đó.</li><li><a href="../benchmarks/README.vi.md">Thư mục benchmarks</a>: chính các bảng kết quả đo, môi trường nơi chúng được đo, và nơi lưu manifest và attestation của campaign gen-system.</li></ul>
+<ul><li><a href="01-hieuluat-retrieval-optimization.vi.html">Writeup về luồng tìm kiếm pháp luật</a>: recall và latency được đo trên các eval set cố định theo phương pháp này. Mục 6 trong đó là một ví dụ cụ thể về cách đọc đúng một con số đứng yên.</li><li><a href="02-gen-system-inference-optimization.vi.html">Writeup về inference</a>: tốc độ, VRAM, tỷ lệ stub và số vòng sửa lỗi đều chạy qua harness benchmark so với các baseline đóng băng.</li><li><a href="../benchmarks/README.vi.md">Thư mục benchmarks</a>: chính các bảng kết quả đo, và môi trường nơi chúng được đo.</li></ul>
 <h2 id="7-giá-trị-chứng-minh-của-thứ-tự-commit">7. Giá trị chứng minh của thứ tự commit</h2>
 <p>Tôi commit bộ tác vụ trước lần chạy đầu tiên để không thể nắn nó theo kết quả.</p>
-<p>Lịch sử công khai của gen-system bắt đầu từ ngày tôi chuẩn bị repository để phát hành, nên người đọc không thấy những tuần trước đó. Điều người đọc có thể kiểm tra là thứ tự bên trong lịch sử đó: commit thêm bộ tác vụ đứng trước commit thêm thư mục kết quả. Ngày đóng băng cũng được ghi trong file tác vụ. Mỗi campaign kết thúc bằng một attestation và một manifest liệt kê mọi file dữ liệu thô kèm hash, nên một con số trong writeup truy được về file. Các dòng số liệu của HieuLuat không có được dấu vết đó, vì harness không công khai. Các bảng nói rõ điều đó.</p>
+<p>Lịch sử công khai của gen-system bắt đầu từ ngày tôi chuẩn bị repository để phát hành, nên người đọc không thấy những tuần trước đó. Điều người đọc có thể kiểm tra là thứ tự bên trong lịch sử đó: commit thêm bộ tác vụ đứng trước commit thêm thư mục kết quả. Ngày đóng băng cũng được ghi trong file tác vụ. Mỗi campaign còn giữ các file thô kèm danh sách hash, nên người đọc dựng lại được mọi bảng. Bench của HieuLuat là riêng tư, nên các dòng của nó không có dấu vết như vậy.</p>
 <p>Mục 5 là phần mất nhiều thời gian nhất. Tôi giữ một thước đo suốt mấy tháng mới nhận ra nó chỉ trả về đúng một giá trị.</p>
 <p><em>Các con số nằm trong hai writeup dự án, và chúng phụ thuộc vào card trong <a href="../benchmarks/ENVIRONMENT.vi.md">ENVIRONMENT.vi.md</a>. Các quy tắc ở đây thì không.</em></p>
 </article>
@@ -504,7 +504,7 @@ document.addEventListener('DOMContentLoaded',function(){
 
   function speakCurrent(){
     if(idx>=sentences.length){ stop(); return; }
-    var u=new SpeechSynthesisUtterance(sentences[idx].text); u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN';
+    var u=new SpeechSynthesisUtterance(sentences[idx].text); u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN';
     u.rate=rate; var v=pickVoice(); if(v) u.voice=v;
     u.onend=function(){
       if(playing&&!paused){ idx++; highlight(idx); speakCurrent(); }

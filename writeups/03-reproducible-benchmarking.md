@@ -5,8 +5,9 @@
 ### Frozen baselines, gates, determinism, and the two metrics that measured nothing
 
 > **Context:** both projects here are tuned against fixed, repeatable measurements: gen-system,
-> whose harness and results are in [its repository](../projects/gen-system/README.md), and
-> HieuLuat, whose harness is private but whose rows follow the same rules. **What this covers:**
+> whose harness and results are in [its repository](https://github.com/hpdkhoa/gen-system), and
+> HieuLuat, deprecated after the company's acquisition, whose harness stayed private but whose rows
+> follow the same rules. **What this covers:**
 > the three rules, what a frozen baseline and a gate are, how repeatable runs are made and where
 > they are not, and the two times a quality metric turned out to measure nothing. Both of those lessons cost me a campaign each.
 
@@ -97,11 +98,9 @@ embedding model rather than a result about the index, and names the one measurem
   measured against fixed evaluation sets under this method. Section 6 there is a worked example
   of reading a flat number correctly.
 - The [inference writeup](02-gen-system-inference-optimization.md): speed, VRAM, stub rate, and
-  repair counts all run through the benchmark harness against frozen baselines, with the
-  provenance of every table printed under it.
+  repair counts all run through the benchmark harness against frozen baselines.
 - The [benchmarks folder](../benchmarks/README.md): the measured tables themselves, the
-  environment they were taken on, and where the manifest and attestation for the gen-system
-  campaign live.
+  environment they were taken on.
 
 ## 7. What the commit order proves, and what it does not
 
@@ -110,9 +109,9 @@ The task set gets committed before the first run so it cannot be shaped around t
 The public gen-system history starts on the day the repository was
 prepared for release, so a reader cannot see the weeks before it. What a reader can check is the
 order inside that history: the commit that adds the task set comes before the commit that adds the
-results directory. The frozen date is also written inside the task file. Each campaign ends with an attestation and a manifest listing every raw file with its hash, so a
-number in a writeup traces back to a file. HieuLuat's rows cannot offer
-that trail, because the harness is private, and the tables say so.
+results directory. The frozen date is also written inside the task file. Each campaign also keeps
+its raw files with a hash list, so a reader can rebuild any table. HieuLuat's bench is private, so
+its rows have no such trail.
 
 Section 5 took the longest to learn. I had a metric for months before I noticed it could only return
 one value.
