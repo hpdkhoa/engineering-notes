@@ -23,9 +23,9 @@ The models the campaign used, as `ollama list` reported them. Sizes are the file
 | `deepseek-coder-v2:16b-lite-instruct-q4_K_M` | 10 GB | quantization sweep, Q4_K_M |
 | `deepseek-coder-v2:16b-lite-instruct-q5_K_M` | 11 GB | quantization sweep, Q5_K_M |
 | `deepseek-coder-v2:16b-lite-instruct-q8_0` | 16 GB | quantization sweep, Q8_0 |
-| `llama3.1:latest` | 4.9 GB | not used by any table |
-| `aisingapore/Llama-SEA-LION-v3-8B-IT:q5_k_m` | 5.7 GB | not used by any table |
-| `deepseek-coder:latest` | 776 MB | not used by any table |
+| `llama3.1:latest` | 4.9 GB | no table uses it |
+| `aisingapore/Llama-SEA-LION-v3-8B-IT:q5_k_m` | 5.7 GB | no table uses it |
+| `deepseek-coder:latest` | 776 MB | no table uses it |
 
 ## HieuLuat
 

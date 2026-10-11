@@ -8,8 +8,8 @@ the production code, prompts, data or configuration from HieuLuat or gen-system 
 They exist so you can check a claim from a writeup yourself, without me handing over anything
 private.
 
-Each file runs with a standard Python 3 install. Only the standard library is needed, plus NumPy
-where noted. No GPU, database, or network required.
+Each file runs with a standard Python 3 install. They need only the standard library, plus NumPy
+where a file says so. They need no GPU, database or network.
 
 | File | What it shows | From |
 |---|---|---|

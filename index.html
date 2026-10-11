@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Khoa Hoang: systems, applied LLMs, GPU work</title>
-<meta name="description" content="Khoa Hoang. Architecture and measured results for gen-system (making a model's beliefs about code visible and verifiable) and HieuLuat (legal question answering), plus GPU and inference optimization writeups.">
+<meta name="description" content="Khoa Hoang. Architecture and measured results for gen-system (parser facts about a codebase, and generated Go services that must compile) and poselab-mcp (measured spatial answers for posing in Blender), plus GPU and inference optimization writeups.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -174,7 +174,7 @@ html[data-lang="en"] .lang-block[data-lang="en"],html[data-lang="vi"] .lang-bloc
         <span class="num">Writeup 01</span>
         <h3>Making a legal search path fast and still correct</h3>
         <div class="tags"><span class="tag">RAG</span><span class="tag">pgvector</span><span class="tag">FP16 embeddings</span><span class="tag">reranking</span></div>
-        <p>Vector indexing, retrieve then rerank, and FP16 embeddings, with the recall, latency and quality trade offs measured on a fixed evaluation set. Includes a negative result: the reranker cost 384 ms and improved nothing, and section 6 works out which component that blames. HieuLuat is deprecated after the company's acquisition.</p>
+        <p>Vector indexing, retrieve then rerank, and FP16 embeddings, with the recall, latency and quality trade offs measured on a fixed evaluation set. It includes a negative result. The reranker cost 384 ms and improved nothing, and section 6 works out which component that blames. HieuLuat is deprecated after the company's acquisition.</p>
         <span class="go">Read the web version →</span>
         <div class="altlinks">also: <a href="writeups/01-hieuluat-retrieval-optimization.md">markdown</a></div>
       </a>
@@ -183,7 +183,7 @@ html[data-lang="en"] .lang-block[data-lang="en"],html[data-lang="vi"] .lang-bloc
         <span class="num">Writeup 02</span>
         <h3>Tuning local LLM inference for a code engine</h3>
         <div class="tags"><span class="tag">inference</span><span class="tag">quantization</span><span class="tag">GPU offload</span><span class="tag">streaming</span></div>
-        <p>GPU layer offload, streaming, quantization treated as a measured variable, and two models sharing one 16 GB card, judged by an <em>objective</em> quality metric. Section 4 is about discovering my own quality metric was broken, and what replaced it.</p>
+        <p>GPU layer offload, streaming, quantization treated as a measured variable, and two models sharing one 16 GB card. An <em>objective</em> quality metric judges each choice. In section 4 I find that my own quality metric was broken, and I show what replaced it.</p>
         <span class="go">Read the web version →</span>
         <div class="altlinks">also: <a href="writeups/02-gen-system-inference-optimization.md">markdown</a></div>
       </a>
@@ -192,7 +192,7 @@ html[data-lang="en"] .lang-block[data-lang="en"],html[data-lang="vi"] .lang-bloc
         <span class="num">Writeup 03</span>
         <h3>Reproducible benchmarking and regression gates</h3>
         <div class="tags"><span class="tag">benchmarking</span><span class="tag">regression gates</span><span class="tag">determinism</span></div>
-        <p>The method the other two rest on: frozen baselines, regression gates, repeatable runs, and why an objective metric that cannot move is worse than a proxy.</p>
+        <p>The other two rest on this method. It covers frozen baselines, regression gates and repeatable runs. It also shows why an objective metric that cannot move is worse than a proxy.</p>
         <span class="go">Read the web version →</span>
         <div class="altlinks">also: <a href="writeups/03-reproducible-benchmarking.md">markdown</a></div>
       </a>
@@ -243,7 +243,7 @@ html[data-lang="en"] .lang-block[data-lang="en"],html[data-lang="vi"] .lang-bloc
       <a class="card" href="benchmarks/README.md">
         <h3>Benchmarks</h3>
         <p>How to read each table, and the machine and models behind the gen-system numbers.</p>
-        <span class="go">How the numbers were made &rarr;</span>
+        <span class="go">How I made the numbers &rarr;</span>
         <div class="altlinks">also: <a href="benchmarks/results/measured.json">measured.json</a> · <a href="benchmarks/ENVIRONMENT.md">the machine and models</a></div>
       </a>
     </div>
@@ -254,10 +254,10 @@ html[data-lang="en"] .lang-block[data-lang="en"],html[data-lang="vi"] .lang-bloc
     <p class="sec-head">How I work</p>
     <h2 class="sec-title">Principles behind the numbers</h2>
     <div class="approach">
-      <div class="principle"><h4>Measured, not assumed</h4><p>Frozen baselines, regression gates, deterministic runs. If I say it got faster, there's a number behind it.</p></div>
-      <div class="principle"><h4>Correctness first performance</h4><p>In legal search, a fast wrong answer is worse than a slow right one. So an approximate index is a recall against latency trade off, chosen against a safety guarantee.</p></div>
-      <div class="principle"><h4>Objective quality metrics</h4><p>For code generation, "does it compile and pass tests?" beats a perplexity proxy, so quantization and tuning regressions are visible instead of hidden.</p></div>
-      <div class="principle"><h4>Opening black boxes</h4><p>Next: turning the GPU work from understanding into a hand written, profiled CUDA kernel inside gen-system, with Nsight traces before and after and a roofline analysis.</p></div>
+      <div class="principle"><h4>Measure before claiming</h4><p>Frozen baselines, regression gates, deterministic runs. If I say it got faster, there's a number behind it.</p></div>
+      <div class="principle"><h4>Correctness first performance</h4><p>In legal search, a fast wrong answer is worse than a slow right one. So an approximate index is a trade off between recall and latency. I pick its operating point against a safety rule.</p></div>
+      <div class="principle"><h4>Objective quality metrics</h4><p>For code generation, "does it compile and pass tests?" beats a perplexity proxy, so quantization and tuning regressions show up instead of hiding.</p></div>
+      <div class="principle"><h4>Opening black boxes</h4><p>Next I will turn the GPU work from understanding into a hand written, profiled CUDA kernel inside gen-system. It will come with Nsight traces before and after, and a roofline analysis.</p></div>
     </div>
   </section>
 
@@ -265,7 +265,7 @@ html[data-lang="en"] .lang-block[data-lang="en"],html[data-lang="vi"] .lang-bloc
   <section class="sec">
     <p class="sec-head">Runnable snippets</p>
     <h2 class="sec-title">Small, self-contained illustrations</h2>
-    <p class="sec-sub">Small examples that run on their own with toy data. The ideas in the writeups, made concrete. They contain none of the production code.</p>
+    <p class="sec-sub">Small examples that run on their own with toy data. They make the ideas in the writeups concrete. They contain none of the production code.</p>
     <div class="callout">
       Run them directly: <span class="snip">python3 snippets/toy_retrieval.py</span> · <span class="snip">python3 snippets/roofline_demo.py</span><br>
       <a href="snippets/README.md" style="color:var(--amber);font-weight:600;">See the snippets folder →</a>
@@ -275,7 +275,7 @@ html[data-lang="en"] .lang-block[data-lang="en"],html[data-lang="vi"] .lang-bloc
   <footer>
     <strong>Khoa Hoang</strong> · <a href="mailto:hpdkhoa2311@gmail.com">hpdkhoa2311@gmail.com</a> · <a href="https://github.com/hpdkhoa">github.com/hpdkhoa</a>
     <br><br>
-    <strong>What is public.</strong> The writeups, architecture, benchmark tables and snippets here are yours to read and quote with attribution, under the <a href="LICENSE">license in the repo</a>. gen-system (Apache-2.0) and poselab-mcp (MIT) carry their own licenses in their own repositories. The HieuLuat implementation is proprietary and not included.
+    <strong>What is public.</strong> The writeups, architecture, benchmark tables and snippets here are yours to read and quote with attribution, under the <a href="LICENSE">license in the repo</a>. gen-system (Apache-2.0) and poselab-mcp (MIT) carry their own licenses in their own repositories. The HieuLuat implementation is proprietary, and this repository does not hold it.
     <br><br>
     <a href="https://github.com/hpdkhoa/engineering-notes">This repository on GitHub</a> ·
     <a href="README.md">README</a> ·
@@ -301,7 +301,7 @@ html[data-lang="en"] .lang-block[data-lang="en"],html[data-lang="vi"] .lang-bloc
     </div>
     <div class="kicker">Khoa Hoang · hệ thống, LLM ứng dụng, GPU và inference</div>
     <h1 class="title">Tôi xây dựng hệ thống, đưa sản phẩm LLM ứng dụng vào sử dụng, và đo chúng trên GPU.</h1>
-    <p class="lede">Đây là kiến trúc và <strong>kết quả đo</strong> của các hệ thống tôi xây. gen-system và poselab-mcp là mã nguồn mở. HieuLuat đã ngừng phát triển sau khi công ty được mua lại; bài viết về nó được giữ lại để ghi nhận phương pháp.</p>
+    <p class="lede">Đây là kiến trúc và <strong>kết quả đo</strong> của các hệ thống tôi xây. gen-system và poselab-mcp là mã nguồn mở. HieuLuat đã ngừng phát triển sau khi công ty được mua lại; tôi giữ lại bài viết về nó để ghi nhận phương pháp.</p>
     <div class="cta-row">
       <a class="btn primary" href="#writeups-vi">Đọc các bài phân tích
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
@@ -324,7 +324,7 @@ html[data-lang="en"] .lang-block[data-lang="en"],html[data-lang="vi"] .lang-bloc
         <span class="num">Bài viết 01</span>
         <h3>Làm cho luồng tìm kiếm pháp luật nhanh mà vẫn đúng</h3>
         <div class="tags"><span class="tag">RAG</span><span class="tag">pgvector</span><span class="tag">FP16 embeddings</span><span class="tag">rerank</span></div>
-        <p>Vector index, retrieval rồi rerank, và embedding FP16. Các đánh đổi giữa recall, latency và chất lượng đã đo trên một eval set cố định. Bài có một kết quả âm tính: reranker tốn 384 ms mà không cải thiện được gì. Mục 6 xác định lỗi đó thuộc về thành phần nào. HieuLuat đã ngừng phát triển sau khi công ty được mua lại.</p>
+        <p>Vector index, retrieval rồi rerank, và embedding FP16. Các đánh đổi giữa recall, latency và chất lượng đã đo trên một eval set cố định. Bài có một kết quả âm tính. Reranker tốn 384 ms mà không cải thiện được gì. Mục 6 xác định lỗi đó thuộc về thành phần nào. HieuLuat đã ngừng phát triển sau khi công ty được mua lại.</p>
         <span class="go">Đọc bản web →</span>
         <div class="altlinks">hoặc: <a href="writeups/01-hieuluat-retrieval-optimization.vi.md">markdown</a></div>
       </a>
@@ -333,7 +333,7 @@ html[data-lang="en"] .lang-block[data-lang="en"],html[data-lang="vi"] .lang-bloc
         <span class="num">Bài viết 02</span>
         <h3>Tinh chỉnh inference LLM cục bộ cho một công cụ xử lý code</h3>
         <div class="tags"><span class="tag">inference</span><span class="tag">quantization</span><span class="tag">GPU offload</span><span class="tag">streaming</span></div>
-        <p>Offload layer lên GPU, streaming, quantization coi như một biến số và đem đo, và hai model dùng chung một card 16 GB. Các lựa chọn này được đánh giá bằng một thước đo chất lượng <em>khách quan</em>. Mục 4 kể việc tôi phát hiện thước đo chất lượng của chính mình bị hỏng, và thứ đã thay thế nó.</p>
+        <p>Offload layer lên GPU, streaming, quantization coi như một biến số và đem đo, và hai model dùng chung một card 16 GB. Một thước đo chất lượng <em>khách quan</em> chấm từng lựa chọn. Mục 4 kể việc tôi phát hiện thước đo chất lượng của chính mình bị hỏng, và thứ đã thay thế nó.</p>
         <span class="go">Đọc bản web →</span>
         <div class="altlinks">hoặc: <a href="writeups/02-gen-system-inference-optimization.vi.md">markdown</a></div>
       </a>
@@ -342,7 +342,7 @@ html[data-lang="en"] .lang-block[data-lang="en"],html[data-lang="vi"] .lang-bloc
         <span class="num">Bài viết 03</span>
         <h3>Benchmark tái lập được và regression gate</h3>
         <div class="tags"><span class="tag">benchmark</span><span class="tag">các regression gate</span><span class="tag">tính determinism</span></div>
-        <p>Đây là phương pháp mà hai bài còn lại dựa vào: baseline cố định, regression gate, các lần chạy lặp lại được. Bài cũng giải thích vì sao một thước đo khách quan không bao giờ thay đổi còn tệ hơn một thước đo gián tiếp.</p>
+        <p>Hai bài còn lại dựa vào phương pháp này. Nó gồm baseline cố định, regression gate và các lần chạy lặp lại được. Bài cũng giải thích vì sao một thước đo khách quan không bao giờ thay đổi còn tệ hơn một thước đo gián tiếp.</p>
         <span class="go">Đọc bản web →</span>
         <div class="altlinks">hoặc: <a href="writeups/03-reproducible-benchmarking.vi.md">markdown</a></div>
       </a>
@@ -393,7 +393,7 @@ html[data-lang="en"] .lang-block[data-lang="en"],html[data-lang="vi"] .lang-bloc
       <a class="card" href="benchmarks/README.vi.md">
         <h3>Benchmark</h3>
         <p>Cách đọc từng bảng, và máy cùng các model đứng sau các con số của gen-system.</p>
-        <span class="go">Các con số ra đời thế nào &rarr;</span>
+        <span class="go">Tôi tạo ra các con số thế nào &rarr;</span>
         <div class="altlinks">hoặc: <a href="benchmarks/results/measured.json">measured.json</a> · <a href="benchmarks/ENVIRONMENT.vi.md">máy và các model</a></div>
       </a>
     </div>
@@ -404,10 +404,10 @@ html[data-lang="en"] .lang-block[data-lang="en"],html[data-lang="vi"] .lang-bloc
     <p class="sec-head">Cách tôi làm việc</p>
     <h2 class="sec-title">Các nguyên tắc đứng sau con số</h2>
     <div class="approach">
-      <div class="principle"><h4>Đo, không giả định</h4><p>Baseline cố định, regression gate, các lần chạy deterministic. Nếu tôi nói hệ thống nhanh hơn, có một con số đứng sau câu đó.</p></div>
-      <div class="principle"><h4>Tính đúng trước, hiệu năng sau</h4><p>Trong tìm kiếm pháp luật, một câu trả lời nhanh mà sai còn tệ hơn một câu trả lời chậm mà đúng. Vì vậy một index xấp xỉ là một đánh đổi giữa recall và latency. Đánh đổi đó được chọn dựa trên một bảo đảm an toàn.</p></div>
-      <div class="principle"><h4>Thước đo chất lượng khách quan</h4><p>Với việc sinh code, câu hỏi "code có biên dịch và qua test không?" tốt hơn một thước đo gián tiếp như perplexity. Nhờ vậy các regression do quantization và tinh chỉnh lộ ra, thay vì bị che giấu.</p></div>
-      <div class="principle"><h4>Mở hộp đen</h4><p>Bước tiếp theo: đưa phần việc GPU từ mức hiểu sang một CUDA kernel viết tay, đã qua profiler, nằm trong gen-system. Kèm theo là trace Nsight trước và sau, cùng một phân tích roofline.</p></div>
+      <div class="principle"><h4>Đo rồi mới nói</h4><p>Baseline cố định, regression gate, các lần chạy deterministic. Nếu tôi nói hệ thống nhanh hơn, có một con số đứng sau câu đó.</p></div>
+      <div class="principle"><h4>Tính đúng trước, hiệu năng sau</h4><p>Trong tìm kiếm pháp luật, một câu trả lời nhanh mà sai còn tệ hơn một câu trả lời chậm mà đúng. Vì vậy một index xấp xỉ là một đánh đổi giữa recall và latency. Tôi chọn điểm đánh đổi dựa trên một quy tắc an toàn.</p></div>
+      <div class="principle"><h4>Thước đo chất lượng khách quan</h4><p>Với việc sinh code, câu hỏi "code có biên dịch và qua test không?" tốt hơn một thước đo gián tiếp như perplexity. Nhờ vậy các regression do quantization và tinh chỉnh lộ ra, thay vì ẩn đi.</p></div>
+      <div class="principle"><h4>Mở hộp đen</h4><p>Bước tiếp theo, tôi sẽ đưa phần việc GPU từ mức hiểu sang một CUDA kernel viết tay, đã qua profiler, nằm trong gen-system. Kèm theo là trace Nsight trước và sau, cùng một phân tích roofline.</p></div>
     </div>
   </section>
 
@@ -425,7 +425,7 @@ html[data-lang="en"] .lang-block[data-lang="en"],html[data-lang="vi"] .lang-bloc
   <footer>
     <strong>Khoa Hoang</strong> · <a href="mailto:hpdkhoa2311@gmail.com">hpdkhoa2311@gmail.com</a> · <a href="https://github.com/hpdkhoa">github.com/hpdkhoa</a>
     <br><br>
-    <strong>Những gì được công khai.</strong> Các writeup, kiến trúc, bảng benchmark và snippet ở đây để bạn đọc và trích dẫn kèm ghi nguồn, theo <a href="LICENSE">giấy phép trong repo</a>. gen-system (Apache-2.0) và poselab-mcp (MIT) có giấy phép riêng trong repo của chúng. Phần triển khai của HieuLuat là độc quyền và không có ở đây.
+    <strong>Những gì công khai.</strong> Các writeup, kiến trúc, bảng benchmark và snippet ở đây để bạn đọc và trích dẫn kèm ghi nguồn, theo <a href="LICENSE">giấy phép trong repo</a>. gen-system (Apache-2.0) và poselab-mcp (MIT) có giấy phép riêng trong repo của chúng. Phần triển khai của HieuLuat là độc quyền, và repo này không chứa nó.
     <br><br>
     <a href="https://github.com/hpdkhoa/engineering-notes">Repo này trên GitHub</a> ·
     <a href="README.vi.md">README</a> ·

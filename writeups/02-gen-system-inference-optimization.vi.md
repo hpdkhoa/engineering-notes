@@ -4,11 +4,12 @@
 
 ### GPU offload, streaming, quantization, và hai model dùng chung một card phổ thông
 
-> **Bối cảnh:** gen-system ghi ra từng giả định của model AI về code, để người đọc nhìn thấy và kiểm
-> tra được. Nó neo model vào một graph dựng từ AST, và kiểm chứng đầu ra từ bên ngoài. Mã nguồn
-> mở theo Apache-2.0 tại [github.com/hpdkhoa/gen-system](https://github.com/hpdkhoa/gen-system). **Nội dung bài này:** tinh chỉnh tầng inference của nó. Phép kiểm tra chất lượng là
-> khách quan: code sinh ra hoặc build được và qua test của nó, hoặc không. Mục 4 giải thích vì sao
-> phiên bản dễ nghĩ tới nhất của phép kiểm tra đó vô dụng, và cái gì đã thay thế nó.
+> **Bối cảnh:** với mỗi routine, gen-system liệt kê input, các lời gọi, dữ liệu nó ghi và hành động
+> mà tên của nó gợi ý, rồi đối chiếu các nhận định của model với những điều đó. Nó neo model vào một graph dựng từ AST, và kiểm chứng đầu ra từ bên ngoài. Mã nguồn
+> mở theo Apache-2.0 tại [github.com/hpdkhoa/gen-system](https://github.com/hpdkhoa/gen-system).
+> **Nội dung bài này:** tinh chỉnh tầng inference của nó. Phép kiểm tra chất lượng là khách quan.
+> Code sinh ra hoặc build được và qua test của nó, hoặc không. Mục 4 giải thích vì sao phiên bản dễ
+> nghĩ tới nhất của phép kiểm tra đó vô dụng, và cái gì đã thay thế nó.
 
 ---
 
@@ -28,20 +29,19 @@ chỉ ra chỗ việc ghim tham số không còn giữ được.
 ## 1. Hiện trạng ban đầu
 
 Mọi lệnh inference đi qua một client duy nhất tới một runtime Ollama cục bộ. Nó đúng và
-deterministic, nhưng chưa ai tinh chỉnh gì trong đó.
+deterministic, nhưng tôi chưa tinh chỉnh gì trong đó.
 
-- **Mỗi lệnh gọi đều chờ toàn bộ câu trả lời.** Client bị chặn cho tới khi sinh xong. Một lần sinh
+- Mỗi lệnh gọi đều chờ toàn bộ câu trả lời. Client đứng chờ cho tới khi sinh xong. Một lần sinh
   code dài phải chờ trọn thời gian trước khi token đầu tiên xuất hiện. Không bước nào phía sau có
   thể bắt đầu sớm.
-- **Không có điều khiển GPU nào.** Tùy chọn của request đặt temperature, seed và top_p. Không có gì
+- Không có điều khiển GPU nào. Tùy chọn của request đặt temperature, seed và top_p. Không có gì
   quy định cách GPU chạy model. Không có layer offload, không có kích thước context, không có kích
   thước batch. Runtime chạy theo giá trị mặc định.
-- **Quantization bị cố định.** Tag của model mang một mức quant. Đó là một lựa chọn, chưa bao giờ là
-  một phép đo.
-- **Hai model dùng chung 16 GB.** Đây là lý do hệ thống cần keep alive và một timeout dài. Một lần
+- Quantization cố định. Tag của model mang một mức quant. Tôi đã chọn nó mà không đo.
+- Hai model dùng chung 16 GB. Đây là lý do hệ thống cần keep alive và một timeout dài. Một lần
   nạp lại model có thể rơi vào giữa một lần chạy, và không có gì đo nó tốn bao nhiêu.
 
-Các test determinism, cổng compile và bước verify đã có sẵn. Chưa ai đo thứ gì nằm bên dưới chúng.
+Các test determinism, cổng compile và bước verify đã có sẵn. Tôi chưa đo thứ gì nằm bên dưới chúng.
 
 ## 2. Bước 1: mở các tham số điều khiển GPU
 
@@ -54,21 +54,20 @@ gửi kèm mọi request:
 | `OLLAMA_NUM_CTX` | Kích thước cửa sổ context. KV cache tăng theo nó. Prompt ở đây lớn, nên thiết lập này đánh đổi VRAM lấy năng lực. |
 | `OLLAMA_NUM_BATCH` | Kích thước batch khi xử lý prompt. Nó quyết định tốc độ prefill. |
 
-Mỗi thiết lập bị bỏ khỏi request khi biến của nó chưa được đặt. Một máy không đặt biến nào sẽ gửi
-đúng request như client cũ. Tính chất đó giữ cho phép đo trung thực. Lần chạy đã tinh chỉnh và lần
-chạy chưa tinh chỉnh chỉ khác nhau ở thiết lập đang được thử.
+Hàm bỏ mỗi thiết lập khỏi request khi biến của nó chưa đặt. Một máy không đặt biến nào sẽ gửi đúng
+request như client cũ. Nhờ vậy, lần chạy đã tinh chỉnh và lần chạy chưa tinh chỉnh chỉ khác nhau ở
+thiết lập đang thử.
 
 Bench driver quét `OLLAMA_NUM_GPU` và lấy mẫu VRAM đỉnh ở mỗi bước.
 
 ## 3. Bước 2: bật streaming đầu ra
 
-Streaming được bật qua `OLLAMA_STREAM`. Bộ đọc tiêu thụ stream và ghép các mảnh lại thành một chuỗi.
-Chuỗi đó giống hệt chuỗi mà đường buffered cũ trả về.
+`OLLAMA_STREAM` bật streaming. Bộ đọc tiêu thụ stream và ghép các mảnh lại thành một chuỗi. Chuỗi
+đó giống hệt chuỗi mà đường buffered cũ trả về.
 
-Mọi thứ phía sau nhận cùng một đầu vào trong cả hai trường
-hợp: bước trích JSON, quy tắc thân hàm sinh ra phải trả về riêng lẻ, và bước kiểm tra determinism.
-Tầng truyền tải không được phép thay đổi ý nghĩa. Một test khẳng định chỉ có một đầu ra duy nhất qua
-năm response streaming giống hệt nhau.
+Mọi thứ phía sau nhận cùng một đầu vào trong cả hai trường hợp: bước trích JSON, quy tắc thân hàm
+sinh ra phải trả về riêng lẻ, và bước kiểm tra determinism. Streaming chỉ thay đổi thời điểm văn bản
+tới. Một test khẳng định chỉ có một đầu ra duy nhất qua năm response streaming giống hệt nhau.
 
 Buffered vẫn là mặc định. Streaming phải bật chủ động cho tới khi phép đo cho thấy điều khác.
 
@@ -77,24 +76,21 @@ một prompt, mỗi cấu hình ba lần chạy.
 
 ## 4. Bước 3: quantization, và thước đo sai lệch bên dưới
 
-Ở đây quantization là một thí nghiệm, không phải một lựa chọn cố định. Cùng một model chạy ở Q4_K_M,
-Q5_K_M và Q8_0 cho vai trò coder, với planner giữ cố định. Mỗi lần chạy đo tốc độ, VRAM và chất
-lượng.
+Ở đây quantization trở thành một thí nghiệm. Cùng một model chạy ở Q4_K_M, Q5_K_M và Q8_0 cho vai
+trò coder, với planner giữ cố định. Mỗi lần chạy đo tốc độ, VRAM và chất lượng.
 
 Ở phiên bản đầu của writeup này, tôi đã làm sai trục chất lượng.
 
-**Thước đo dễ nghĩ tới nhất không dùng được.** Kế hoạch là báo cáo tỷ lệ compile thành công. Code
-sinh ra hoặc build được, hoặc không. Mọi lần chạy đều ra 100 phần trăm.
+Thước đo dễ nghĩ tới nhất không dùng được. Tôi định báo cáo tỷ lệ compile thành công, vì code sinh
+ra hoặc build được, hoặc không. Mọi lần chạy đều ra 100 phần trăm.
 
-Con số 100 phần trăm đó là **do chính cách thiết kế**. Khi một operation do model viết
-không compile được, công cụ gửi nó lại cho model kèm lỗi build. Nếu vẫn lỗi, công cụ thay thân hàm
-bằng một stub `not implemented` tường minh. Stub compile được. Service luôn build được.
+Con số 100 phần trăm đó là do chính cách thiết kế. Khi một operation do model viết không compile
+được, công cụ gửi nó lại cho model kèm lỗi build. Nếu vẫn lỗi, công cụ thay thân hàm bằng một stub
+`not implemented` tường minh. Stub compile được. Service luôn build được.
 
-Một thước đo không thể giảm thì không đo được gì. Một mức quantization làm hỏng nặng đầu ra vẫn đạt
-100 phần trăm.
+Con số đó không thể giảm. Một mức quantization làm hỏng nặng đầu ra vẫn đạt 100 phần trăm.
 
-**Cái đã thay thế nó.** Phần đo đạc giờ đếm những gì thực sự thay đổi. Tất cả đến từ cùng đường code
-mà production dùng:
+Phần đo đạc giờ đếm những gì thực sự thay đổi. Tất cả đến từ cùng đường code mà production dùng:
 
 | Thước đo | Nó bắt được gì |
 |---|---|
@@ -108,23 +104,22 @@ mà production dùng:
 Harness vẫn báo tỷ lệ compile thành công. Nó không còn là con số chính. Tôi đã ghi ra lý do nó
 vô dụng.
 
-Bộ task gồm năm ý tưởng ứng dụng cố định. Chúng được đóng băng và commit trước lần chạy đầu tiên,
-nên không thể chỉnh chúng cho khớp với kết quả.
+Bộ task gồm năm ý tưởng ứng dụng cố định. Tôi đã đóng băng và commit chúng trước lần chạy đầu tiên,
+nên tôi không thể chỉnh chúng cho khớp với kết quả.
 
 ## 5. Bước 4: hai model, một card
 
-Hai model phải dùng chung 16 GB. Ba chiến
-lược chạy trên cùng bộ task đã đóng băng:
+Hai model phải dùng chung 16 GB. Ba chiến lược chạy trên cùng bộ task đã đóng băng:
 
 | Chiến lược | Nó là gì | Nó tốn gì |
 |---|---|---|
-| A. Tuần tự với keep alive | Mặc định của production. Mỗi lúc chỉ một model nằm trong bộ nhớ. | Một lần nạp lại model khi đổi vai trò. Đo bằng chênh lệch thời gian nạp. |
-| B. Cả hai cùng nằm trong bộ nhớ | Keep alive không bao giờ hết hạn, nên cả hai model lẽ ra đều được giữ nóng. | Khoảng trống VRAM, và tốc độ khi tranh chấp tài nguyên. Việc cả hai có vừa hay không tự nó là một kết quả, và mục 6 đưa ra câu trả lời. |
+| A. Tuần tự với keep alive | Mặc định của production. Mỗi lúc chỉ một model nằm trong bộ nhớ. | Một lần nạp lại model khi đổi vai trò. Tôi đo nó bằng chênh lệch thời gian nạp. |
+| B. Cả hai cùng nằm trong bộ nhớ | Keep alive không bao giờ hết hạn, nên lẽ ra cả hai model đều luôn nóng. | Khoảng trống VRAM, và tốc độ khi tranh chấp tài nguyên. Việc cả hai có vừa hay không tự nó là một kết quả, và mục 6 đưa ra câu trả lời. |
 | C. Một model dùng chung | Model coder cũng lập kế hoạch, nên không bao giờ phải đổi model. | Chất lượng lập kế hoạch, thể hiện qua stub rate, số vòng sửa và các entity thừa. |
 
-**Không có scheduler.** "Lập lịch tuần tự với keep
-alive" nghĩa là keep alive có sẵn của Ollama, hai vai trò model, và phép đo chi phí của cách làm đó.
-Không có dòng code lập lịch nào được viết. Nói khác đi sẽ không đứng vững khi ai đó đọc mã nguồn.
+Không có scheduler. "Lập lịch tuần tự với keep alive" nghĩa là keep alive có sẵn của Ollama, hai
+vai trò model, và phép đo chi phí của cách làm đó. Tôi không viết dòng code lập lịch nào, và mã
+nguồn cho thấy điều đó.
 
 ## 6. Kết quả đo
 
@@ -215,132 +210,134 @@ Không có dòng code lập lịch nào được viết. Nói khác đi sẽ kh�
 
 ### Diễn giải số liệu
 
-| Thay đổi | Tác động | Đã đo gì |
+| Thay đổi | Tác động | Tôi đo gì |
 |---|---|---|
-| Điều khiển GPU | Tốc độ và khả năng vừa trên một card | Tokens per second và VRAM đỉnh theo số layer được offload |
+| Điều khiển GPU | Tốc độ và khả năng vừa trên một card | Tokens per second và VRAM đỉnh theo số layer offload |
 | Streaming | Time to first token thấp hơn | Time to first token và tổng thời gian, bật và tắt, ba lần chạy |
 | Quantization | Tốc độ và VRAM đánh đổi với chất lượng | Tốc độ, VRAM, stub rate, số vòng sửa, test pass |
 | Chiến lược hai model | Phục vụ mà không phải nạp lại model | Chi phí nạp lại, tốc độ, stub rate qua ba chiến lược |
 
 Mọi bảng ở trên đến từ một campaign ngày 2026-09-09. Ba campaign trước đó dẫn tới nó, và mỗi
 campaign tìm ra một vấn đề mà các bảng giờ đã phản ánh. Campaign đầu chạy trên code chưa commit.
-Campaign thứ hai và thứ ba thực ra là một lần chạy vắt qua nửa đêm và bị tách thành hai thư mục.
+Campaign thứ hai và thứ ba thực ra là một lần chạy vắt qua nửa đêm rồi tách thành hai thư mục.
 Việc tách đó làm lộ ra một bug về ngày trong các driver.
 
-**Thước đo chất lượng đã dịch chuyển.** Stub rate khác nhau ở mỗi mức quantization. Đó chính là mục
+Thước đo chất lượng đã dịch chuyển. Stub rate khác nhau ở mỗi mức quantization. Đó chính là mục
 đích của việc thay tỷ lệ compile thành công, vốn luôn là 100 phần trăm do cách thiết kế. Tôi cần ít
 nhất một thước đo chất lượng thay đổi theo mức quant. Stub rate có thay đổi, trong mọi campaign tới nay.
 
-**Model nghiên cứu viết được rất ít code compile được.** DeepSeek Coder V2 Lite ở Q4_K_M đề xuất
+Model nghiên cứu viết được rất ít code compile được. DeepSeek Coder V2 Lite ở Q4_K_M đề xuất
 khoảng 25 operation mỗi lần chạy. Gần như operation nào cũng lùi về stub sau hai vòng sửa. Q8_0 làm
 tốt hơn, nhưng vẫn phải dùng stub cho phần lớn những gì nó viết. Model coder của production đề xuất
-ít operation hơn nhiều mỗi lần chạy, và khoảng một nửa trong số đó được giữ lại. Các dòng không cùng
-cơ sở so sánh: một dòng dựa trên khoảng 25 operation, dòng kia dựa trên 3. Cột `ops_total` có mặt để
+ít operation hơn nhiều mỗi lần chạy, và khoảng một nửa trong số đó trụ lại. Các dòng không cùng
+cơ sở so sánh. Một dòng dựa trên khoảng 25 operation, dòng kia dựa trên 3. Cột `ops_total` có mặt để
 người đọc thấy điều đó trước khi so sánh stub rate.
 
-**Vòng sửa ở cấp task có chạy, nhưng hiếm.** Trong phần lớn các lần chạy, `heal_attempts` là 0 và
+Vòng sửa ở cấp task có chạy, nhưng hiếm. Trong phần lớn các lần chạy, `heal_attempts` là 0 và
 `go_test_pass` là 5 trên 5. Cả hai đều do cách thiết kế: stub compile được và qua test. Trong một lần
 chạy Q8_0, backend sinh ra build được, test của chính nó fail, và vòng sửa cấp task chạy chín lần.
 Phải qua bốn campaign mới thấy cột đó dịch chuyển hai lần. Số 0 ở đó chỉ có nghĩa là test đã qua,
 mà stub thì luôn qua test.
 
-**Tốc độ và chất lượng đi theo hai hướng ngược nhau.** Q4_K_M nhanh hơn Q8_0 khoảng ba lần tính theo
+Tốc độ và chất lượng đi theo hai hướng ngược nhau. Q4_K_M nhanh hơn Q8_0 khoảng ba lần tính theo
 tokens per second và dùng ít hơn khoảng 4 GB VRAM. Nó cũng gần như không tạo ra được gì compile được.
 Vì vậy tốc độ không đổi lại được gì.
 
-**Chiến lược B từng không đo được gì, và giờ harness bắt được lỗi đó.** Trong campaign đầu tiên,
+Chiến lược B từng không đo được gì, và giờ harness bắt được lỗi đó. Trong campaign đầu tiên,
 driver đặt `OLLAMA_KEEP_ALIVE=-1`. Lớp gửi request gửi giá trị đó dưới dạng chuỗi "-1". Ollama từ
 chối mọi request, và schema dự phòng offline vẫn build xanh. Lần tổng hợp đầu tiên cho thấy B có stub
-rate 0 phần trăm, dòng tốt nhất trong bảng. Sau đó có ba bản sửa. Lớp gửi request gửi một số nguyên
-trần dưới dạng số. Pipeline đánh dấu một ý tưởng không có request model nào hoàn tất là chưa được
-đo. Bộ tổng hợp loại bỏ những lần chạy đó và đếm chúng trong `runs_not_measured`. Cột đó bằng 0 ở
-mọi dòng phía trên.
+rate 0 phần trăm, dòng tốt nhất trong bảng. Sau đó tôi sửa ba chỗ. Lớp gửi request gửi một số nguyên
+trần dưới dạng số. Pipeline đánh dấu một ý tưởng không có request model nào hoàn tất là chưa đo. Bộ
+tổng hợp loại bỏ những lần chạy đó và đếm chúng trong `runs_not_measured`. Cột đó bằng 0 ở mọi dòng
+phía trên.
 
-**Ba chiến lược là cùng một chiến lược trên card này.** Chi phí nạp lại và tokens per second giống
+Ba chiến lược là cùng một chiến lược trên card này. Chi phí nạp lại và tokens per second giống
 hệt nhau giữa A, B và C. Bản ghi `ollama ps` ở cuối lần chạy B cho thấy một model nằm trong bộ nhớ,
 không phải hai. Planner nặng 9.3 GB trên đĩa và coder nặng 9.0 GB. Mỗi model cần KV cache và runtime
 đi kèm, nên cặp này không vừa cùng lúc trong 16 GB. "Cả hai cùng nằm trong bộ nhớ" suy biến thành
 đúng những gì A làm.
 
-**Sampling đã ghim cho ra hai đầu ra, không phải một.** Temperature 0, seed 42 và top_p 1 được đặt
+Sampling đã ghim cho ra hai đầu ra, không phải một. Client đặt temperature 0, seed 42 và top_p 1
 trên mọi request. Với cặp model production, mọi lần chạy của mọi campaign đều rơi vào đúng một trong
-hai đầu ra. Một đầu ra có hai trong ba operation bị thay bằng stub, đầu ra kia không có operation
-nào bị thay. Trong một campaign, chiến lược A nhận đầu ra thứ nhất cả ba lần và B nhận đầu ra thứ
-hai. Ở campaign kế tiếp, phân bổ đảo ngược: A nhận đầu ra thứ hai cả ba lần và B nhận đầu ra thứ
-nhất. Một lần chạy rơi vào đầu ra nào phụ thuộc vào trạng thái server, không phụ thuộc vào chiến
-lược. Với ba operation mỗi lần chạy, một lần đảo làm stub rate thay đổi một phần ba. Đó là lý do mọi
-dòng đều ghi n và khoảng giá trị. Đó cũng là lý do không nên đọc cột stub rate trong bảng chiến lược
-như tác động của chiến lược.
+hai đầu ra. Một đầu ra có hai trong ba operation thành stub, đầu ra kia không có stub nào. Trong một
+campaign, chiến lược A nhận đầu ra thứ nhất cả ba lần và B nhận đầu ra thứ hai. Ở campaign kế tiếp,
+phân bổ đảo ngược: A nhận đầu ra thứ hai cả ba lần và B nhận đầu ra thứ nhất. Một lần chạy rơi vào
+đầu ra nào phụ thuộc vào trạng thái server, không phụ thuộc vào chiến lược. Với ba operation mỗi lần
+chạy, một lần đảo làm stub rate thay đổi một phần ba. Đó là lý do mọi dòng đều ghi n và khoảng giá
+trị. Đó cũng là lý do người đọc không nên coi cột stub rate trong bảng chiến lược là tác động của
+chiến lược.
 
-**Một thước đo thứ hai cũng là 100 phần trăm do cách thiết kế.** Trước campaign này, bước verify tính
+Một thước đo thứ hai cũng là 100 phần trăm do cách thiết kế. Trước campaign này, bước verify tính
 một lời gọi là nội bộ khi có bất kỳ symbol nào mang tên trần của nó. Sau đó nó resolve lời gọi theo
 chính tên trần đó. Vì vậy một repo Python luôn đạt 100 phần trăm resolve nội bộ. Giờ resolver đi
 theo một lời gọi có tiền tố package qua các import của hàm gọi. Một lời gọi mà nó không định vị được
 thì vẫn là chưa resolve. Trên cùng các repo SWE-bench, tỷ lệ resolve nội bộ giờ là 92.6 phần trăm
 cho astropy và 96.1 phần trăm cho django. Số cạnh nội bộ trên các repo Go giảm tới một phần bảy. Các
-lời gọi vào package mà index không chứa giờ được tính là bên ngoài, thay vì bị bắt nhầm. Đó là những
-con số thật thay cho một mệnh đề luôn đúng. Cùng thay đổi đó giảm verify findings trên các backend
-sinh ra từ vài trăm mỗi lần chạy, gần như toàn là lời gọi thư viện chuẩn, xuống còn 0.
+lời gọi vào package mà index không chứa giờ tính là bên ngoài, thay vì khớp nhầm với một symbol. Các
+con số này có thể thay đổi, còn con số cũ thì không. Cùng thay đổi đó giảm verify findings trên các
+backend sinh ra từ vài trăm mỗi lần chạy, gần như toàn là lời gọi thư viện chuẩn, xuống còn 0.
 
-**SWE-bench: đọc cột neighbourhood trước cột recall.** Bảng này là localization recall trên 60 task
-đầu tiên của SWE-bench Verified theo thứ tự instance, gồm 22 task astropy và 38 task django. Nó không
-phải solve rate. Hop 1 không thêm gì so với hop 0. Các định danh seed lấy từ nội dung issue hoặc đã
-nằm sẵn trong các file gold, hoặc không. Hop 2 tăng recall trong khi neighbourhood trung vị phình tới
-khoảng 420 file, tức hơn một nửa astropy và một phần sáu django. Một tấm lưới rộng như vậy bắt được
-file gold nhờ độ rộng. Resolver chặt hơn đã thu nhỏ neighbourhood đó khoảng một phần mười mà recall
-không đổi. Điều đó cho thấy độ rộng chưa bao giờ là thứ tạo ra kết quả. Quy tắc seed lấy tối đa 80
-định danh từ nội dung issue theo đúng tên. Trong một repo 2.500 file, một cái tên như `Model` khớp ở
-hàng trăm chỗ. Thước đo này trung thực về điều đó, vì kích thước neighbourhood được in ngay cạnh nó.
-Một quy tắc seed chặt hơn là thứ tiếp theo cần xây. Con số sẽ giảm khi quy tắc đó được xây xong.
+Với SWE-bench, hãy đọc cột neighbourhood trước cột recall. Bảng này là localization recall trên 60
+task đầu tiên của SWE-bench Verified theo thứ tự instance, gồm 22 task astropy và 38 task django. Nó
+không phải solve rate. Hop 1 không thêm gì so với hop 0. Các định danh seed lấy từ nội dung issue
+hoặc đã nằm sẵn trong các file gold, hoặc không. Hop 2 tăng recall trong khi neighbourhood trung vị
+phình tới khoảng 420 file, tức hơn một nửa astropy và một phần sáu django. Ở độ rộng đó, tấm lưới
+bắt được file gold bằng cách phủ phần lớn repo. Resolver chặt hơn đã thu nhỏ neighbourhood đó khoảng
+một phần mười mà recall không đổi. Điều đó cho thấy độ rộng chưa bao giờ là thứ tạo ra kết quả. Quy
+tắc seed lấy tối đa 80 định danh từ nội dung issue theo đúng tên. Trong một repo 2.500 file, một cái
+tên như `Model` khớp ở hàng trăm chỗ. Bảng in kích thước neighbourhood ngay cạnh recall, nên người
+đọc thấy được điều đó. Quy tắc seed chặt hơn là thứ tiếp theo tôi sẽ xây. Con số sẽ giảm khi tôi xây
+xong.
 
 ## 7. Hướng phát triển
 
-Có hai hướng, chưa hướng nào xong.
+Có hai hướng, và tôi chưa xong hướng nào.
 
 Hướng thứ nhất là một kernel sinh token viết tay, đo bằng chính harness này. Kernel đó là phép nhân
-ma trận với vector trên các trọng số đã quantize của model coder. Nó được profile bằng Nsight và so
-với tokens per second mà Ollama đạt trong bảng quantization. Roofline cho việc đó là một phép chia:
-băng thông bộ nhớ chia cho số byte trọng số phải đọc cho mỗi token. Dòng production ở trên đã đạt 96
-phần trăm mức đó. Nhiệm vụ của kernel là tái hiện mức trần đó bằng code của chính tôi, và chỉ ra
-khoảng cách còn lại nằm ở đâu.
+ma trận với vector trên các trọng số đã quantize của model coder. Tôi sẽ profile nó bằng Nsight và
+so với tokens per second mà Ollama đạt trong bảng quantization. Roofline cho việc đó là một phép
+chia: băng thông bộ nhớ chia cho số byte trọng số phải đọc cho mỗi token. Dòng production ở trên đã
+đạt 96 phần trăm mức đó. Nhiệm vụ của kernel là tái hiện mức trần đó bằng code của chính tôi, và chỉ
+ra khoảng cách còn lại nằm ở đâu.
 
 Hướng thứ hai là đưa các graph luồng điều khiển đã render quay lại cho model làm ngữ cảnh sửa lỗi,
 đặt sau một cờ, và đo nó đúng cách. Tôi dự đoán không có tác động với việc sửa code Go, vì compiler
 đã báo cho model biết sai ở đâu. Tôi dự đoán có thể có tác động với COBOL và với việc làm giàu niềm
-tin, nơi không có compiler để dựa vào. Kết quả sẽ được công bố dù thế nào, kể cả khi không có tác
+tin, nơi không có compiler để dựa vào. Tôi sẽ công bố kết quả dù thế nào, kể cả khi không có tác
 động.
 
 ## 8. Ba phát hiện khi đọc lại code của chính mình
 
-**Hai bug determinism, tìm ra khi đọc lại code của chính tôi.**
-Determinism là tuyên bố chịu lực của hệ thống này: temperature 0, seed cố định, đầu ra giống hệt
-nhau. Bước resolve symbol đã phá vỡ nó. Nó lấy kết quả khớp đầu tiên khi duyệt một map trong Go, và
-Go xáo ngẫu nhiên thứ tự đó. Hai symbol export có cùng tên ngắn có thể resolve khác nhau giữa các
-lần chạy, và call graph lặng lẽ đổi hình dạng.
+Tôi tìm ra hai bug determinism khi đọc lại code của chính mình. Determinism là tuyên bố chịu lực của
+hệ thống này: temperature 0, seed cố định, đầu ra giống hệt nhau. Bước resolve symbol đã phá vỡ nó.
+Nó lấy kết quả khớp đầu tiên khi duyệt một map trong Go, và Go xáo ngẫu nhiên thứ tự đó. Hai symbol
+export có cùng tên ngắn có thể resolve khác nhau giữa các lần chạy, và call graph lặng lẽ đổi hình
+dạng.
 
-Tôi đã sửa nó, viết test, rồi chuyển sang việc khác. Sau đó hóa ra có một resolver thứ hai trên một
-đường code khác, mang cùng lỗi đó, cộng thêm một lỗi tệ hơn. Nó hoàn toàn không ưu tiên theo tầng,
-nên một symbol của thư viện chuẩn có thể chiếm lấy một lời gọi của dự án. Các test của tôi đã đi qua
-đường code đã sửa và pass, trong khi bug nằm ngay bên cạnh. Bản sửa thứ hai xóa bản trùng lặp thay vì
-sửa nó. Hai hàm trả lời cùng một câu hỏi theo hai cách khác nhau, và không có gì bắt chúng phải khớp.
+Tôi đã sửa nó, viết test, rồi chuyển sang việc khác. Sau đó tôi tìm thấy một resolver thứ hai trên
+một đường code khác, mang cùng lỗi đó, cộng thêm một lỗi tệ hơn. Nó hoàn toàn không ưu tiên theo
+tầng, nên một symbol của thư viện chuẩn có thể chiếm lấy một lời gọi của dự án. Các test của tôi đã
+đi qua đường code đã sửa và pass, trong khi bug nằm ngay bên cạnh. Bản sửa thứ hai xóa bản trùng lặp
+thay vì sửa nó. Hai hàm trả lời cùng một câu hỏi theo hai cách khác nhau, và không có gì bắt chúng
+phải khớp.
 
-**Sáu test đã fail vì sai lý do.** Bảy test đã fail một thời gian. Lần đọc đầu tiên, tôi cho rằng
-chúng có vẻ do môi trường. Sáu test trong số đó không phải vậy. Ba test fail vì một hàm hỗ trợ test so khớp
-node theo tên, trong khi node lời gọi lưu định danh ở một trường khác. Mọi lần tra cứu lặng lẽ không
-tìm thấy gì, và một frontend đúng phải chịu lỗi. Hai test là do một lỗi định dạng khiến nhãn
+Sáu test đã fail vì sai lý do. Bảy test đã fail một thời gian. Lần đọc đầu tiên, tôi cho rằng chúng
+có vẻ do môi trường. Sáu test trong số đó không phải vậy. Ba test fail vì một hàm hỗ trợ test so
+khớp node theo tên, trong khi node lời gọi lưu định danh ở một trường khác. Mọi lần tra cứu lặng lẽ
+không tìm thấy gì, và một frontend đúng phải chịu lỗi. Hai test là do một lỗi định dạng khiến nhãn
 flowchart hiển thị thành chữ vỡ. Một test khẳng định một quy tắc mà một phiên bản sau đã cố ý thay
-thế. Chỉ test thứ bảy thực sự phụ thuộc nền tảng.
+thế. Chỉ test thứ bảy phụ thuộc nền tảng.
 
-**Một resolver không thể trượt.** Bước verify đọc lại code sinh ra đã báo 100 phần trăm resolve nội
+Có một resolver không thể trượt. Bước verify đọc lại code sinh ra đã báo 100 phần trăm resolve nội
 bộ trên mọi repo Python. Cùng lúc đó, nó báo hàng trăm lời gọi chưa resolve trên mọi backend sinh ra.
-Cả hai con số đến từ cùng một lối tắt: một lời gọi được so khớp theo tên trần với mọi symbol mà index
-chứa. Khi thay bằng cách đi theo lời gọi qua các import của hàm gọi, con số 100 thành 92.6 và 96.1
-trên hai repo công khai, và hàng trăm findings thành 0. Mục 6 có cả hai con số.
+Cả hai con số đến từ cùng một lối tắt. Bước verify so khớp một lời gọi theo tên trần với mọi symbol
+mà index chứa. Khi thay bằng cách đi theo lời gọi qua các import của hàm gọi, con số 100 thành 92.6
+và 96.1 trên hai repo công khai, và hàng trăm findings thành 0. Mục 6 có cả hai con số.
 
-Cả ba có chung một cơ chế bên dưới: một phép so sánh chỉ có thể trả về đúng một kết quả.
+Cả ba có chung một cơ chế bên dưới. Mỗi lỗi là một phép so sánh chỉ có thể trả về đúng một kết quả.
 
 Chạy hệ thống rồi nhìn nó hoạt động thì không bắt được thứ nào trong đó. Tôi tìm ra cả ba khi đọc
 lại code đã pass test, và hỏi mỗi con số sẽ trông thế nào nếu nó đang nói dối tôi.
 
 *Phương pháp nằm trong [benchmark tái lập được](03-reproducible-benchmarking.vi.md).
-Tốc độ tuyệt đối phụ thuộc vào GPU. Hình dạng của mỗi đánh đổi thì vẫn đúng trên card khác.*
+Tốc độ tuyệt đối phụ thuộc vào GPU. Hình dạng của mỗi đánh đổi lẽ ra vẫn giữ trên card khác.*

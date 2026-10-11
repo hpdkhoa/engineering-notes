@@ -10,38 +10,42 @@ in `.vi`.
 | Project | What it does | Stack | Status |
 |---|---|---|---|
 | gen-system | Reads a codebase into a deterministic graph built from the AST, lists what the model assumes about each routine, and checks the generated code from outside | Go, local models through Ollama, graph RAG | Open source, Apache-2.0 |
-| poselab-mcp | An MCP server that gives a model measured spatial answers for posing first-person arms and a rifle in Blender: how deep parts clip, how squarely a surface faces the eye, and a solver for rifle moves | Python, MCP, headless Blender | Open source, MIT, version 0.2.2 |
+| poselab-mcp | An MCP server that gives a model measured spatial answers for posing first-person arms and a rifle in Blender: how deep parts clip, how squarely a surface faces the eye, and a solver for rifle moves | Python, MCP, headless Blender | Open source, MIT, version 0.4.0 |
 | Beastwarden | A tactics roguelite with a seeded, deterministic simulation core. It is also where I direct AI assisted development under rules a machine checks | TypeScript, Vite, Pixi, Vitest | In development, private |
 | HieuLuat | Vietnamese legal question answering that cites the law it used, or says it does not know | Python, pgvector, bge-m3 embeddings, cross encoder rerank | Deprecated after the company's acquisition |
 
 ### Links
 
 - gen-system:
-- poselab-mcp:
+- gen-system MCP server: [npm package `gen-understand`](https://www.npmjs.com/package/gen-understand)
+  · [docs](https://github.com/hpdkhoa/gen-system/blob/main/docs/mcp.md)
+- poselab-mcp: [GitHub](https://github.com/hpdkhoa/poselab-mcp)
+  · [PyPI](https://pypi.org/project/poselab-mcp/)
+  · [MCP Registry](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.hpdkhoa/poselab-mcp)
 - Beastwarden:
 
 ## gen-system in numbers
 
-Measured on one RTX 4060 Ti with 16 GB, in the campaign of 2026-09-09.
+I measured these on one RTX 4060 Ti with 16 GB, in the campaign of 2026-09-09.
 
-- **100% of internal calls resolved, 0 parse errors**, on four public repositories: 405 files,
+- 100% of internal calls resolved, 0 parse errors, on four public repositories: 405 files,
   268 of them COBOL.
-- **First token in 127 ms** with streaming, against 1,884 ms with a buffered call. Fifteen times
+- First token in 127 ms with streaming, against 1,884 ms with a buffered call. Fifteen times
   sooner.
-- **30.8 tokens per second** with Ollama's default GPU offload, against 7.9 with 20 layers on the
+- 30.8 tokens per second with Ollama's default GPU offload, against 7.9 with 20 layers on the
   GPU. Almost four times faster.
-- **About 2 seconds** to swap between the two models on one 16 GB card, with keep alive.
-- **0.674 file recall** on 60 SWE-bench Verified tasks at two graph hops. It measures how well
+- About 2 seconds to swap between the two models on one 16 GB card, with keep alive.
+- 0.674 file recall on 60 SWE-bench Verified tasks at two graph hops. It measures how well
   gen-system finds the files a fix touches. It writes no fix.
-- **Test coverage: 55% of all statements**, measured with `go test -cover` on 2026-10-08. The
+- Test coverage is 55% of all statements, from `go test -cover` on 2026-10-08. The
   core runs higher: control flow graphs 93%, beliefs 85%, symbol index 76%, parsers 72%.
 
 ## poselab-mcp in numbers
 
-Five posing tasks, three trials each, graded by Pose Lab's own measurements:
+Five posing tasks, three trials each. Pose Lab's own measurements graded every trial.
 
-- **15 of 15 passed** with measured answers, against 11 of 15 with pictures alone.
-- **Half the tool calls** (17.3 against 34.8 per task) and **a third of the time** (45 s against
+- 15 of 15 passed with measured answers, against 11 of 15 with pictures alone.
+- Half the tool calls (17.3 against 34.8 per task) and a third of the time (45 s against
   153 s).
 
 ## Writeups
@@ -103,4 +107,4 @@ then runs a check that can fail.
 
 See [LICENSE](LICENSE). You can read and quote the writeups, tables and snippets with attribution.
 gen-system (Apache-2.0) and poselab-mcp (MIT) carry their own licenses in their own repositories.
-HieuLuat's implementation is proprietary and is not included.
+HieuLuat's implementation is proprietary, and this repository does not hold it.

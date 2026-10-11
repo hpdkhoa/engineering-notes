@@ -4,11 +4,12 @@
 
 ### GPU offload, streaming, quantization, and two models sharing one consumer card
 
-> **Context:** gen-system makes an AI model's beliefs about code visible and checkable. It grounds
-> the model in a graph built from the AST, and verifies the output from outside. The source is
-> open under Apache-2.0 at [github.com/hpdkhoa/gen-system](https://github.com/hpdkhoa/gen-system). **What this covers:** tuning its inference layer. The quality test is objective: the
-> generated code either builds and passes its tests, or it does not. Section 4 explains why the
-> obvious version of that test is useless, and what replaced it.
+> **Context:** for each routine, gen-system lists the inputs, the calls, the data it writes and the
+> action its name suggests, and it checks a model's claims against them. It grounds the model in a graph built from the AST, and verifies the output from outside.
+> The source is open under Apache-2.0 at [github.com/hpdkhoa/gen-system](https://github.com/hpdkhoa/gen-system).
+> **What this covers:** tuning its inference layer. The quality test is objective. The generated
+> code either builds and passes its tests, or it does not. Section 4 explains why the obvious
+> version of that test is useless, and what replaced it.
 
 ---
 
@@ -28,26 +29,25 @@ where the pin stops holding.
 ## 1. Where it started
 
 All inference went through one client to a local Ollama runtime. It was correct and
-deterministic, and nothing in it had been tuned.
+deterministic, but I had tuned nothing in it.
 
-- **Every call waited for the whole answer.** The client blocked until generation finished. A long
-  code generation paid the full wait before the first token appeared, and nothing downstream could
+- Every call waited for the whole answer. The client blocked until generation finished. A long
+  code generation paid the full wait before the first token appeared. Nothing downstream could
   start early.
-- **There were no GPU controls.** The request options set temperature, seed, and top_p. Nothing set
+- There were no GPU controls. The request options set temperature, seed, and top_p. Nothing set
   how the GPU ran the model. No layer offload, no context size, no batch size. The runtime ran at
   its defaults.
-- **The quantization was fixed.** The model tag carried one quant. That was a choice, never a
-  measurement.
-- **Two models shared 16 GB.** This is why the system needs keep alive and a long timeout. A
+- The quantization was fixed. The model tag carried one quant. I had picked it without measuring.
+- Two models shared 16 GB. This is why the system needs keep alive and a long timeout. A
   model reload could land in the middle of a run, and nothing measured how much it cost.
 
-The determinism tests, the compile gate and the verify pass were already there. Nothing underneath
-them had been measured.
+The determinism tests, the compile gate and the verify pass were already there. I had measured
+nothing underneath them.
 
 ## 2. Move 1: expose the GPU controls
 
-All model traffic passes through one function. Three settings are now read from the environment and
-sent with every request:
+All model traffic passes through one function. It now reads three settings from the environment
+and sends them with every request:
 
 | Variable | What it controls |
 |---|---|
@@ -55,21 +55,20 @@ sent with every request:
 | `OLLAMA_NUM_CTX` | Context window size. The KV cache grows with it. Prompts here are large, so this trades VRAM for capability. |
 | `OLLAMA_NUM_BATCH` | Prompt processing batch size, which sets prefill speed. |
 
-Each setting is left out of the request when its variable is unset. A machine that sets none of
-them sends exactly the same request as the old client did. That property is what keeps the
-measurement honest. The tuned and untuned runs differ only by the setting being tested.
+The function leaves each setting out of the request when its variable is unset. A machine that
+sets none of them sends exactly the same request as the old client did. So the tuned and untuned
+runs differ only by the setting under test.
 
 The bench driver sweeps `OLLAMA_NUM_GPU` and samples peak VRAM at each step.
 
 ## 3. Move 2: stream the output
 
-Streaming sits behind `OLLAMA_STREAM`. The reader consumes the stream and joins the fragments back
+`OLLAMA_STREAM` turns streaming on. The reader consumes the stream and joins the fragments back
 into one string. That string is identical to what the old buffered path returned.
 
 Everything downstream sees the same input either way: the JSON extraction, the rule that generated
-function bodies come back alone, and the determinism check. Streaming changes when the text arrives,
-not what it says. A test asserts one unique output across five
-identical streamed responses.
+function bodies come back alone, and the determinism check. Streaming changes only when the text
+arrives. A test asserts one unique output across five identical streamed responses.
 
 Buffered stays the default. Streaming is opt in until the measurement says otherwise.
 
@@ -78,23 +77,22 @@ prompt, three runs each.
 
 ## 4. Move 3: quantization, and the broken metric underneath it
 
-Quantization is an experiment here, not a fixed choice. The same model runs at Q4_K_M, Q5_K_M, and
-Q8_0 on the coder role, with the planner held fixed. Each run measures speed, VRAM, and quality.
+Here quantization becomes an experiment. The same model runs at Q4_K_M, Q5_K_M, and Q8_0 on the
+coder role, with the planner held fixed. Each run measures speed, VRAM, and quality.
 
 I got the quality axis wrong in the first version of this writeup.
 
-**The obvious metric does not work.** I planned to report compile pass rate, since generated code
+The obvious metric does not work. I planned to report compile pass rate, since generated code
 either builds or it does not. Every run came back at 100 percent.
 
-The 100 percent is **by construction**. When a model written operation
-fails to compile, the engine sends it back to the model with the build error. If it still fails,
-the engine replaces the body with an explicit `not implemented` stub. The stub compiles. The
-service always builds.
+The 100 percent is by construction. When a model written operation fails to compile, the engine
+sends it back to the model with the build error. If it still fails, the engine replaces the body
+with an explicit `not implemented` stub. The stub compiles. The service always builds.
 
 The number could not go down. A quantization that wrecked the output would still score 100 percent.
 
-**What replaced it.** The instrumentation now counts what actually changes. All of it comes from
-the same code path production uses:
+The instrumentation now counts what actually changes. All of it comes from the same code path
+production uses:
 
 | Metric | What it catches |
 |---|---|
@@ -105,26 +103,25 @@ the same code path production uses:
 | `verify_findings` | What the project's own code understanding engine finds when it rereads the generated backend: unresolved calls, orphan operations, read operations that write. |
 | `prompt_tokens` and `wall_s` | Cost per run. |
 
-Compile pass rate is still reported. It is no longer the headline, and the reason it is useless is
-now written down.
+The harness still reports compile pass rate. It is no longer the headline. I have written down why
+it is useless.
 
-The task set is five fixed application ideas. They were frozen and committed before the first run,
-so they cannot be tuned to fit the results.
+The task set is five fixed application ideas. I froze and committed them before the first run, so
+I cannot tune them to fit the results.
 
 ## 5. Move 4: two models, one card
 
-Two models have to share 16 GB. Three
-strategies run against the same frozen task set:
+Two models have to share 16 GB. Three strategies run against the same frozen task set:
 
 | Strategy | What it is | What it costs |
 |---|---|---|
-| A. Sequential with keep alive | The production default. One model resident at a time. | A model reload when the roles swap. Measured as the load time difference. |
+| A. Sequential with keep alive | The production default. One model resident at a time. | A model reload when the roles swap. I measure it as the load time difference. |
 | B. Both resident | Keep alive never expires, so both models should stay warm. | VRAM headroom, and speed under contention. Whether both even fit is itself a result, and section 6 gives the answer. |
 | C. One shared model | The coder model plans as well, so nothing ever swaps. | Planning quality, visible as stub rate, repair counts, and extra entities. |
 
-**There is no scheduler.** "Sequential scheduling with
-keep alive" means Ollama's own keep alive, two model roles, and a measurement of what that costs. I
-wrote no scheduling code, and the source shows it.
+There is no scheduler. "Sequential scheduling with keep alive" means Ollama's own keep alive, two
+model roles, and a measurement of what that costs. I wrote no scheduling code, and the source
+shows it.
 
 ## 6. Results
 
@@ -215,7 +212,7 @@ wrote no scheduling code, and the source shows it.
 
 ### What the numbers say
 
-| Change | Effect | What is measured |
+| Change | Effect | What I measured |
 |---|---|---|
 | GPU controls | Speed and fit on one card | Tokens per second and peak VRAM against offloaded layers |
 | Streaming | Lower time to first token | Time to first token and total time, on and off, three runs |
@@ -227,118 +224,116 @@ found a problem the tables now reflect. The first ran on uncommitted code. The s
 one run that crossed midnight and split into two folders. That split exposed a date bug in the
 drivers.
 
-**The quality metric moved.** Stub rate is different for every quantization. That was the
-whole point of replacing compile pass, which was 100 percent by construction. I wanted at least
-one quality metric that changes with the quant. Stub rate does, in every campaign so far.
+The quality metric moved. Stub rate is different for every quantization. That was the whole point
+of replacing compile pass, which was 100 percent by construction. I wanted at least one quality
+metric that changes with the quant. Stub rate does, in every campaign so far.
 
-**The study model wrote very little code that compiled.** DeepSeek Coder V2 Lite at Q4_K_M
-proposed about 25 operations per run and almost every one fell back to a stub after two repair
-rounds. Q8_0 did better, but it still stubbed most of what it wrote. The production coder model
-proposed far fewer operations per run, and about half of them survived. The rows are not on the
-same footing: one rests on about 25 operations, the other on 3. The `ops_total` column is
-there so the reader can see that before comparing stub rates.
+The study model wrote very little code that compiled. DeepSeek Coder V2 Lite at Q4_K_M proposed
+about 25 operations per run. Almost every one fell back to a stub after two repair rounds. Q8_0 did
+better, but it still stubbed most of what it wrote. The production coder model proposed far fewer
+operations per run, and about half of them survived. The rows are not on the same footing. One
+rests on about 25 operations, the other on 3. The `ops_total` column is there so the reader can see
+that before comparing stub rates.
 
-**The task level repair loop does fire, rarely.** In most runs `heal_attempts` is 0 and
-`go_test_pass` is 5 of 5, both by construction: stubs compile and pass. In one Q8_0 run the
-generated backend built, its own tests failed, and the task level loop ran nine times. It took
-four campaigns to see that column move twice. A 0 there only means the tests passed, and stubs
-always pass.
+The task level repair loop does fire, rarely. In most runs `heal_attempts` is 0 and `go_test_pass`
+is 5 of 5, both by construction: stubs compile and pass. In one Q8_0 run the generated backend
+built, its own tests failed, and the task level loop ran nine times. It took four campaigns to see
+that column move twice. A 0 there only means the tests passed, and stubs always pass.
 
-**Speed and quality moved in opposite directions.** Q4_K_M was about three times faster than Q8_0
-in tokens per second and used about 4 GB less VRAM. It also produced almost nothing that
-compiled. So the speed bought nothing.
+Speed and quality moved in opposite directions. Q4_K_M was about three times faster than Q8_0 in
+tokens per second and used about 4 GB less VRAM. It also produced almost nothing that compiled. So
+the speed bought nothing.
 
-**Strategy B once measured nothing, and the harness now catches that.** In the first campaign
-the driver set `OLLAMA_KEEP_ALIVE=-1`, the request door sent it as the string "-1", Ollama
-rejected every request, and the offline fallback schema built green. The first aggregation showed
-B with a 0 percent stub rate, the best row in the table. Three fixes followed. The door sends a
-bare integer as a number. The pipeline marks an idea with zero completed model requests as not
-measured. The aggregator drops such runs and counts them in `runs_not_measured`. That column is
-0 on every row above.
+Strategy B once measured nothing, and the harness now catches that. In the first campaign the
+driver set `OLLAMA_KEEP_ALIVE=-1`. The request door sent it as the string "-1". Ollama rejected
+every request, and the offline fallback schema built green. The first aggregation showed B with a
+0 percent stub rate, the best row in the table. I made three fixes. The door sends a bare integer
+as a number. The pipeline marks an idea with zero completed model requests as not measured. The
+aggregator drops such runs and counts them in `runs_not_measured`. That column is 0 on every row
+above.
 
-**The three strategies are the same strategy on this card.** Reload cost and tokens per second
-are identical across A, B and C. The `ollama ps` capture at the end of the B run shows one
-resident model, not two. The planner is 9.3 GB on disk and the coder 9.0 GB, and each needs its
-KV cache and runtime beside it, so the pair does not fit in 16 GB together. "Both resident"
-degrades to what A does.
+The three strategies are the same strategy on this card. Reload cost and tokens per second are
+identical across A, B and C. The `ollama ps` capture at the end of the B run shows one resident
+model, not two. The planner is 9.3 GB on disk and the coder 9.0 GB. Each needs its KV cache and
+runtime beside it, so the pair does not fit in 16 GB together. "Both resident" degrades to what A
+does.
 
-**Pinned sampling gives two outputs, not one.** Temperature 0, seed 42, and top_p 1 were set on
+Pinned sampling gives two outputs, not one. The client set temperature 0, seed 42, and top_p 1 on
 every request. On the production pair, every run of every campaign landed on one of exactly two
-outputs: one with two of three operations stubbed, one with none. In one campaign strategy A got
-the first output three times and B the second. In the next campaign the assignment flipped: A got
-the second three times and B the first. Which output a run lands on depends on server state, not
-on the strategy. With three operations per run, one flip moves the stub rate by a third. That is
-why every row carries n and a range, and why the stub rate column in the strategies table should
-not be read as a strategy effect.
+outputs. One had two of three operations stubbed, the other had none. In one campaign strategy A
+got the first output three times and B the second. In the next campaign the assignment flipped: A
+got the second three times and B the first. Which output a run lands on depends on server state,
+not on the strategy. With three operations per run, one flip moves the stub rate by a third. That
+is why every row carries n and a range. It is also why the reader should not take the stub rate
+column in the strategies table as a strategy effect.
 
-**A second metric that was 100 percent by construction.** Until this campaign the verify pass
-counted a call as internal when any symbol carried its bare name. It then resolved the call by
-that bare name. So a Python repository always scored 100 percent internal resolution. The resolver now
-follows a package qualified call through the caller's imports, and a call it cannot place stays
+A second metric was also 100 percent by construction. Until this campaign the verify pass counted
+a call as internal when any symbol carried its bare name. It then resolved the call by that bare
+name. So a Python repository always scored 100 percent internal resolution. The resolver now
+follows a package qualified call through the caller's imports. A call it cannot place stays
 unresolved. On the same SWE-bench repositories the internal resolution is now 92.6 percent for
-astropy and 96.1 percent for django. The internal edge counts on the Go repositories dropped by
-up to a seventh. Calls into packages the index does not hold are now external instead of
-captured. Those are numbers that can move, replacing one that could not. The same change reduced the
-verify findings on generated backends from several hundred per run, almost all standard library
-calls, to zero.
+astropy and 96.1 percent for django. The internal edge counts on the Go repositories dropped by up
+to a seventh. Calls into packages the index does not hold now count as external, instead of
+matching a symbol by mistake. These numbers can move, and the old one could not. The same change
+reduced the verify findings on generated backends from several hundred per run, almost all
+standard library calls, to zero.
 
-**SWE-bench: read the neighbourhood column before the recall column.** The table is localization
+On SWE-bench, read the neighbourhood column before the recall column. The table is localization
 recall on the first 60 tasks of SWE-bench Verified in instance order, 22 astropy tasks and 38
-django tasks. It is not a solve rate. Hop 1 adds nothing over hop 0. The seed identifiers from
-the issue text already sit in the gold files, or they do not. Hop 2 raises recall while the
-median neighbourhood grows to about 420 files, which is more than half of astropy and a sixth of
-django. At that width the net catches the gold file by covering most of the repository. The tighter resolver shrank that
-neighbourhood by about a tenth with no change in recall, which says the width was never doing
-the work. The seed rule takes up to 80 identifiers from the issue text by exact name. In a
-repository of 2,500 files a name like `Model` matches in hundreds of places. The metric is
-honest about that because the neighbourhood size is printed next to it. A tighter seed rule is
-the next thing to build, and the number will drop when it is built.
+django tasks. It is not a solve rate. Hop 1 adds nothing over hop 0. The seed identifiers from the
+issue text already sit in the gold files, or they do not. Hop 2 raises recall while the median
+neighbourhood grows to about 420 files, which is more than half of astropy and a sixth of django.
+At that width the net catches the gold file by covering most of the repository. The tighter
+resolver shrank that neighbourhood by about a tenth with no change in recall. That shows the width
+was never doing the work. The seed rule takes up to 80 identifiers from the issue text by exact
+name. In a repository of 2,500 files a name like `Model` matches in hundreds of places. The table
+prints the neighbourhood size next to the recall, so the reader can see that. A tighter seed rule
+is the next thing I will build, and the number will drop when I build it.
 
 ## 7. Future work
 
-Two directions, neither of them claimed as done.
+There are two directions, and I have finished neither.
 
-The first is a hand written token generation kernel measured by this same harness: a matrix
-times vector product over the coder model's quantized weights, profiled with Nsight, compared
-against the tokens per second Ollama reaches in the quantization table. The roofline for that is
-one division, memory bandwidth over bytes of weights read per token, and the production row above
-already sits at 96 percent of it. The kernel's job is to reproduce that ceiling with my own code
-and say where the remaining distance lives.
+The first is a hand written token generation kernel, measured by this same harness. It is a
+matrix times vector product over the coder model's quantized weights. I will profile it with Nsight
+and compare it against the tokens per second Ollama reaches in the quantization table. The roofline
+for that is one division: memory bandwidth over bytes of weights read per token. The production row
+above already sits at 96 percent of it. The kernel's job is to reproduce that ceiling with my own
+code and say where the remaining distance lives.
 
 The second is feeding the rendered control flow graphs back to the model as repair context, behind
 a flag, and measuring it properly. I expect no effect on Go repair, because the compiler already
 tells the model what is wrong. I expect a possible effect on COBOL and on belief enrichment, where
-there is no compiler to lean on. The result gets published either way, including if it is null.
+there is no compiler to lean on. I will publish the result either way, including a null result.
 
 ## 8. Three things I found by rereading my own code
 
-**Two determinism bugs, found by reading my own code.** Determinism
-is the load bearing claim of this system: temperature 0, fixed seed, identical output. Symbol
-resolution broke it. It took the first match while walking a Go map, and Go randomizes that order.
-Two exported symbols sharing a short name could resolve differently between runs, and the call
-graph quietly changed shape.
+I found two determinism bugs by reading my own code. Determinism is the load bearing claim of this
+system: temperature 0, fixed seed, identical output. Symbol resolution broke it. It took the first
+match while walking a Go map, and Go randomizes that order. Two exported symbols sharing a short
+name could resolve differently between runs, and the call graph quietly changed shape.
 
-I fixed it, wrote tests, and moved on. Then it turned out there was a second resolver on a
-different code path with the same flaw, plus a worse one. It had no tier preference at all, so a
-standard library symbol could capture a project call. My tests had gone through the fixed path and
-passed while the bug sat next door. The second fix deletes the duplicate rather than repairing it.
-Two functions answered the same question differently, and nothing forced them to agree.
+I fixed it, wrote tests, and moved on. Then I found a second resolver on a different code path with
+the same flaw, plus a worse one. It had no tier preference at all, so a standard library symbol
+could capture a project call. My tests had gone through the fixed path and passed while the bug sat
+next door. The second fix deletes the duplicate rather than repairing it. Two functions answered the
+same question differently, and nothing forced them to agree.
 
-**Six tests that failed for the wrong reason.** Seven tests had been failing. My first read was that
-they looked environmental. Six of them were not. Three failed because a test helper matched
-nodes by name, while call nodes carry their identifier in a different field. Every lookup silently
-found nothing, and a correct frontend took the blame. Two were a formatting artifact that rendered
-a flowchart label as broken text. One asserted a rule that a later version had deliberately
-replaced. Only the seventh was genuinely platform specific.
+Six tests failed for the wrong reason. Seven tests had been failing. My first read was that they
+looked environmental. Six of them were not. Three failed because a test helper matched nodes by
+name, while call nodes carry their identifier in a different field. Every lookup silently found
+nothing, and a correct frontend took the blame. Two were a formatting artifact that rendered a
+flowchart label as broken text. One asserted a rule that a later version had deliberately replaced.
+Only the seventh was platform specific.
 
-**A resolver that could not miss.** The verify pass that rereads generated code reported 100
-percent internal resolution on every Python repository. At the same time it reported hundreds of
-unresolved calls on every generated backend. Both numbers came from the same shortcut: a call was matched
-by its bare name against every symbol the index held. Following a call through the caller's
-imports instead turned the 100 into 92.6 and 96.1 on two public repositories, and turned the
-hundreds of findings into zero. Section 6 has both numbers.
+One resolver could not miss. The verify pass that rereads generated code reported 100 percent
+internal resolution on every Python repository. At the same time it reported hundreds of
+unresolved calls on every generated backend. Both numbers came from the same shortcut. The pass
+matched a call by its bare name against every symbol the index held. Following a call through the
+caller's imports instead turned the 100 into 92.6 and 96.1 on two public repositories, and turned
+the hundreds of findings into zero. Section 6 has both numbers.
 
-All three have the same mechanic underneath: a comparison that could only come back one way.
+All three share one mechanic underneath. Each was a comparison that could only come back one way.
 
 Running the thing and watching it work catches none of that. I found all three by rereading code
 that had already passed its tests, and asking what each number would look like if it were lying to

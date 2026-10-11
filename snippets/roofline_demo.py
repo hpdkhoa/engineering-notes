@@ -1,14 +1,15 @@
 """
 roofline_demo.py: a teaching toy for the memory versus compute (roofline) intuition behind
-GPU/inference optimization: naive vs blocked matrix multiply, and the O(n^3) growth pattern.
+GPU and inference optimization. It compares naive and blocked matrix multiply, and shows the
+O(n^3) growth pattern.
 
-This is pure-Python (no NumPy, no GPU) so it RUNS anywhere and the *shape* of the result is
-visible. Absolute speeds are irrelevant here. What matters is (a) work grows ~n^3, and
-(b) improving data locality (blocking) helps, which is the same idea that makes tiled GPU
-matmul and good cache behavior matter.
+This is pure Python (no NumPy, no GPU), so it runs anywhere and you can see the shape of the
+result. Absolute speeds do not matter here. Two things matter. Work grows about as n^3, and
+better data locality (blocking) helps. The same idea makes tiled GPU matmul and good cache
+behavior matter.
 
 Run:  python3 roofline_demo.py
-Deps: standard library only. (Small sizes by default so it finishes quickly.)
+Deps: standard library only. It uses small sizes by default, so it finishes quickly.
 """
 
 import time
@@ -27,14 +28,14 @@ def matmul_naive(A, B, n):
         for j in range(n):
             s = 0.0
             for k in range(n):
-                s += A[i][k] * B[k][j]   # B[k][j] strides down a column, so poor locality
+                s += A[i][k] * B[k][j]   # B[k][j] strides down a column, so locality is poor
             C[i][j] = s
     return C
 
 
 def matmul_blocked(A, B, n, block=16):
-    # Transpose B so the inner loop walks contiguous memory in both operands,
-    # the pure-Python analogue of improving data locality / tiling.
+    # Transpose B so the inner loop walks contiguous memory in both operands.
+    # This is the pure Python analogue of better data locality and tiling.
     Bt = [[B[k][j] for k in range(n)] for j in range(n)]
     C = [[0.0] * n for _ in range(n)]
     for ii in range(0, n, block):
@@ -52,10 +53,10 @@ def matmul_blocked(A, B, n, block=16):
 
 
 def flops(n):
-    return 2 * n ** 3   # multiply-add per inner step
+    return 2 * n ** 3   # one multiply and one add per inner step
 
 
-print("=== O(n^3) growth: doubling n ~8x's the work ===")
+print("=== O(n^3) growth: doubling n gives about 8x the work ===")
 print(f"{'n':>5} | {'naive (s)':>12} | {'FLOPs':>14} | {'~time ratio':>12}")
 print("-" * 52)
 prev = None
@@ -68,10 +69,10 @@ for n in (32, 48, 64, 96, 128):
     print(f"{n:>5} | {dt:>12.4f} | {flops(n):>14,} | {ratio:>12.2f}x")
     prev = dt
 
-print("\nTakeaway: the time ratio tracks the (n_new/n_old)^3 work ratio, the cubic")
-print("growth that makes matmul the workload GPUs (and Tensor Cores) exist to accelerate.\n")
+print("\nThe time ratio tracks the (n_new/n_old)^3 work ratio. This cubic growth")
+print("makes matmul the workload that GPUs and Tensor Cores exist to accelerate.\n")
 
-print("=== Data locality matters: naive vs locality-improved (blocked/transposed) ===")
+print("=== Data locality: naive against locality improved (blocked and transposed) ===")
 n = 96
 A, B = make(n), make(n)
 
@@ -82,6 +83,6 @@ print(f"n = {n}")
 print(f"  naive            : {t_naive:.4f} s")
 print(f"  locality-improved: {t_block:.4f} s")
 print(f"  speedup          : {t_naive / t_block:.2f}x")
-print("\nTakeaway: same FLOPs, better memory access pattern -> faster. On a GPU this is")
-print("exactly why a TILED matmul (operands staged in fast shared memory) beats the naive")
-print("version. The optimization is about moving less data, not doing less math.")
+print("\nSame FLOPs with a better memory access pattern runs faster. On a GPU this is")
+print("why a tiled matmul, which stages operands in fast shared memory, beats the naive")
+print("version. The gain comes from moving less data. The math stays the same.")

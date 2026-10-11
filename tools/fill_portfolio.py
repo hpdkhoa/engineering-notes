@@ -256,7 +256,7 @@ def main():
         inject_measured(vi_twin(w02), "gen", blocks, "vi")
 
     # ---------- 5. environment capture ----------
-    # Only on request: ENVIRONMENT.md describes the benchmark machine, and a
+    # Only with --capture-env: ENVIRONMENT.md describes the benchmark machine, and a
     # run of this script on any other machine must not overwrite it.
     if not args.capture_env:
         print("  ENVIRONMENT.md left as is (pass --capture-env on the benchmark machine to rewrite it)")
