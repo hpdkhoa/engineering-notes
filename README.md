@@ -16,7 +16,9 @@ in `.vi`.
 
 ### Links
 
-- gen-system:
+- gen-system: [GitHub](https://github.com/hpdkhoa/gen-system)
+  · [live demo](https://gen-system.500kv.co/demo/)
+  · [project page](https://gen-system.500kv.co/)
 - gen-system MCP server: [npm package `gen-understand`](https://www.npmjs.com/package/gen-understand)
   · [docs](https://github.com/hpdkhoa/gen-system/blob/main/docs/mcp.md)
 - poselab-mcp: [GitHub](https://github.com/hpdkhoa/poselab-mcp)

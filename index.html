@@ -83,6 +83,13 @@ h1.title{font-family:'Inter',sans-serif; font-weight:700; font-size:44px; line-h
   border:1px solid var(--rule); border-radius:14px; padding:22px 22px 20px;
   transition:transform .12s, border-color .12s, box-shadow .12s;}
 a.card:hover{transform:translateY(-2px); border-color:var(--teal); box-shadow:0 8px 24px var(--shadow);}
+/* A linked card is a div: its .go link stretches over the card, so the card stays one big
+   target and the small links inside it (.altlinks) are not links nested in a link. */
+.card.linked{position:relative;}
+.card.linked:hover{transform:translateY(-2px); border-color:var(--teal); box-shadow:0 8px 24px var(--shadow);}
+.card.linked .go{text-decoration:none;}
+.card.linked .go::after{content:""; position:absolute; inset:0; border-radius:14px;}
+.card.linked .altlinks{position:relative; z-index:1;}
 .card .num{font-family:'JetBrains Mono',monospace; font-weight:700; font-size:13px; color:var(--teal);}
 .card h3{font-family:'Inter',sans-serif; font-weight:700; font-size:20px; margin:8px 0 8px; color:var(--ink); line-height:1.25;}
 .card p{margin:0 0 14px; font-size:15.5px; color:var(--ink-soft); line-height:1.6;}
@@ -170,32 +177,32 @@ html[data-lang="en"] .lang-block[data-lang="en"],html[data-lang="vi"] .lang-bloc
     <p class="sec-sub">Each writeup is a styled, read-aloud page with a table of contents and dark/light theme. Markdown versions are on GitHub.</p>
     <div class="cards">
 
-      <a class="card" href="writeups/01-hieuluat-retrieval-optimization.html">
+      <div class="card linked">
         <span class="num">Writeup 01</span>
         <h3>Making a legal search path fast and still correct</h3>
         <div class="tags"><span class="tag">RAG</span><span class="tag">pgvector</span><span class="tag">FP16 embeddings</span><span class="tag">reranking</span></div>
         <p>Vector indexing, retrieve then rerank, and FP16 embeddings, with the recall, latency and quality trade offs measured on a fixed evaluation set. It includes a negative result. The reranker cost 384 ms and improved nothing, and section 6 works out which component that blames. HieuLuat is deprecated after the company's acquisition.</p>
-        <span class="go">Read the web version →</span>
+        <a class="go" href="writeups/01-hieuluat-retrieval-optimization.html">Read the web version →</a>
         <div class="altlinks">also: <a href="writeups/01-hieuluat-retrieval-optimization.md">markdown</a></div>
-      </a>
+      </div>
 
-      <a class="card" href="writeups/02-gen-system-inference-optimization.html">
+      <div class="card linked">
         <span class="num">Writeup 02</span>
         <h3>Tuning local LLM inference for a code engine</h3>
         <div class="tags"><span class="tag">inference</span><span class="tag">quantization</span><span class="tag">GPU offload</span><span class="tag">streaming</span></div>
         <p>GPU layer offload, streaming, quantization treated as a measured variable, and two models sharing one 16 GB card. An <em>objective</em> quality metric judges each choice. In section 4 I find that my own quality metric was broken, and I show what replaced it.</p>
-        <span class="go">Read the web version →</span>
+        <a class="go" href="writeups/02-gen-system-inference-optimization.html">Read the web version →</a>
         <div class="altlinks">also: <a href="writeups/02-gen-system-inference-optimization.md">markdown</a></div>
-      </a>
+      </div>
 
-      <a class="card" href="writeups/03-reproducible-benchmarking.html">
+      <div class="card linked">
         <span class="num">Writeup 03</span>
         <h3>Reproducible benchmarking and regression gates</h3>
         <div class="tags"><span class="tag">benchmarking</span><span class="tag">regression gates</span><span class="tag">determinism</span></div>
         <p>The other two rest on this method. It covers frozen baselines, regression gates and repeatable runs. It also shows why an objective metric that cannot move is worse than a proxy.</p>
-        <span class="go">Read the web version →</span>
+        <a class="go" href="writeups/03-reproducible-benchmarking.html">Read the web version →</a>
         <div class="altlinks">also: <a href="writeups/03-reproducible-benchmarking.md">markdown</a></div>
-      </a>
+      </div>
 
     </div>
   </section>
@@ -211,6 +218,7 @@ html[data-lang="en"] .lang-block[data-lang="en"],html[data-lang="vi"] .lang-bloc
         <h3>gen-system</h3>
         <div class="tags"><span class="tag">Go</span><span class="tag">Ollama</span><span class="tag">Apache-2.0</span></div>
         <p>An AI model is a black box. gen-system <strong>writes down what the model assumes about your code</strong>, checks every assumption against a deterministic graph built from the AST, and verifies the output from outside. Six languages, COBOL and CA Gen included.</p>
+        <div class="altlinks"><a href="https://github.com/hpdkhoa/gen-system">GitHub</a> · <a href="https://gen-system.500kv.co/demo/">live demo</a> · <a href="https://gen-system.500kv.co/">project page</a></div>
       </div>
 
       <div class="card">
@@ -240,12 +248,12 @@ html[data-lang="en"] .lang-block[data-lang="en"],html[data-lang="vi"] .lang-bloc
     <h2 class="sec-title">Where every number comes from</h2>
     <p class="sec-sub">The tables in the writeups come from one results file, next to a record of the machine and models behind them.</p>
     <div class="cards">
-      <a class="card" href="benchmarks/README.md">
+      <div class="card linked">
         <h3>Benchmarks</h3>
         <p>How to read each table, and the machine and models behind the gen-system numbers.</p>
-        <span class="go">How I made the numbers &rarr;</span>
+        <a class="go" href="benchmarks/README.md">How I made the numbers &rarr;</a>
         <div class="altlinks">also: <a href="benchmarks/results/measured.json">measured.json</a> · <a href="benchmarks/ENVIRONMENT.md">the machine and models</a></div>
-      </a>
+      </div>
     </div>
   </section>
 
@@ -320,32 +328,32 @@ html[data-lang="en"] .lang-block[data-lang="en"],html[data-lang="vi"] .lang-bloc
     <p class="sec-sub">Mỗi bài là một trang web có định dạng, hỗ trợ đọc thành tiếng, có mục lục và giao diện tối/sáng. Bản Markdown có trên GitHub.</p>
     <div class="cards">
 
-      <a class="card" href="writeups/01-hieuluat-retrieval-optimization.vi.html">
+      <div class="card linked">
         <span class="num">Bài viết 01</span>
         <h3>Làm cho luồng tìm kiếm pháp luật nhanh mà vẫn đúng</h3>
         <div class="tags"><span class="tag">RAG</span><span class="tag">pgvector</span><span class="tag">FP16 embeddings</span><span class="tag">rerank</span></div>
         <p>Vector index, retrieval rồi rerank, và embedding FP16. Các đánh đổi giữa recall, latency và chất lượng đã đo trên một eval set cố định. Bài có một kết quả âm tính. Reranker tốn 384 ms mà không cải thiện được gì. Mục 6 xác định lỗi đó thuộc về thành phần nào. HieuLuat đã ngừng phát triển sau khi công ty được mua lại.</p>
-        <span class="go">Đọc bản web →</span>
+        <a class="go" href="writeups/01-hieuluat-retrieval-optimization.vi.html">Đọc bản web →</a>
         <div class="altlinks">hoặc: <a href="writeups/01-hieuluat-retrieval-optimization.vi.md">markdown</a></div>
-      </a>
+      </div>
 
-      <a class="card" href="writeups/02-gen-system-inference-optimization.vi.html">
+      <div class="card linked">
         <span class="num">Bài viết 02</span>
         <h3>Tinh chỉnh inference LLM cục bộ cho một công cụ xử lý code</h3>
         <div class="tags"><span class="tag">inference</span><span class="tag">quantization</span><span class="tag">GPU offload</span><span class="tag">streaming</span></div>
         <p>Offload layer lên GPU, streaming, quantization coi như một biến số và đem đo, và hai model dùng chung một card 16 GB. Một thước đo chất lượng <em>khách quan</em> chấm từng lựa chọn. Mục 4 kể việc tôi phát hiện thước đo chất lượng của chính mình bị hỏng, và thứ đã thay thế nó.</p>
-        <span class="go">Đọc bản web →</span>
+        <a class="go" href="writeups/02-gen-system-inference-optimization.vi.html">Đọc bản web →</a>
         <div class="altlinks">hoặc: <a href="writeups/02-gen-system-inference-optimization.vi.md">markdown</a></div>
-      </a>
+      </div>
 
-      <a class="card" href="writeups/03-reproducible-benchmarking.vi.html">
+      <div class="card linked">
         <span class="num">Bài viết 03</span>
         <h3>Benchmark tái lập được và regression gate</h3>
         <div class="tags"><span class="tag">benchmark</span><span class="tag">các regression gate</span><span class="tag">tính determinism</span></div>
         <p>Hai bài còn lại dựa vào phương pháp này. Nó gồm baseline cố định, regression gate và các lần chạy lặp lại được. Bài cũng giải thích vì sao một thước đo khách quan không bao giờ thay đổi còn tệ hơn một thước đo gián tiếp.</p>
-        <span class="go">Đọc bản web →</span>
+        <a class="go" href="writeups/03-reproducible-benchmarking.vi.html">Đọc bản web →</a>
         <div class="altlinks">hoặc: <a href="writeups/03-reproducible-benchmarking.vi.md">markdown</a></div>
-      </a>
+      </div>
 
     </div>
   </section>
@@ -361,6 +369,7 @@ html[data-lang="en"] .lang-block[data-lang="en"],html[data-lang="vi"] .lang-bloc
         <h3>gen-system</h3>
         <div class="tags"><span class="tag">Go</span><span class="tag">Ollama</span><span class="tag">Apache-2.0</span></div>
         <p>Một model AI là một hộp đen. gen-system <strong>ghi lại từng giả định của model về code của bạn</strong>, đối chiếu từng giả định với một graph deterministic dựng từ AST, và kiểm chứng đầu ra từ bên ngoài. Sáu ngôn ngữ, gồm cả COBOL và CA Gen.</p>
+        <div class="altlinks"><a href="https://github.com/hpdkhoa/gen-system">GitHub</a> · <a href="https://gen-system.500kv.co/demo/">bản demo trực tuyến</a> · <a href="https://gen-system.500kv.co/">trang giới thiệu</a></div>
       </div>
 
       <div class="card">
@@ -390,12 +399,12 @@ html[data-lang="en"] .lang-block[data-lang="en"],html[data-lang="vi"] .lang-bloc
     <h2 class="sec-title">Mỗi con số đến từ đâu</h2>
     <p class="sec-sub">Các bảng trong writeup lấy từ một file kết quả, kèm bản ghi máy và các model đã tạo ra chúng.</p>
     <div class="cards">
-      <a class="card" href="benchmarks/README.vi.md">
+      <div class="card linked">
         <h3>Benchmark</h3>
         <p>Cách đọc từng bảng, và máy cùng các model đứng sau các con số của gen-system.</p>
-        <span class="go">Tôi tạo ra các con số thế nào &rarr;</span>
+        <a class="go" href="benchmarks/README.vi.md">Tôi tạo ra các con số thế nào &rarr;</a>
         <div class="altlinks">hoặc: <a href="benchmarks/results/measured.json">measured.json</a> · <a href="benchmarks/ENVIRONMENT.vi.md">máy và các model</a></div>
-      </a>
+      </div>
     </div>
   </section>
 

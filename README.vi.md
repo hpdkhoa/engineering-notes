@@ -16,7 +16,9 @@ benchmark và hai đoạn code mẫu nhỏ. Mọi trang đều có tiếng Anh v
 
 ### Liên kết
 
-- gen-system:
+- gen-system: [GitHub](https://github.com/hpdkhoa/gen-system)
+  · [bản demo trực tuyến](https://gen-system.500kv.co/demo/)
+  · [trang giới thiệu](https://gen-system.500kv.co/)
 - MCP server của gen-system: [gói npm `gen-understand`](https://www.npmjs.com/package/gen-understand)
   · [tài liệu](https://github.com/hpdkhoa/gen-system/blob/main/docs/mcp.md)
 - poselab-mcp: [GitHub](https://github.com/hpdkhoa/poselab-mcp)
