@@ -9,7 +9,7 @@ benchmark và hai đoạn code mẫu nhỏ. Mọi trang đều có tiếng Anh v
 
 | Dự án | Nó làm gì | Công nghệ | Hiện trạng |
 |---|---|---|---|
-| gen-system | Đọc codebase thành một graph deterministic dựng từ AST, liệt kê những gì model giả định về từng hàm, rồi kiểm tra code sinh ra từ bên ngoài | Go, model chạy cục bộ qua Ollama, graph RAG | Mã nguồn mở, Apache-2.0 |
+| gen-system | Đọc codebase bằng parser, không dùng model: call graph và control flow graph cho từng routine với Go, COBOL có copybook, CA Gen, Java, TypeScript và Python. Liệt kê những gì mỗi routine đọc, gọi và ghi, đưa các dữ kiện đó cho agent qua MCP, và sinh service Go bằng model chạy cục bộ | Go, MCP, model chạy cục bộ qua Ollama | Mã nguồn mở, Apache-2.0, MCP server 0.2.0 |
 | poselab-mcp | Một MCP server trả cho model các câu trả lời không gian có đo đạc khi tạo dáng tay góc nhìn thứ nhất cầm súng trường trong Blender: phần nào lấn vào nhau sâu bao nhiêu, một bề mặt hướng về mắt đến mức nào, và một bộ giải tìm cách di chuyển khẩu súng | Python, MCP, Blender chạy ngầm | Mã nguồn mở, MIT, phiên bản 0.4.0 |
 | Beastwarden | Game tactics roguelite với lõi mô phỏng deterministic theo seed. Đây cũng là nơi tôi điều khiển việc lập trình có AI hỗ trợ theo các quy tắc do máy kiểm tra | TypeScript, Vite, Pixi, Vitest | Đang phát triển, riêng tư |
 | HieuLuat | Hỏi đáp pháp luật tiếng Việt, viện dẫn điều luật đã dùng, hoặc nói rõ là không biết | Python, pgvector, embedding bge-m3, rerank bằng cross encoder | Ngừng phát triển sau khi công ty được mua lại |
@@ -39,8 +39,8 @@ Tôi đo các số này trên một card RTX 4060 Ti 16 GB, trong đợt chạy 
 - Khoảng 2 giây để đổi giữa hai model trên một card 16 GB, nhờ keep alive.
 - Recall file 0,674 trên 60 task của SWE-bench Verified, ở hai bước nhảy trên graph. Con số này
   đo việc gen-system tìm đúng các file mà bản sửa chạm tới. gen-system không viết bản sửa.
-- Độ phủ test là 55% tổng số câu lệnh, theo `go test -cover` ngày 2026-10-08. Phần lõi cao
-  hơn: control flow graph 93%, belief 85%, symbol index 76%, parser 72%.
+- Độ phủ test là 55% tổng số câu lệnh, theo `go test -cover` ngày 2026-10-14. Phần lõi cao
+  hơn: control flow graph 90%, belief 85%, symbol index 79%, parser 72%.
 
 ## poselab-mcp qua các con số
 

@@ -9,7 +9,7 @@ in `.vi`.
 
 | Project | What it does | Stack | Status |
 |---|---|---|---|
-| gen-system | Reads a codebase into a deterministic graph built from the AST, lists what the model assumes about each routine, and checks the generated code from outside | Go, local models through Ollama, graph RAG | Open source, Apache-2.0 |
+| gen-system | Reads a codebase with parsers, not a model: a call graph and a control flow graph per routine for Go, COBOL with copybooks, CA Gen, Java, TypeScript and Python. Lists what each routine reads, calls and writes, serves those facts to agents over MCP, and generates Go services with local models | Go, MCP, local models through Ollama | Open source, Apache-2.0, MCP server 0.2.0 |
 | poselab-mcp | An MCP server that gives a model measured spatial answers for posing first-person arms and a rifle in Blender: how deep parts clip, how squarely a surface faces the eye, and a solver for rifle moves | Python, MCP, headless Blender | Open source, MIT, version 0.4.0 |
 | Beastwarden | A tactics roguelite with a seeded, deterministic simulation core. It is also where I direct AI assisted development under rules a machine checks | TypeScript, Vite, Pixi, Vitest | In development, private |
 | HieuLuat | Vietnamese legal question answering that cites the law it used, or says it does not know | Python, pgvector, bge-m3 embeddings, cross encoder rerank | Deprecated after the company's acquisition |
@@ -39,8 +39,8 @@ I measured these on one RTX 4060 Ti with 16 GB, in the campaign of 2026-09-09.
 - About 2 seconds to swap between the two models on one 16 GB card, with keep alive.
 - 0.674 file recall on 60 SWE-bench Verified tasks at two graph hops. It measures how well
   gen-system finds the files a fix touches. It writes no fix.
-- Test coverage is 55% of all statements, from `go test -cover` on 2026-10-08. The
-  core runs higher: control flow graphs 93%, beliefs 85%, symbol index 76%, parsers 72%.
+- Test coverage is 55% of all statements, from `go test -cover` on 2026-10-14. The
+  core runs higher: control flow graphs 90%, beliefs 85%, symbol index 79%, parsers 72%.
 
 ## poselab-mcp in numbers
 
