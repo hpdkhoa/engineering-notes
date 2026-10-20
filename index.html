@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Khoa Hoang: systems, applied LLMs, GPU work</title>
-<meta name="description" content="Khoa Hoang. Architecture and measured results for gen-system (parser facts about a codebase, and generated Go services that must compile) and poselab-mcp (measured spatial answers for posing in Blender), plus GPU and inference optimization writeups.">
+<meta name="description" content="Khoa Hoang. Architecture and measured results for gen-system (code review with facts from parsers, for people and AI agents) and poselab-mcp (measured spatial answers for posing in Blender), plus GPU and inference optimization writeups.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -216,8 +216,8 @@ html[data-lang="en"] .lang-block[data-lang="en"],html[data-lang="vi"] .lang-bloc
 
       <div class="card">
         <h3>gen-system</h3>
-        <div class="tags"><span class="tag">Go</span><span class="tag">COBOL</span><span class="tag">MCP</span><span class="tag">Ollama</span><span class="tag">Apache-2.0</span></div>
-        <p>gen-system reads a codebase with <strong>parsers, not a model</strong>: a call graph and a control flow graph per routine, for Go, COBOL with copybooks, CA Gen, Java, TypeScript and Python. On four public repositories (405 files, 268 of them COBOL) it resolved every internal call with 0 parse errors. Agents get the same facts through its MCP server, and the Studio runs in your browser.</p>
+        <div class="tags"><span class="tag">Go</span><span class="tag">Code review</span><span class="tag">MCP</span><span class="tag">Apache-2.0</span></div>
+        <p>gen-system reviews code changes with <strong>facts from parsers, not guesses from a model</strong>. For each change it lists what may break, new file, network and database calls, functions no test reaches, and functions that grew. On four Go repositories, judged by Go's type checker and <code>go test</code>, it found the callers a signature change breaks with precision 0.98 to 1.00, and flagged 0 of 400 harmless calls. People run it in the terminal or CI, and AI agents call it over MCP. The parsers cover Go, Python, TypeScript, Java, COBOL and CA Gen.</p>
         <div class="altlinks"><a href="https://github.com/hpdkhoa/gen-system">GitHub</a> · <a href="https://gen-system.500kv.co/demo/">live demo</a> · <a href="https://gen-system.500kv.co/">project page</a></div>
       </div>
 
@@ -367,8 +367,8 @@ html[data-lang="en"] .lang-block[data-lang="en"],html[data-lang="vi"] .lang-bloc
 
       <div class="card">
         <h3>gen-system</h3>
-        <div class="tags"><span class="tag">Go</span><span class="tag">COBOL</span><span class="tag">MCP</span><span class="tag">Ollama</span><span class="tag">Apache-2.0</span></div>
-        <p>gen-system đọc codebase bằng <strong>parser, không dùng model</strong>: call graph và control flow graph cho từng routine, với Go, COBOL có copybook, CA Gen, Java, TypeScript và Python. Trên bốn repo công khai (405 file, 268 file COBOL), nó phân giải mọi lời gọi nội bộ với 0 lỗi parse. Agent nhận các dữ kiện này qua MCP server của nó, và Studio chạy ngay trên trình duyệt.</p>
+        <div class="tags"><span class="tag">Go</span><span class="tag">Code review</span><span class="tag">MCP</span><span class="tag">Apache-2.0</span></div>
+        <p>gen-system review thay đổi code bằng <strong>dữ kiện từ parser, không phải phỏng đoán của model</strong>. Với mỗi thay đổi, nó liệt kê chỗ có thể hỏng, lời gọi file, mạng và database mới, hàm không test nào chạm tới, và hàm phình thêm nhánh. Trên bốn repo Go, do type checker của Go và <code>go test</code> chấm, nó tìm ra các chỗ gọi bị hỏng khi đổi signature với precision 0,98 đến 1,00, và không báo nhầm lời gọi vô hại nào trong 400 lời gọi. Người dùng chạy nó trong terminal hoặc CI, còn AI agent gọi nó qua MCP. Parser hỗ trợ Go, Python, TypeScript, Java, COBOL và CA Gen.</p>
         <div class="altlinks"><a href="https://github.com/hpdkhoa/gen-system">GitHub</a> · <a href="https://gen-system.500kv.co/demo/">bản demo trực tuyến</a> · <a href="https://gen-system.500kv.co/">trang giới thiệu</a></div>
       </div>
 

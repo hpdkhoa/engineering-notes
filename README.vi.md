@@ -9,7 +9,7 @@ benchmark và hai đoạn code mẫu nhỏ. Mọi trang đều có tiếng Anh v
 
 | Dự án | Nó làm gì | Công nghệ | Hiện trạng |
 |---|---|---|---|
-| gen-system | Đọc codebase bằng parser, không dùng model: call graph và control flow graph cho từng routine với Go, COBOL có copybook, CA Gen, Java, TypeScript và Python. Liệt kê những gì mỗi routine đọc, gọi và ghi, đưa các dữ kiện đó cho agent qua MCP, và sinh service Go bằng model chạy cục bộ | Go, MCP, model chạy cục bộ qua Ollama | Mã nguồn mở, Apache-2.0, MCP server 0.2.0 |
+| gen-system | Review thay đổi code bằng dữ kiện từ parser, không phải phỏng đoán của model. Với mỗi thay đổi, nó liệt kê chỗ có thể hỏng, lời gọi file, mạng và database mới, hàm không test nào chạm tới, và hàm phình thêm nhánh. Người dùng chạy nó trong terminal hoặc CI; AI agent gọi nó qua MCP. Parser dựng call graph và control flow graph cho từng routine với Go, Python, TypeScript, Java, COBOL và CA Gen. Sinh code bằng model chạy cục bộ là một thử nghiệm nằm bên trên | Go, MCP, model chạy cục bộ qua Ollama | Mã nguồn mở, Apache-2.0, MCP server 0.2.0 |
 | poselab-mcp | Một MCP server trả cho model các câu trả lời không gian có đo đạc khi tạo dáng tay góc nhìn thứ nhất cầm súng trường trong Blender: phần nào lấn vào nhau sâu bao nhiêu, một bề mặt hướng về mắt đến mức nào, và một bộ giải tìm cách di chuyển khẩu súng | Python, MCP, Blender chạy ngầm | Mã nguồn mở, MIT, phiên bản 0.4.0 |
 | Beastwarden | Game tactics roguelite với lõi mô phỏng deterministic theo seed. Đây cũng là nơi tôi điều khiển việc lập trình có AI hỗ trợ theo các quy tắc do máy kiểm tra | TypeScript, Vite, Pixi, Vitest | Đang phát triển, riêng tư |
 | HieuLuat | Hỏi đáp pháp luật tiếng Việt, viện dẫn điều luật đã dùng, hoặc nói rõ là không biết | Python, pgvector, embedding bge-m3, rerank bằng cross encoder | Ngừng phát triển sau khi công ty được mua lại |
@@ -28,10 +28,20 @@ benchmark và hai đoạn code mẫu nhỏ. Mọi trang đều có tiếng Anh v
 
 ## gen-system qua các con số
 
-Tôi đo các số này trên một card RTX 4060 Ti 16 GB, trong đợt chạy ngày 2026-09-09.
+Các số về review và parser đo ngày 2026-10-20 ([phương pháp và file gốc](https://github.com/hpdkhoa/gen-system/blob/main/docs/results.md)). Các số về model
+đo trên một card RTX 4060 Ti 16 GB, trong đợt chạy ngày 2026-09-09.
 
-- Phân giải 100% lời gọi nội bộ, 0 lỗi parse, trên bốn repo công khai: 405 file, trong đó
-  268 file COBOL.
+- Review trên bốn repo Go (go-chi, gorilla/mux, spf13/cobra, gen-system). Tôi tạo các chỉnh sửa
+  đã biết trước đáp án, rồi để type checker của Go và `go test` chấm kết quả. Nó tìm ra các chỗ
+  gọi bị hỏng khi đổi signature với precision 0,98 đến 1,00 và recall 0,87 đến 1,00. Nó tìm ra cả
+  306 lời gọi file, mạng, database và nhánh được chèn vào, và không báo nhầm lời gọi vô hại nào
+  trong 400 lời gọi.
+- Type checker của Go đồng ý với 99% đến 100% liên kết lời gọi Go của gen-system trên cùng bốn
+  repo đó. Trang này từng ghi phân giải 100% lời gọi nội bộ. Cách đếm đó coi một liên kết tới bất
+  kỳ hàm nào cùng tên là đã phân giải; trên go-chi, chỉ 58% lời gọi trỏ đúng hàm. Tôi đã sửa
+  resolver và giữ công khai lời đính chính.
+- 0 lỗi parse trên bốn repo công khai: 405 file, trong đó 268 file COBOL. Compiler GnuCOBOL đồng ý
+  với gen-system trên cả 4.132 vị trí gọi trong COBOL.
 - Token đầu tiên sau 127 ms khi bật streaming, so với 1.884 ms khi gọi chờ trọn kết quả. Sớm
   hơn mười lăm lần.
 - 30,8 token mỗi giây với mức offload GPU mặc định của Ollama, so với 7,9 khi chỉ đưa 20 layer

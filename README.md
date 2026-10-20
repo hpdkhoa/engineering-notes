@@ -9,7 +9,7 @@ in `.vi`.
 
 | Project | What it does | Stack | Status |
 |---|---|---|---|
-| gen-system | Reads a codebase with parsers, not a model: a call graph and a control flow graph per routine for Go, COBOL with copybooks, CA Gen, Java, TypeScript and Python. Lists what each routine reads, calls and writes, serves those facts to agents over MCP, and generates Go services with local models | Go, MCP, local models through Ollama | Open source, Apache-2.0, MCP server 0.2.0 |
+| gen-system | Reviews code changes with facts from parsers, not guesses from a model. For each change it lists what may break, new file, network and database calls, functions no test reaches, and functions that grew. People run it in the terminal or CI; AI agents call it over MCP. The parsers build a call graph and a control flow graph per routine for Go, Python, TypeScript, Java, COBOL and CA Gen. Code generation with local models is an experiment on top | Go, MCP, local models through Ollama | Open source, Apache-2.0, MCP server 0.2.0 |
 | poselab-mcp | An MCP server that gives a model measured spatial answers for posing first-person arms and a rifle in Blender: how deep parts clip, how squarely a surface faces the eye, and a solver for rifle moves | Python, MCP, headless Blender | Open source, MIT, version 0.4.0 |
 | Beastwarden | A tactics roguelite with a seeded, deterministic simulation core. It is also where I direct AI assisted development under rules a machine checks | TypeScript, Vite, Pixi, Vitest | In development, private |
 | HieuLuat | Vietnamese legal question answering that cites the law it used, or says it does not know | Python, pgvector, bge-m3 embeddings, cross encoder rerank | Deprecated after the company's acquisition |
@@ -28,10 +28,19 @@ in `.vi`.
 
 ## gen-system in numbers
 
-I measured these on one RTX 4060 Ti with 16 GB, in the campaign of 2026-09-09.
+The review and parser numbers are from 2026-10-20 ([method and raw files](https://github.com/hpdkhoa/gen-system/blob/main/docs/results.md)). The model
+numbers come from one RTX 4060 Ti with 16 GB, in the campaign of 2026-09-09.
 
-- 100% of internal calls resolved, 0 parse errors, on four public repositories: 405 files,
-  268 of them COBOL.
+- Review on four Go repositories (go-chi, gorilla/mux, spf13/cobra, gen-system). I made edits
+  with a known answer, and Go's type checker and `go test` judged the result. It found the callers
+  a signature change breaks with precision 0.98 to 1.00 and recall 0.87 to 1.00. It found all 306
+  inserted file, network and database calls and branches, and flagged 0 of 400 harmless calls.
+- Go's type checker agrees with 99% to 100% of gen-system's Go call links on the same four
+  repositories. This page used to say 100% of internal calls resolved. That count took a link to
+  any function with the same name as resolved; on go-chi, only 58% of calls linked the right
+  function. I fixed the resolver and kept the correction public.
+- 0 parse errors on four public repositories: 405 files, 268 of them COBOL. GnuCOBOL's compiler
+  agrees with gen-system on all 4,132 COBOL call sites.
 - First token in 127 ms with streaming, against 1,884 ms with a buffered call. Fifteen times
   sooner.
 - 30.8 tokens per second with Ollama's default GPU offload, against 7.9 with 20 layers on the
