@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 560" font-family="system-ui, -apple-system, Segoe UI, sans-serif">
+  <title>Labs: 152 tools in 7 labs became 28 tools in 5 labs</title>
+  <rect width="680" height="560" fill="#ffffff"/>
+  <text x="40" y="38" font-size="15" font-weight="600" fill="#1d1d1b">Before: 7 labs, 152 tools</text>
+  <text x="420" y="38" font-size="15" font-weight="600" fill="#1d1d1b">After: 5 labs, 28 tools</text>
+  <g font-size="13">
+    <g fill="#EEEDFE" stroke="#534AB7" stroke-width="0.6">
+      <rect x="40" y="60" width="230" height="30" rx="4"/><rect x="40" y="96" width="230" height="30" rx="4"/><rect x="40" y="132" width="230" height="30" rx="4"/>
+    </g>
+    <g fill="#3C3489"><text x="52" y="80">Weapon Lab blueprint · 34</text><text x="52" y="116">Model Lab · 10</text><text x="52" y="152">Coating Lab · 13</text></g>
+    <g fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.6"><rect x="40" y="168" width="230" height="30" rx="4"/><rect x="40" y="204" width="230" height="30" rx="4"/></g>
+    <g fill="#085041"><text x="52" y="188">Pose Lab · 34</text><text x="52" y="224">fakepose · 6</text></g>
+    <g fill="#FAECE7" stroke="#993C1D" stroke-width="0.6">
+      <rect x="40" y="240" width="230" height="30" rx="4"/><rect x="40" y="276" width="230" height="30" rx="4"/><rect x="40" y="312" width="230" height="30" rx="4"/><rect x="40" y="348" width="230" height="30" rx="4"/>
+    </g>
+    <g fill="#712B13"><text x="52" y="260">Weapon Lab gate · 11</text><text x="52" y="296">Weapon Lab probe · 3</text><text x="52" y="332">Weapon Lab spec, project · 6</text><text x="52" y="368">Feel Lab · 6</text></g>
+    <g fill="#FBEAF0" stroke="#993556" stroke-width="0.6"><rect x="40" y="384" width="230" height="30" rx="4"/><rect x="40" y="420" width="230" height="30" rx="4"/><rect x="40" y="456" width="230" height="30" rx="4"/></g>
+    <g fill="#72243E"><text x="52" y="404">Weapon Lab gunkit · 11</text><text x="52" y="440">Weapon Lab rig · 5</text><text x="52" y="476">Weapon Lab motion · 5</text></g>
+    <rect x="40" y="492" width="230" height="30" rx="4" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.6"/>
+    <text x="52" y="512" fill="#444441">OCR Lab · 8</text>
+  </g>
+  <g fill="none" stroke-width="1.2">
+    <path d="M270 75 L418 111 M270 111 L418 111 M270 147 L418 111" stroke="#7F77DD"/>
+    <path d="M270 183 L418 201 M270 219 L418 201" stroke="#1D9E75"/>
+    <path d="M270 255 L418 309 M270 291 L418 309 M270 327 L418 309 M270 363 L418 309" stroke="#D85A30"/>
+    <path d="M270 399 L418 435 M270 435 L418 435 M270 471 L418 435" stroke="#D4537E"/>
+    <path d="M270 507 L418 507" stroke="#888780"/>
+  </g>
+  <g text-anchor="middle">
+    <rect x="420" y="60" width="220" height="102" rx="8" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.6"/>
+    <text x="530" y="106" font-size="14" font-weight="600" fill="#3C3489">Object Lab: 7 tools</text>
+    <text x="530" y="126" font-size="12" fill="#534AB7">was 57 · step 1</text>
+    <rect x="420" y="168" width="220" height="66" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.6"/>
+    <text x="530" y="196" font-size="14" font-weight="600" fill="#085041">Hold Lab: 8 tools</text>
+    <text x="530" y="216" font-size="12" fill="#0F6E56">was 40 · force check comes in step 4</text>
+    <rect x="420" y="240" width="220" height="138" rx="8" fill="#FAECE7" stroke="#993C1D" stroke-width="0.6"/>
+    <text x="530" y="304" font-size="14" font-weight="600" fill="#712B13">Gate Lab: 6 tools</text>
+    <text x="530" y="324" font-size="12" fill="#993C1D">was 26 · steps 5, 7</text>
+    <rect x="420" y="384" width="220" height="102" rx="8" fill="#FBEAF0" stroke="#993556" stroke-width="0.6"/>
+    <text x="530" y="430" font-size="14" font-weight="600" fill="#72243E">Create Lab: 4 tools</text>
+    <text x="530" y="450" font-size="12" fill="#993556">was 21 · step 6</text>
+    <rect x="420" y="492" width="220" height="30" rx="4" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.6"/>
+    <text x="530" y="512" font-size="13" fill="#444441">OCR Lab: 3 tools, was 8</text>
+  </g>
+  <text x="40" y="548" font-size="11" fill="#6b6a64">Each new tool takes an action and its arguments, and calls the old lab function unchanged.</text>
+</svg>
