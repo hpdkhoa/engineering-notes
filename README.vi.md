@@ -11,6 +11,7 @@ benchmark và hai đoạn code mẫu nhỏ. Mọi trang đều có tiếng Anh v
 |---|---|---|---|
 | gen-system | Review thay đổi code bằng dữ kiện từ parser, không phải phỏng đoán của model. Với mỗi thay đổi, nó liệt kê chỗ có thể hỏng, lời gọi file, mạng và database mới, hàm không test nào chạm tới, và hàm phình thêm nhánh. Người dùng chạy nó trong terminal hoặc CI; AI agent gọi nó qua MCP. Parser dựng call graph và control flow graph cho từng routine với Go, Python, TypeScript, Java, COBOL và CA Gen. Sinh code bằng model chạy cục bộ là một thử nghiệm nằm bên trên | Go, MCP, model chạy cục bộ qua Ollama | Mã nguồn mở, Apache-2.0, MCP server 0.2.0 |
 | poselab-mcp | Một MCP server trả cho model các câu trả lời không gian có đo đạc khi tạo dáng tay góc nhìn thứ nhất cầm súng trường trong Blender: phần nào lấn vào nhau sâu bao nhiêu, một bề mặt hướng về mắt đến mức nào, và một bộ giải tìm cách di chuyển khẩu súng | Python, MCP, Blender chạy ngầm | Mã nguồn mở, MIT, phiên bản 0.4.0 |
+| Labs | Năm MCP server giúp model dựng và chấm việc 3D bằng số đo: bộ phận, cơ thể, điểm chạm, lực. 152 công cụ trong 7 lab gộp thành 28 công cụ trong 5 lab | Python, MCP, Blender chạy ngầm | Mã nguồn mở, MIT ([trang](labs/README.vi.md)) |
 | Beastwarden | Game tactics roguelite với lõi mô phỏng deterministic theo seed. Đây cũng là nơi tôi điều khiển việc lập trình có AI hỗ trợ theo các quy tắc do máy kiểm tra | TypeScript, Vite, Pixi, Vitest | Đang phát triển, riêng tư |
 | HieuLuat | Hỏi đáp pháp luật tiếng Việt, viện dẫn điều luật đã dùng, hoặc nói rõ là không biết | Python, pgvector, embedding bge-m3, rerank bằng cross encoder | Ngừng phát triển sau khi công ty được mua lại |
 
@@ -24,6 +25,12 @@ benchmark và hai đoạn code mẫu nhỏ. Mọi trang đều có tiếng Anh v
 - poselab-mcp: [GitHub](https://github.com/hpdkhoa/poselab-mcp)
   · [PyPI](https://pypi.org/project/poselab-mcp/)
   · [MCP Registry](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.hpdkhoa/poselab-mcp)
+- Labs: [page](labs/README.vi.md)
+  · [objectlab-mcp](https://github.com/hpdkhoa/objectlab-mcp)
+  · [holdlab-mcp](https://github.com/hpdkhoa/holdlab-mcp)
+  · [gatelab-mcp](https://github.com/hpdkhoa/gatelab-mcp)
+  · [createlab-mcp](https://github.com/hpdkhoa/createlab-mcp)
+  · [ocrlab-mcp](https://github.com/hpdkhoa/ocrlab-mcp)
 - Beastwarden:
 
 ## gen-system qua các con số
