@@ -10,7 +10,7 @@ in `.vi`.
 | Project | What it does | Stack | Status |
 |---|---|---|---|
 | gen-system | Reviews code changes with facts from parsers, not guesses from a model. For each change it lists what may break, new file, network and database calls, functions no test reaches, and functions that grew. People run it in the terminal or CI; AI agents call it over MCP. The parsers build a call graph and a control flow graph per routine for Go, Python, TypeScript, Java, COBOL and CA Gen. Code generation with local models is an experiment on top | Go, MCP, local models through Ollama | Open source, Apache-2.0, MCP server 0.2.0 |
-| poselab-mcp | An MCP server that gives a model measured spatial answers for posing first-person arms and a rifle in Blender: how deep parts clip, how squarely a surface faces the eye, and a solver for rifle moves | Python, MCP, headless Blender | Open source, MIT, version 0.4.0 |
+| poselab-mcp | Gives a model measured spatial answers for posing first-person arms and a rifle in Blender: clip depth, facing the eye, and a solver for rifle moves | Python, MCP, headless Blender | Open source, MIT, version 0.4.0 |
 | Labs | Five MCP servers that let a model build and judge 3D work by measured numbers: parts, bodies, contacts, forces. 152 tools in 7 labs became 28 tools in 5 | Python, MCP, headless Blender | Open source, MIT ([page](labs/README.md)) |
 | Beastwarden | A tactics roguelite with a seeded, deterministic simulation core. It is also where I direct AI assisted development under rules a machine checks | TypeScript, Vite, Pixi, Vitest | In development, private |
 | HieuLuat | Vietnamese legal question answering that cites the law it used, or says it does not know | Python, pgvector, bge-m3 embeddings, cross encoder rerank | Deprecated after the company's acquisition |
@@ -70,8 +70,8 @@ Five posing tasks, three trials each. Pose Lab's own measurements graded every t
 
 - [01, making a legal search path fast and still correct](writeups/01-hieuluat-retrieval-optimization.md).
   Vector indexing, retrieve then rerank, FP16 embeddings, and how much of a request each stage
-  costs. HieuLuat is deprecated after the company's acquisition; the writeup stays as a record of
-  the method.
+  costs. HieuLuat ended after the company's acquisition; the writeup stays as a record of the
+  method.
 - [02, tuning local LLM inference for a code engine](writeups/02-gen-system-inference-optimization.md).
   GPU layer offload, streaming, quantization as a measured variable, and two models sharing one
   16 GB card.

@@ -29,5 +29,4 @@ Các mô hình campaign đã dùng, theo kết quả `ollama list` báo cáo. K�
 
 ## HieuLuat
 
-Bench retrieval riêng của HieuLuat đã đo các dòng của nó vào tháng 8 năm 2026, trên cùng card RTX 4060 Ti,
-với một bộ dữ liệu đánh giá cố định. Bench đó là riêng tư, nên trang này không ghi phiên bản nào của nó.
+Bench retrieval riêng của HieuLuat đo các dòng của nó vào tháng 8 năm 2026. Nó chạy trên cùng card RTX 4060 Ti, với một bộ dữ liệu đánh giá cố định. Bench đó là riêng tư, nên trang này không ghi phiên bản nào của nó.

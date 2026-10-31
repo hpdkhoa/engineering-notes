@@ -158,7 +158,7 @@ html[data-lang="en"] .lang-block[data-lang="en"],html[data-lang="vi"] .lang-bloc
     </div>
     <div class="kicker">Khoa Hoang · systems, applied LLMs, GPU and inference</div>
     <h1 class="title">I build systems, ship applied LLM products, and measure what they do on the GPU.</h1>
-    <p class="lede">Architecture and <strong>measured results</strong> for the systems I build. gen-system and poselab-mcp are open source. HieuLuat is deprecated after the company's acquisition; its writeup stays as a record of the method.</p>
+    <p class="lede">Architecture and <strong>measured results</strong> for the systems I build. gen-system and poselab-mcp are open source. HieuLuat ended after the company's acquisition; its writeup stays as a record of the method.</p>
     <div class="cta-row">
       <a class="btn primary" href="#writeups">Read the writeups
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
@@ -181,7 +181,7 @@ html[data-lang="en"] .lang-block[data-lang="en"],html[data-lang="vi"] .lang-bloc
         <span class="num">Writeup 01</span>
         <h3>Making a legal search path fast and still correct</h3>
         <div class="tags"><span class="tag">RAG</span><span class="tag">pgvector</span><span class="tag">FP16 embeddings</span><span class="tag">reranking</span></div>
-        <p>Vector indexing, retrieve then rerank, and FP16 embeddings, with the recall, latency and quality trade offs measured on a fixed evaluation set. It includes a negative result. The reranker cost 384 ms and improved nothing, and section 6 works out which component that blames. HieuLuat is deprecated after the company's acquisition.</p>
+        <p>Vector indexing, retrieve then rerank, and FP16 embeddings, with the recall, latency and quality trade offs measured on a fixed evaluation set. It includes a negative result. The reranker cost 384 ms and improved nothing, and section 6 works out which component that blames. HieuLuat ended after the company's acquisition.</p>
         <a class="go" href="writeups/01-hieuluat-retrieval-optimization.html">Read the web version →</a>
         <div class="altlinks">also: <a href="writeups/01-hieuluat-retrieval-optimization.md">markdown</a></div>
       </div>
@@ -190,7 +190,7 @@ html[data-lang="en"] .lang-block[data-lang="en"],html[data-lang="vi"] .lang-bloc
         <span class="num">Writeup 02</span>
         <h3>Tuning local LLM inference for a code engine</h3>
         <div class="tags"><span class="tag">inference</span><span class="tag">quantization</span><span class="tag">GPU offload</span><span class="tag">streaming</span></div>
-        <p>GPU layer offload, streaming, quantization treated as a measured variable, and two models sharing one 16 GB card. An <em>objective</em> quality metric judges each choice. In section 4 I find that my own quality metric was broken, and I show what replaced it.</p>
+        <p>GPU layer offload, streaming, quantization treated as a measured variable, and two models sharing one 16 GB card. An <em>objective</em> quality metric judges each choice. In section 4 I find that my own quality metric measured the wrong thing, and I show what replaced it.</p>
         <a class="go" href="writeups/02-gen-system-inference-optimization.html">Read the web version →</a>
         <div class="altlinks">also: <a href="writeups/02-gen-system-inference-optimization.md">markdown</a></div>
       </div>
@@ -211,20 +211,20 @@ html[data-lang="en"] .lang-block[data-lang="en"],html[data-lang="vi"] .lang-bloc
   <section class="sec">
     <p class="sec-head">The systems</p>
     <h2 class="sec-title">What the writeups are about</h2>
-    <p class="sec-sub">Two are open source. Beastwarden is in development. HieuLuat is deprecated after the company's acquisition.</p>
+    <p class="sec-sub">Two are open source. Beastwarden is in development. HieuLuat ended after the company's acquisition.</p>
     <div class="cards">
 
       <div class="card">
         <h3>gen-system</h3>
         <div class="tags"><span class="tag">Go</span><span class="tag">Code review</span><span class="tag">MCP</span><span class="tag">Apache-2.0</span></div>
-        <p>gen-system reviews code changes with <strong>facts from parsers, not guesses from a model</strong>. For each change it lists what may break, new file, network and database calls, functions no test reaches, and functions that grew. On four Go repositories, judged by Go's type checker and <code>go test</code>, it found the callers a signature change breaks with precision 0.98 to 1.00, and flagged 0 of 400 harmless calls. People run it in the terminal or CI, and AI agents call it over MCP. The parsers cover Go, Python, TypeScript, Java, COBOL and CA Gen.</p>
+        <p>gen-system reviews code changes with <strong>facts from parsers, not guesses from a model</strong>. For each change it lists what may break, new file, network and database calls, functions no test reaches, and functions that grew. I judged it on four Go repositories with Go's type checker and <code>go test</code>. It found the callers a signature change breaks with precision 0.98 to 1.00. It flagged 0 of 400 harmless calls. People run it in the terminal or CI, and AI agents call it over MCP. The parsers cover Go, Python, TypeScript, Java, COBOL and CA Gen.</p>
         <div class="altlinks"><a href="https://github.com/hpdkhoa/gen-system">GitHub</a> · <a href="https://gen-system.500kv.co/demo/">live demo</a> · <a href="https://gen-system.500kv.co/">project page</a></div>
       </div>
 
       <div class="card">
         <h3>poselab-mcp</h3>
         <div class="tags"><span class="tag">Python</span><span class="tag">MCP</span><span class="tag">Blender</span><span class="tag">MIT</span></div>
-        <p>An MCP server that gives a model <strong>measured spatial answers</strong> for posing first-person arms and a rifle in Blender. With measured answers, agents passed 15 of 15 posing tasks; with pictures alone, 11 of 15.</p>
+        <p>Gives a model <strong>measured spatial answers</strong> for posing first-person arms and a rifle in Blender. With measured answers, agents passed 15 of 15 posing tasks; with pictures alone, 11 of 15.</p>
       </div>
 
       <div class="card">
@@ -316,7 +316,7 @@ html[data-lang="en"] .lang-block[data-lang="en"],html[data-lang="vi"] .lang-bloc
     </div>
     <div class="kicker">Khoa Hoang · hệ thống, LLM ứng dụng, GPU và inference</div>
     <h1 class="title">Tôi xây dựng hệ thống, đưa sản phẩm LLM ứng dụng vào sử dụng, và đo chúng trên GPU.</h1>
-    <p class="lede">Đây là kiến trúc và <strong>kết quả đo</strong> của các hệ thống tôi xây. gen-system và poselab-mcp là mã nguồn mở. HieuLuat đã ngừng phát triển sau khi công ty được mua lại; tôi giữ lại bài viết về nó để ghi nhận phương pháp.</p>
+    <p class="lede">Đây là kiến trúc và <strong>kết quả đo</strong> của các hệ thống tôi xây. gen-system và poselab-mcp là mã nguồn mở. HieuLuat đã ngừng phát triển sau thương vụ mua lại công ty; tôi giữ lại bài viết về nó để ghi nhận phương pháp.</p>
     <div class="cta-row">
       <a class="btn primary" href="#writeups-vi">Đọc các bài phân tích
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
@@ -339,7 +339,7 @@ html[data-lang="en"] .lang-block[data-lang="en"],html[data-lang="vi"] .lang-bloc
         <span class="num">Bài viết 01</span>
         <h3>Làm cho luồng tìm kiếm pháp luật nhanh mà vẫn đúng</h3>
         <div class="tags"><span class="tag">RAG</span><span class="tag">pgvector</span><span class="tag">FP16 embeddings</span><span class="tag">rerank</span></div>
-        <p>Vector index, retrieval rồi rerank, và embedding FP16. Các đánh đổi giữa recall, latency và chất lượng đã đo trên một eval set cố định. Bài có một kết quả âm tính. Reranker tốn 384 ms mà không cải thiện được gì. Mục 6 xác định lỗi đó thuộc về thành phần nào. HieuLuat đã ngừng phát triển sau khi công ty được mua lại.</p>
+        <p>Vector index, retrieval rồi rerank, và embedding FP16. Các đánh đổi giữa recall, latency và chất lượng đã đo trên một eval set cố định. Bài có một kết quả âm tính. Reranker tốn 384 ms mà không cải thiện được gì. Mục 6 xác định lỗi đó thuộc về thành phần nào. HieuLuat đã ngừng phát triển sau thương vụ mua lại công ty.</p>
         <a class="go" href="writeups/01-hieuluat-retrieval-optimization.vi.html">Đọc bản web →</a>
         <div class="altlinks">hoặc: <a href="writeups/01-hieuluat-retrieval-optimization.vi.md">markdown</a></div>
       </div>
@@ -369,13 +369,13 @@ html[data-lang="en"] .lang-block[data-lang="en"],html[data-lang="vi"] .lang-bloc
   <section class="sec">
     <p class="sec-head">Các hệ thống</p>
     <h2 class="sec-title">Các writeup viết về điều gì</h2>
-    <p class="sec-sub">Hai dự án là mã nguồn mở. Beastwarden đang phát triển. HieuLuat đã ngừng phát triển sau khi công ty được mua lại.</p>
+    <p class="sec-sub">Hai dự án là mã nguồn mở. Beastwarden đang phát triển. HieuLuat đã ngừng phát triển sau thương vụ mua lại công ty.</p>
     <div class="cards">
 
       <div class="card">
         <h3>gen-system</h3>
         <div class="tags"><span class="tag">Go</span><span class="tag">Code review</span><span class="tag">MCP</span><span class="tag">Apache-2.0</span></div>
-        <p>gen-system review thay đổi code bằng <strong>dữ kiện từ parser, không phải phỏng đoán của model</strong>. Với mỗi thay đổi, nó liệt kê chỗ có thể hỏng, lời gọi file, mạng và database mới, hàm không test nào chạm tới, và hàm phình thêm nhánh. Trên bốn repo Go, do type checker của Go và <code>go test</code> chấm, nó tìm ra các chỗ gọi bị hỏng khi đổi signature với precision 0,98 đến 1,00, và không báo nhầm lời gọi vô hại nào trong 400 lời gọi. Người dùng chạy nó trong terminal hoặc CI, còn AI agent gọi nó qua MCP. Parser hỗ trợ Go, Python, TypeScript, Java, COBOL và CA Gen.</p>
+        <p>gen-system review thay đổi code bằng <strong>dữ kiện từ parser, không phải phỏng đoán của model</strong>. Với mỗi thay đổi, nó liệt kê chỗ có thể hỏng và lời gọi file, mạng, database mới. Nó cũng liệt kê hàm không test nào chạm tới và hàm phình thêm nhánh. Tôi chấm nó trên bốn repo Go bằng type checker của Go và <code>go test</code>. Nó tìm ra các chỗ gọi hỏng khi đổi signature với precision 0,98 đến 1,00. Nó không báo nhầm lời gọi vô hại nào trong 400 lời gọi. Người dùng chạy nó trong terminal hoặc CI, còn AI agent gọi nó qua MCP. Parser hỗ trợ Go, Python, TypeScript, Java, COBOL và CA Gen.</p>
         <div class="altlinks"><a href="https://github.com/hpdkhoa/gen-system">GitHub</a> · <a href="https://gen-system.500kv.co/demo/">bản demo trực tuyến</a> · <a href="https://gen-system.500kv.co/">trang giới thiệu</a></div>
       </div>
 
@@ -401,7 +401,7 @@ html[data-lang="en"] .lang-block[data-lang="en"],html[data-lang="vi"] .lang-bloc
       <div class="card">
         <h3>HieuLuat <span class="tag">ngừng phát triển</span></h3>
         <div class="tags"><span class="tag">Python</span><span class="tag">pgvector</span><span class="tag">bge-m3 (GPU)</span></div>
-        <p>Một hệ thống <strong>hỏi đáp pháp luật</strong> tiếng Việt, chỉ trả lời từ văn bản luật lấy được qua retrieval, có trích dẫn nguồn, và từ chối khi corpus không có thông tin. Đã ngừng phát triển sau khi công ty được mua lại; code vẫn riêng tư.</p>
+        <p>Một hệ thống <strong>hỏi đáp pháp luật</strong> tiếng Việt. Nó chỉ trả lời từ văn bản luật mà retrieval tìm ra, có trích dẫn nguồn, và từ chối khi corpus không có thông tin. Đã ngừng phát triển sau thương vụ mua lại công ty; code vẫn riêng tư.</p>
       </div>
 
     </div>

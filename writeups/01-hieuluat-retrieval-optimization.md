@@ -4,8 +4,8 @@
 
 ### Vector indexing, reranking, and FP16 embeddings, with the trade offs measured
 
-> **Context:** HieuLuat was a Vietnamese legal question answering system. It is deprecated after
-> the company's acquisition, and its code, corpus and prompts stay private. This writeup stays as a
+> **Context:** HieuLuat was a Vietnamese legal question answering system. It ended after the
+> company's acquisition. Its code, corpus and prompts stay private. This writeup stays as a
 > record of the method. **What this covers:** how I made its search path fast without making it
 > less trustworthy. A wrong answer that arrives quickly is still an answer a lawyer repeats to a
 > client. This page has the measurements but not the code.

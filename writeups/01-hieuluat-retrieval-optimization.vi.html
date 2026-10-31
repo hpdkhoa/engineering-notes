@@ -268,7 +268,7 @@ html[data-theme="dark"] .ra-sent.speaking{background:#1d3a36;box-shadow:0 0 0 3p
     </div>
 
     <div class="rail-foot">
-      Giao diện và vị trí đọc được lưu trong trình duyệt này.
+      Trình duyệt này lưu giao diện và vị trí đọc.
       <br><button id="resetBtn">Đặt lại vị trí đọc</button>
     </div>
   </aside>
@@ -278,7 +278,7 @@ html[data-theme="dark"] .ra-sent.speaking{background:#1d3a36;box-shadow:0 0 0 3p
 <p><a href="01-hieuluat-retrieval-optimization.html">English</a> · <strong>Tiếng Việt</strong></p>
 <h1 id="làm-cho-luồng-tìm-kiếm-pháp-luật-nhanh-mà-vẫn-đúng">Làm cho luồng tìm kiếm pháp luật nhanh mà vẫn đúng</h1>
 <h3 id="vector-index-rerank-và-embedding-fp16-cùng-các-đánh-đổi-đã-đo">Vector index, rerank và embedding FP16, cùng các đánh đổi đã đo</h3>
-<blockquote><p><strong>Bối cảnh:</strong> HieuLuat từng là một hệ thống hỏi đáp pháp luật Việt Nam. Hệ thống đã ngừng phát triển sau khi công ty được mua lại, còn code, corpus và prompt vẫn riêng tư. Bài viết này ở lại như một bản ghi về phương pháp. <strong>Nội dung bài:</strong> cách tôi làm cho luồng tìm kiếm của nó nhanh hơn mà không làm nó kém tin cậy đi. Một câu trả lời sai đến nhanh thì vẫn là câu mà luật sư sẽ nhắc lại với khách hàng. Bài này có các phép đo nhưng không có code.</p></blockquote>
+<blockquote><p><strong>Bối cảnh:</strong> HieuLuat từng là một hệ thống hỏi đáp pháp luật Việt Nam. Hệ thống đã ngừng phát triển sau thương vụ mua lại công ty, còn code, corpus và prompt vẫn riêng tư. Bài viết này ở lại như một bản ghi về phương pháp. <strong>Nội dung bài:</strong> cách tôi làm cho luồng tìm kiếm của nó nhanh hơn mà không làm nó kém tin cậy đi. Một câu trả lời sai đến nhanh thì vẫn là câu mà luật sư sẽ nhắc lại với khách hàng. Bài này có các phép đo nhưng không có code.</p></blockquote>
 <hr>
 <h2 id="0-cấu-hình-máy-đo">0. Cấu hình máy đo</h2>
 <p>Một GPU phổ thông, NVIDIA RTX 4060 Ti 16 GB. Tôi đo các dòng ở mục 5 vào tháng 8 năm 2026 bằng bench retrieval riêng của HieuLuat, với một bộ đánh giá cố định đã gán nhãn. Code của bench là riêng tư, và từ đó tôi chưa chạy lại.</p>
@@ -353,14 +353,14 @@ html[data-theme="dark"] .ra-sent.speaking{background:#1d3a36;box-shadow:0 0 0 3p
 <p>Reranker cho kết quả âm tính. Lấy 50 ứng viên rồi chấm điểm lại chúng thêm 384 ms và không thay đổi chất lượng câu trả lời chút nào.</p>
 <p>Điều đó suy ra từ mức trần ở trên. Reranker chỉ sắp xếp lại các ứng viên mà retrieval đưa cho nó. Nếu retrieval không bao giờ trả về chunk đúng, chấm điểm lại bao nhiêu cũng không tạo ra được nó.</p>
 <p>Tôi chưa loại trừ được một nguyên nhân thứ hai. Một mức 0.75 phẳng trên mọi cấu hình cũng là hình dạng của một bộ đánh giá hỏng. Phép đo phân biệt được hai trường hợp là recall at 50, tức tập ứng viên mà reranker thực sự nhìn thấy.</p>
-<ul><li>Nếu recall at 50 cũng quanh 0.75, các lần bỏ sót là bỏ sót retrieval thật. Khi đó cách sửa nằm ở phía trước cả index lẫn reranker: chia chunk tốt hơn, tìm kiếm lai giữa keyword và vector, hoặc một embedding model tốt hơn cho văn bản pháp luật tiếng Việt.</li><li>Nếu recall at 50 cao hơn nhiều, các ứng viên đã có ở đó và reranker không đẩy được chúng lên. Đó là vấn đề của reranker, và là vấn đề dễ hơn.</li></ul>
+<ul><li>Nếu recall at 50 cũng quanh 0.75, các lần bỏ sót là bỏ sót retrieval thật. Khi đó cách sửa nằm trước cả index lẫn reranker. Đó là chia chunk tốt hơn, tìm kiếm lai keyword và vector, hoặc một embedding model tốt hơn cho văn bản pháp luật tiếng Việt.</li><li>Nếu recall at 50 cao hơn nhiều, các ứng viên đã có ở đó và reranker không đẩy được chúng lên. Đó là vấn đề của reranker, và là vấn đề dễ hơn.</li></ul>
 <p>Không ai đo con số đó trước khi sản phẩm đổi chủ, nên nhận định của tôi vẫn hẹp. Index không phải nút thắt, và reranker chưa xứng đáng với 384 ms của nó. Vì vậy nó ra khỏi đường trả lời mặc định. Nó ở ngoài cho tới khi có người đo recall at 50.</p>
 <h2 id="7-hướng-phát-triển">7. Hướng phát triển</h2>
 <p>Hướng mở rộng sâu nhất là một CUDA kernel viết tay cho một phần của đường chấm điểm. Nó sẽ gộp bước chuẩn hóa và bước tích vô hướng trên tập ứng viên. Tôi sẽ profile nó bằng Nsight so với phiên bản NumPy và phiên bản pgvector. Đó là khác biệt giữa gọi một thư viện GPU và tự viết kernel. Code của HieuLuat là riêng tư, nên phần việc đó giờ diễn ra trong gen-system. Đường retrieval của gen-system có cùng dạng chấm điểm cosine. Kế hoạch nằm trong <a href="02-gen-system-inference-optimization.vi.html">writeup về inference</a>.</p>
 <p>Đường chấm điểm chiếm dưới 1 ms trong một request mất khoảng 385 ms khi bật reranker. Một kernel ở đó chứng minh năng lực. Nó sẽ không làm request nhanh lên. Nên tôi nói điều đó ngay từ đầu, đưa ra roofline dự đoán kết quả, rồi vẫn cứ đo.</p>
 <h2 id="8-những-nguyên-tắc-tôi-giữ-lại">8. Những nguyên tắc tôi giữ lại</h2>
 <p>Nếu làm lại, tôi vẫn chọn điểm vận hành của index và tách phần việc embedding theo đúng cách đó. Không có gì thông minh ở đây. Cả hai đều là thứ người ta bỏ qua khi đang vội.</p>
-<p>Mục 6 mới là phần tôi còn nghĩ tới. Kết quả rerank ra âm tính, còn con số recall thì phẳng tới mức đáng ngượng. Tìm ra con số phẳng đó quy lỗi cho thành phần nào, rồi gọi tên đúng một phép đo phân định được, tốn thời gian hơn toàn bộ phần tinh chỉnh.</p>
+<p>Mục 6 mới là phần tôi còn nghĩ tới. Kết quả rerank ra âm tính, còn con số recall thì phẳng tới mức đáng ngượng. Phần tốn thời gian nhất không phải là tinh chỉnh. Đó là tìm ra con số phẳng đó quy lỗi cho thành phần nào, rồi gọi tên đúng một phép đo phân định được.</p>
 <p><em>Phương pháp nằm trong <a href="03-reproducible-benchmarking.vi.html">benchmarking tái lập được</a>. Giá trị tuyệt đối phụ thuộc vào GPU. Hình dạng của mỗi đánh đổi thì vẫn đúng trên card khác.</em></p>
 </article>
   </main>
@@ -558,7 +558,7 @@ document.addEventListener('DOMContentLoaded',function(){
 
   function speakCurrent(){
     if(idx>=sentences.length){ stop(); return; }
-    var u=new SpeechSynthesisUtterance(sentences[idx].text); u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN';
+    var u=new SpeechSynthesisUtterance(sentences[idx].text); u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN'; u.lang='vi-VN';
     u.rate=rate; var v=pickVoice(); if(v) u.voice=v;
     u.onend=function(){
       if(playing&&!paused){ idx++; highlight(idx); speakCurrent(); }

@@ -4,8 +4,7 @@
 
 ### GPU offload, streaming, quantization, và hai model dùng chung một card phổ thông
 
-> **Bối cảnh:** với mỗi routine, gen-system liệt kê input, các lời gọi, dữ liệu nó ghi và hành động
-> mà tên của nó gợi ý, rồi đối chiếu các nhận định của model với những điều đó. Nó neo model vào một graph dựng từ AST, và kiểm chứng đầu ra từ bên ngoài. Mã nguồn
+> **Bối cảnh:** với mỗi routine, gen-system liệt kê input, các lời gọi, dữ liệu nó ghi và hành động mà tên của nó gợi ý. Rồi nó đối chiếu các nhận định của model với những điều đó. Nó neo model vào một graph dựng từ AST, và kiểm chứng đầu ra từ bên ngoài. Mã nguồn
 > mở theo Apache-2.0 tại [github.com/hpdkhoa/gen-system](https://github.com/hpdkhoa/gen-system).
 > **Nội dung bài này:** tinh chỉnh tầng inference của nó. Phép kiểm tra chất lượng là khách quan.
 > Code sinh ra hoặc build được và qua test của nó, hoặc không. Mục 4 giải thích vì sao phiên bản dễ
@@ -65,8 +64,7 @@ Bench driver quét `OLLAMA_NUM_GPU` và lấy mẫu VRAM đỉnh ở mỗi bư�
 `OLLAMA_STREAM` bật streaming. Bộ đọc tiêu thụ stream và ghép các mảnh lại thành một chuỗi. Chuỗi
 đó giống hệt chuỗi mà đường buffered cũ trả về.
 
-Mọi thứ phía sau nhận cùng một đầu vào trong cả hai trường hợp: bước trích JSON, quy tắc thân hàm
-sinh ra phải trả về riêng lẻ, và bước kiểm tra determinism. Streaming chỉ thay đổi thời điểm văn bản
+Mọi thứ phía sau nhận cùng một đầu vào trong cả hai trường hợp. Đó là bước trích JSON, quy tắc thân hàm sinh ra phải trả về riêng lẻ, và bước kiểm tra determinism. Streaming chỉ thay đổi thời điểm văn bản
 tới. Một test khẳng định chỉ có một đầu ra duy nhất qua năm response streaming giống hệt nhau.
 
 Buffered vẫn là mặc định. Streaming phải bật chủ động cho tới khi phép đo cho thấy điều khác.
@@ -98,7 +96,7 @@ Phần đo đạc giờ đếm những gì thực sự thay đổi. Tất cả �
 | `op_repair_attempts` và `op_repair_successes` | Số vòng sửa ở cấp operation, tối đa 2 vòng trước khi dùng stub. Một mức quant yếu hơn lẽ ra sẽ cần nhiều vòng hơn. |
 | `heal_attempts_total` và `heal_success` | Số vòng sửa ở cấp task, tối đa 3 vòng. |
 | `go_test_pass` | Backend sinh ra có qua test của chính nó hay không, kể cả một test sẽ fail nếu một operation panic lúc runtime. |
-| `verify_findings` | Những gì công cụ hiểu code của chính dự án tìm thấy khi đọc lại backend sinh ra: lời gọi chưa resolve được, operation mồ côi, operation đọc nhưng lại ghi. |
+| `verify_findings` | Công cụ hiểu code của dự án đọc lại backend sinh ra và tìm: lời gọi chưa resolve được, operation mồ côi, operation đọc nhưng lại ghi. |
 | `prompt_tokens` và `wall_s` | Chi phí cho mỗi lần chạy. |
 
 Harness vẫn báo tỷ lệ compile thành công. Nó không còn là con số chính. Tôi đã ghi ra lý do nó
@@ -274,8 +272,7 @@ theo một lời gọi có tiền tố package qua các import của hàm gọi.
 thì vẫn là chưa resolve. Trên cùng các repo SWE-bench, tỷ lệ resolve nội bộ giờ là 92.6 phần trăm
 cho astropy và 96.1 phần trăm cho django. Số cạnh nội bộ trên các repo Go giảm tới một phần bảy. Các
 lời gọi vào package mà index không chứa giờ tính là bên ngoài, thay vì khớp nhầm với một symbol. Các
-con số này có thể thay đổi, còn con số cũ thì không. Cùng thay đổi đó giảm verify findings trên các
-backend sinh ra từ vài trăm mỗi lần chạy, gần như toàn là lời gọi thư viện chuẩn, xuống còn 0.
+con số này có thể thay đổi, còn con số cũ thì không. Cùng thay đổi đó giảm verify findings trên các backend sinh ra từ vài trăm mỗi lần chạy xuống 0. Gần như tất cả là lời gọi thư viện chuẩn.
 
 Với SWE-bench, hãy đọc cột neighbourhood trước cột recall. Bảng này là localization recall trên 60
 task đầu tiên của SWE-bench Verified theo thứ tự instance, gồm 22 task astropy và 38 task django. Nó
@@ -300,8 +297,7 @@ chia: băng thông bộ nhớ chia cho số byte trọng số phải đọc cho 
 đạt 96 phần trăm mức đó. Nhiệm vụ của kernel là tái hiện mức trần đó bằng code của chính tôi, và chỉ
 ra khoảng cách còn lại nằm ở đâu.
 
-Hướng thứ hai là đưa các graph luồng điều khiển đã render quay lại cho model làm ngữ cảnh sửa lỗi,
-đặt sau một cờ, và đo nó đúng cách. Tôi dự đoán không có tác động với việc sửa code Go, vì compiler
+Hướng thứ hai là đưa các graph luồng điều khiển đã render lại cho model làm ngữ cảnh sửa lỗi. Tôi đặt nó sau một cờ và đo nó đúng cách. Tôi dự đoán không có tác động với việc sửa code Go, vì compiler
 đã báo cho model biết sai ở đâu. Tôi dự đoán có thể có tác động với COBOL và với việc làm giàu niềm
 tin, nơi không có compiler để dựa vào. Tôi sẽ công bố kết quả dù thế nào, kể cả khi không có tác
 động.
@@ -331,8 +327,7 @@ thế. Chỉ test thứ bảy phụ thuộc nền tảng.
 Có một resolver không thể trượt. Bước verify đọc lại code sinh ra đã báo 100 phần trăm resolve nội
 bộ trên mọi repo Python. Cùng lúc đó, nó báo hàng trăm lời gọi chưa resolve trên mọi backend sinh ra.
 Cả hai con số đến từ cùng một lối tắt. Bước verify so khớp một lời gọi theo tên trần với mọi symbol
-mà index chứa. Khi thay bằng cách đi theo lời gọi qua các import của hàm gọi, con số 100 thành 92.6
-và 96.1 trên hai repo công khai, và hàng trăm findings thành 0. Mục 6 có cả hai con số.
+mà index chứa. Khi tôi thay bằng cách đi theo lời gọi qua các import của hàm gọi, con số 100 thành 92.6 và 96.1 trên hai repo công khai. Hàng trăm findings thành 0. Mục 6 có cả hai con số.
 
 Cả ba có chung một cơ chế bên dưới. Mỗi lỗi là một phép so sánh chỉ có thể trả về đúng một kết quả.
 

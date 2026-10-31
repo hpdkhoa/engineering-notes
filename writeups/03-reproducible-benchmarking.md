@@ -5,11 +5,10 @@
 ### Frozen baselines, gates, determinism, and the two metrics that measured nothing
 
 > **Context:** I tuned both projects here against fixed, repeatable measurements. gen-system keeps
-> its harness and results in [its repository](https://github.com/hpdkhoa/gen-system). HieuLuat is
-> deprecated after the company's acquisition. Its harness stayed private, but its rows follow the
-> same rules. **What this covers:** the three rules, what a frozen baseline and a gate are, how I
-> make runs repeatable and where they are not, and the two times a quality metric turned out to
-> measure nothing. Each of those two lessons cost me a campaign.
+> its harness and results in [its repository](https://github.com/hpdkhoa/gen-system). HieuLuat ended
+> after the company's acquisition. Its harness stayed private, but its rows follow the same rules.
+> **What this covers:** the three rules, and what a frozen baseline and a gate are. Then how I make
+> runs repeatable, where they are not, and the two times a quality metric measured nothing. Each of those two lessons cost me a campaign.
 
 ---
 

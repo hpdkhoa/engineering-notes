@@ -127,7 +127,7 @@ CHROME_VI = [
     ('id="raStatus">Idle<', 'id="raStatus">\u0110ang ngh\u1ec9<'),
     ('<label for="raRate">Speed <span', '<label for="raRate">T\u1ed1c \u0111\u1ed9 <span'),
     ('<label for="raVoice">Voice</label>', '<label for="raVoice">Gi\u1ecdng \u0111\u1ecdc</label>'),
-    ('Theme &amp; position save in this browser.', 'Giao di\u1ec7n v\u00e0 v\u1ecb tr\u00ed \u0111\u1ecdc \u0111\u01b0\u1ee3c l\u01b0u trong tr\u00ecnh duy\u1ec7t n\u00e0y.'),
+    ('Theme &amp; position save in this browser.', 'Tr\u00ecnh duy\u1ec7t n\u00e0y l\u01b0u giao di\u1ec7n v\u00e0 v\u1ecb tr\u00ed \u0111\u1ecdc.'),
     ('<button id="resetBtn">Reset reading position</button>', '<button id="resetBtn">\u0110\u1eb7t l\u1ea1i v\u1ecb tr\u00ed \u0111\u1ecdc</button>'),
     ('aria-label="Open contents"', 'aria-label="M\u1edf m\u1ee5c l\u1ee5c"'),
     ('aria-label="Toggle light/dark theme"', 'aria-label="Chuy\u1ec3n giao di\u1ec7n s\u00e1ng t\u1ed1i"'),

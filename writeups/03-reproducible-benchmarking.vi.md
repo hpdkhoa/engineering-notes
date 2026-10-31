@@ -6,10 +6,8 @@
 
 > **Bối cảnh:** tôi tinh chỉnh cả hai dự án ở đây dựa trên các phép đo cố định, lặp lại được.
 > Dự án thứ nhất là gen-system, có harness và kết quả nằm trong [repository của nó](https://github.com/hpdkhoa/gen-system).
-> Dự án thứ hai là HieuLuat, đã ngừng phát triển sau khi công ty được mua lại. Harness của nó vẫn
-> không công khai, nhưng các dòng số liệu tuân theo cùng quy tắc. **Nội dung bài:** ba quy tắc; thế
-> nào là một baseline đóng băng và một gate; cách tôi làm cho các lần chạy lặp lại được và những chỗ
-> chúng không lặp lại được; và hai lần một thước đo chất lượng hóa ra không đo được gì. Mỗi bài học
+> Dự án thứ hai là HieuLuat, đã ngừng phát triển sau thương vụ mua lại công ty. Harness của nó vẫn
+> không công khai, nhưng các dòng số liệu tuân theo cùng quy tắc. **Nội dung bài:** ba quy tắc, và thế nào là một baseline đóng băng và một gate. Rồi cách tôi làm cho lần chạy lặp lại được, chỗ chúng không lặp lại được, và hai lần một thước đo chất lượng không đo được gì. Mỗi bài học
 > trong hai bài học đó đã lấy của tôi trọn một campaign.
 
 ---
@@ -86,14 +84,12 @@ vì nó trông giống bằng chứng. Vì vậy tôi kiểm tra xem thước đ
 Chuyện này xảy ra lần thứ hai, theo chiều ngược lại. Bước verify đọc lại code đã sinh và chấm tỷ lệ
 phân giải nội bộ đạt 100 phần trăm trên mọi repository Python mà nó gặp. Nó tính một lời gọi là nội
 bộ khi có bất kỳ symbol nào mang tên trần của lời gọi đó. Sau đó nó phân giải lời gọi theo chính tên
-trần đó, nên nó không thể trượt. Khi tôi sửa resolver để nó lần theo lời gọi qua các import của nơi
-gọi, con số 100 đó trở thành 92.6 và 96.1 trên hai repository công khai. Một con số giảm xuống khi
-công cụ trở nên chặt chẽ hơn là một con số đo được điều gì đó. Bài kiểm thử cố định cho lỗi này nạp
-cùng một repository khi có và khi không gắn thư viện chuẩn, và yêu cầu recall nội bộ phải bằng nhau.
+trần đó, nên nó không thể trượt. Tôi sửa resolver để nó lần theo lời gọi qua các import của nơi gọi. Khi đó con số 100 thành 92.6 và 96.1 trên hai repository công khai. Một con số giảm xuống khi
+công cụ trở nên chặt chẽ hơn là một con số đo được điều gì đó. Bài kiểm thử cố định cho lỗi này nạp cùng một repository, có và không có thư viện chuẩn. Nó yêu cầu recall nội bộ bằng nhau.
 
 HieuLuat gặp cùng dạng vấn đề từ phía bên kia: một giá trị recall đứng yên ở 0.75 với mọi index và
 mọi thiết lập reranker. Mục 6 của [writeup về tìm kiếm pháp luật](01-hieuluat-retrieval-optimization.vi.md)
-đọc con số đứng yên đó là giới hạn trần của embedding model, chứ không phải một kết quả về index.
+đọc con số đứng yên đó là giới hạn trần của embedding model. Đó không phải một kết quả về index.
 Mục đó cũng chỉ ra một phép đo có thể phân định vấn đề: recall tại 50.
 
 ## 6. Phạm vi áp dụng

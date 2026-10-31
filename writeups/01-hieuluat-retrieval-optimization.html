@@ -278,7 +278,7 @@ html[data-theme="dark"] .ra-sent.speaking{background:#1d3a36;box-shadow:0 0 0 3p
 <p><strong>English</strong> · <a href="01-hieuluat-retrieval-optimization.vi.html">Tiếng Việt</a></p>
 <h1 id="making-a-legal-search-path-fast-and-still-correct">Making a legal search path fast and still correct</h1>
 <h3 id="vector-indexing-reranking-and-fp16-embeddings-with-the-trade-offs-measured">Vector indexing, reranking, and FP16 embeddings, with the trade offs measured</h3>
-<blockquote><p><strong>Context:</strong> HieuLuat was a Vietnamese legal question answering system. It is deprecated after the company's acquisition, and its code, corpus and prompts stay private. This writeup stays as a record of the method. <strong>What this covers:</strong> how I made its search path fast without making it less trustworthy. A wrong answer that arrives quickly is still an answer a lawyer repeats to a client. This page has the measurements but not the code.</p></blockquote>
+<blockquote><p><strong>Context:</strong> HieuLuat was a Vietnamese legal question answering system. It ended after the company's acquisition. Its code, corpus and prompts stay private. This writeup stays as a record of the method. <strong>What this covers:</strong> how I made its search path fast without making it less trustworthy. A wrong answer that arrives quickly is still an answer a lawyer repeats to a client. This page has the measurements but not the code.</p></blockquote>
 <hr>
 <h2 id="0-the-machine">0. The machine</h2>
 <p>One consumer GPU, an NVIDIA RTX 4060 Ti with 16 GB. HieuLuat's own retrieval bench measured the rows in section 5 in August 2026. It used a fixed, labeled evaluation set. The bench code is private, and I have not rerun it since.</p>

@@ -5,7 +5,7 @@
 ### Vector index, rerank và embedding FP16, cùng các đánh đổi đã đo
 
 > **Bối cảnh:** HieuLuat từng là một hệ thống hỏi đáp pháp luật Việt Nam. Hệ thống đã ngừng phát
-> triển sau khi công ty được mua lại, còn code, corpus và prompt vẫn riêng tư. Bài viết này ở lại
+> triển sau thương vụ mua lại công ty, còn code, corpus và prompt vẫn riêng tư. Bài viết này ở lại
 > như một bản ghi về phương pháp. **Nội dung bài:** cách tôi làm cho luồng tìm kiếm của nó nhanh
 > hơn mà không làm nó kém tin cậy đi. Một câu trả lời sai đến nhanh thì vẫn là câu mà luật sư sẽ
 > nhắc lại với khách hàng. Bài này có các phép đo nhưng không có code.
@@ -159,9 +159,7 @@ Tôi chưa loại trừ được một nguyên nhân thứ hai. Một mức 0.75
 dạng của một bộ đánh giá hỏng. Phép đo phân biệt được hai trường hợp là recall at 50, tức tập ứng
 viên mà reranker thực sự nhìn thấy.
 
-- Nếu recall at 50 cũng quanh 0.75, các lần bỏ sót là bỏ sót retrieval thật. Khi đó cách sửa nằm ở
-  phía trước cả index lẫn reranker: chia chunk tốt hơn, tìm kiếm lai giữa keyword và vector, hoặc
-  một embedding model tốt hơn cho văn bản pháp luật tiếng Việt.
+- Nếu recall at 50 cũng quanh 0.75, các lần bỏ sót là bỏ sót retrieval thật. Khi đó cách sửa nằm trước cả index lẫn reranker. Đó là chia chunk tốt hơn, tìm kiếm lai keyword và vector, hoặc một embedding model tốt hơn cho văn bản pháp luật tiếng Việt.
 - Nếu recall at 50 cao hơn nhiều, các ứng viên đã có ở đó và reranker không đẩy được chúng lên. Đó
   là vấn đề của reranker, và là vấn đề dễ hơn.
 
@@ -188,7 +186,6 @@ Nếu làm lại, tôi vẫn chọn điểm vận hành của index và tách ph
 Không có gì thông minh ở đây. Cả hai đều là thứ người ta bỏ qua khi đang vội.
 
 Mục 6 mới là phần tôi còn nghĩ tới. Kết quả rerank ra âm tính, còn con số recall thì phẳng tới mức
-đáng ngượng. Tìm ra con số phẳng đó quy lỗi cho thành phần nào, rồi gọi tên đúng một phép đo phân
-định được, tốn thời gian hơn toàn bộ phần tinh chỉnh.
+đáng ngượng. Phần tốn thời gian nhất không phải là tinh chỉnh. Đó là tìm ra con số phẳng đó quy lỗi cho thành phần nào, rồi gọi tên đúng một phép đo phân định được.
 
 *Phương pháp nằm trong [benchmarking tái lập được](03-reproducible-benchmarking.vi.md). Giá trị tuyệt đối phụ thuộc vào GPU. Hình dạng của mỗi đánh đổi thì vẫn đúng trên card khác.*

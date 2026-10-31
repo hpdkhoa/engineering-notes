@@ -1,7 +1,6 @@
 # Khoa Hoang: hồ sơ kỹ thuật
 
-Tôi xây các hệ thống AI chạy cục bộ, ghi ra những gì model giả định và kiểm tra đầu ra của nó bằng
-một thứ không dùng chung giả định nào với model. Repo này chứa các bài phân tích kỹ thuật, các bảng
+Tôi xây các hệ thống AI chạy cục bộ. Chúng ghi ra những gì model giả định, rồi kiểm tra đầu ra bằng một thứ không dùng chung giả định nào với model. Repo này chứa các bài phân tích kỹ thuật, các bảng
 benchmark và hai đoạn code mẫu nhỏ. Mọi trang đều có tiếng Anh và tiếng Việt; file tiếng Việt có
 đuôi `.vi`.
 
@@ -9,11 +8,11 @@ benchmark và hai đoạn code mẫu nhỏ. Mọi trang đều có tiếng Anh v
 
 | Dự án | Nó làm gì | Công nghệ | Hiện trạng |
 |---|---|---|---|
-| gen-system | Review thay đổi code bằng dữ kiện từ parser, không phải phỏng đoán của model. Với mỗi thay đổi, nó liệt kê chỗ có thể hỏng, lời gọi file, mạng và database mới, hàm không test nào chạm tới, và hàm phình thêm nhánh. Người dùng chạy nó trong terminal hoặc CI; AI agent gọi nó qua MCP. Parser dựng call graph và control flow graph cho từng routine với Go, Python, TypeScript, Java, COBOL và CA Gen. Sinh code bằng model chạy cục bộ là một thử nghiệm nằm bên trên | Go, MCP, model chạy cục bộ qua Ollama | Mã nguồn mở, Apache-2.0, MCP server 0.2.0 |
-| poselab-mcp | Một MCP server trả cho model các câu trả lời không gian có đo đạc khi tạo dáng tay góc nhìn thứ nhất cầm súng trường trong Blender: phần nào lấn vào nhau sâu bao nhiêu, một bề mặt hướng về mắt đến mức nào, và một bộ giải tìm cách di chuyển khẩu súng | Python, MCP, Blender chạy ngầm | Mã nguồn mở, MIT, phiên bản 0.4.0 |
+| gen-system | Review thay đổi code bằng dữ kiện từ parser, không phải phỏng đoán của model. Với mỗi thay đổi, nó liệt kê chỗ có thể hỏng và lời gọi file, mạng, database mới. Nó cũng liệt kê hàm không test nào chạm tới và hàm phình thêm nhánh. Người dùng chạy nó trong terminal hoặc CI; AI agent gọi nó qua MCP. Parser dựng call graph và control flow graph cho từng routine với Go, Python, TypeScript, Java, COBOL và CA Gen. Sinh code bằng model chạy cục bộ là một thử nghiệm nằm bên trên | Go, MCP, model chạy cục bộ qua Ollama | Mã nguồn mở, Apache-2.0, MCP server 0.2.0 |
+| poselab-mcp | Câu trả lời không gian có đo đạc cho tay góc nhìn thứ nhất cầm súng trong Blender: độ lấn, hướng về mắt, bộ giải di chuyển súng | Python, MCP, Blender chạy ngầm | Mã nguồn mở, MIT, phiên bản 0.4.0 |
 | Labs | Năm MCP server giúp model dựng và chấm việc 3D bằng số đo: bộ phận, cơ thể, điểm chạm, lực. 152 công cụ trong 7 lab gộp thành 28 công cụ trong 5 lab | Python, MCP, Blender chạy ngầm | Mã nguồn mở, MIT ([trang](labs/README.vi.md)) |
 | Beastwarden | Game tactics roguelite với lõi mô phỏng deterministic theo seed. Đây cũng là nơi tôi điều khiển việc lập trình có AI hỗ trợ theo các quy tắc do máy kiểm tra | TypeScript, Vite, Pixi, Vitest | Đang phát triển, riêng tư |
-| HieuLuat | Hỏi đáp pháp luật tiếng Việt, viện dẫn điều luật đã dùng, hoặc nói rõ là không biết | Python, pgvector, embedding bge-m3, rerank bằng cross encoder | Ngừng phát triển sau khi công ty được mua lại |
+| HieuLuat | Hỏi đáp pháp luật tiếng Việt, viện dẫn điều luật đã dùng, hoặc nói rõ là không biết | Python, pgvector, embedding bge-m3, rerank bằng cross encoder | Ngừng phát triển sau thương vụ mua lại công ty |
 
 ### Liên kết
 
@@ -41,7 +40,7 @@ Các số về review và parser đo ngày 2026-10-20 ([phương pháp và file 
 - Review trên bốn repo Go (go-chi, gorilla/mux, spf13/cobra, gen-system). Tôi tạo các chỉnh sửa
   đã biết trước đáp án, rồi để type checker của Go và `go test` chấm kết quả. Nó tìm ra các chỗ
   gọi bị hỏng khi đổi signature với precision 0,98 đến 1,00 và recall 0,87 đến 1,00. Nó tìm ra cả
-  306 lời gọi file, mạng, database và nhánh được chèn vào, và không báo nhầm lời gọi vô hại nào
+  306 lời gọi file, mạng, database và nhánh tôi chèn vào, và không báo nhầm lời gọi vô hại nào
   trong 400 lời gọi.
 - Type checker của Go đồng ý với 99% đến 100% liên kết lời gọi Go của gen-system trên cùng bốn
   repo đó. Trang này từng ghi phân giải 100% lời gọi nội bộ. Cách đếm đó coi một liên kết tới bất
@@ -71,7 +70,7 @@ Năm bài tạo dáng, mỗi bài chạy ba lần. Chính các phép đo của P
 
 - [01, làm đường tìm kiếm pháp luật nhanh mà vẫn đúng](writeups/01-hieuluat-retrieval-optimization.vi.md).
   Đánh index vector, retrieve rồi rerank, embedding FP16, và mỗi bước tốn bao nhiêu phần của một
-  request. HieuLuat đã ngừng phát triển sau khi công ty được mua lại; tôi giữ lại bài viết để ghi
+  request. HieuLuat đã ngừng phát triển sau thương vụ mua lại công ty; tôi giữ lại bài viết để ghi
   nhận phương pháp.
 - [02, tinh chỉnh inference LLM cục bộ cho một code engine](writeups/02-gen-system-inference-optimization.vi.md).
   Offload layer lên GPU, streaming, coi quantization là một biến có đo, và hai model dùng chung một
@@ -113,8 +112,7 @@ còn tốc độ request gần như giữ nguyên.
 
 ## Người viết
 
-Khoa Hoang. Tôi làm một năm ở National Australia Bank, rồi hai năm rưỡi ở FPT Software với vai trò
-solution architect, chuyển các hệ thống cũ sang kiến trúc cloud native.
+Khoa Hoang. Tôi làm một năm ở National Australia Bank. Sau đó tôi làm hai năm rưỡi ở FPT Software với vai trò solution architect, chuyển hệ thống cũ sang kiến trúc cloud native.
 
 Ở đó, không ai nói được hệ thống cũ làm gì, còn những người từng biết thì đã nghỉ từ lâu. Một model
 AI cũng gặp đúng chuyện đó với codebase, và bạn chỉ phát hiện ra khi đầu ra đã sai. Từ tháng 11 năm
